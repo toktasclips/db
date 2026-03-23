@@ -2426,6 +2426,16 @@ select option { background: #232323; color: #e8e8e6; }
       <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px;border-radius:10px" onclick="saveClientHealth()">Skoru Güncelle</button>
     </div>
     <div class="panel-section">
+      <div class="panel-section-title">Teklif</div>
+      <select id="dp-teklif-select" class="form-input form-select" style="font-size:13px;margin-top:6px" onchange="clientTeklifSec(this.value)">
+        <option value="">— Teklif seç —</option>
+      </select>
+      <div id="dp-teklif-detail" style="display:none;margin-top:10px;padding:10px 12px;background:var(--color-bg-tertiary);border-radius:8px;border:1px solid var(--color-border)">
+        <div style="font-size:13px;font-weight:600;color:var(--color-text-primary)" id="dp-teklif-name"></div>
+        <div style="font-size:12px;color:var(--color-text-muted);margin-top:3px" id="dp-teklif-price"></div>
+      </div>
+    </div>
+    <div class="panel-section">
       <div class="panel-section-title">Notlar</div>
       <div id="dp-notes"></div>
       <div style="display:flex;gap:6px;margin-top:8px"><input class="form-input" id="dp-note-input" placeholder="Not ekle..." style="flex:1;font-size:13px;padding:8px 12px" /><button class="btn btn-primary" style="padding:8px 14px;border-radius:10px" onclick="addNoteToClient()">+</button></div>
@@ -2694,7 +2704,8 @@ async function loadFromSupabase(){
       remainingSessions:c.remaining_sessions||0,
       programEnd:c.program_end||'', startDate:c.start_date||'',
       program:c.program||'', health:c.health||5,
-      notes:c.notes||[], start:c.start_date||'', social:c.social||''
+      notes:c.notes||[], start:c.start_date||'', social:c.social||'',
+      teklifId:c.teklif_id||''
     }));
 
     if(leads.data?.length) state.leads = leads.data.map(l=>({
@@ -2748,6 +2759,7 @@ async function saveClient(c){
     program_end:c.programEnd&&c.programEnd!==''?c.programEnd:null,
     start_date:c.startDate&&c.startDate!==''?c.startDate:null,
     program:c.program||null, health:c.health||5, notes:c.notes||[],
+    teklif_id:c.teklifId||null,
     user_id: currentUser?.role==='admin' ? (c.user_id||currentUser.email) : currentUser?.email||null
   };
   if(!c.id || c._new){
@@ -3647,6 +3659,21 @@ function openClientPanel(id){
   document.getElementById('dp-health-badge').style.color=healthColor(h);
   document.getElementById('dp-health-slider').value=h;
   renderClientNotes(c);
+  // Teklif dropdown'ı doldur
+  const teklifSel=document.getElementById('dp-teklif-select');
+  if(teklifSel){
+    const aktifTeklifler=(state.offers||[]).filter(t=>t.name);
+    teklifSel.innerHTML='<option value="">— Teklif seç —</option>'+
+      aktifTeklifler.map(t=>`<option value="${t.id}"${c.teklifId&&String(c.teklifId)===String(t.id)?' selected':''}>${t.name} — ₺${Number(t.price).toLocaleString('tr-TR')}</option>`).join('');
+    const sel=aktifTeklifler.find(t=>String(t.id)===String(c.teklifId));
+    const det=document.getElementById('dp-teklif-detail');
+    const nm=document.getElementById('dp-teklif-name');
+    const pr=document.getElementById('dp-teklif-price');
+    if(sel&&det&&nm&&pr){
+      nm.textContent=sel.name; pr.textContent='₺'+Number(sel.price).toLocaleString('tr-TR')+(sel.duration_value?' · '+sel.duration_value+' '+sel.duration_unit:'');
+      det.style.display='block';
+    } else if(det){ det.style.display='none'; }
+  }
   openPanel('panel-client');
 }
 
@@ -3827,7 +3854,7 @@ async function addClient(){
   closeModal('modal-add-client');
   ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
+  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],teklif_id:null,user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
@@ -3908,6 +3935,21 @@ function leadTeklifSec(teklifId){
   saveLead(l);
   renderPipeline();
   toast('✅ ' + t.name + ' seçildi');
+}
+
+async function clientTeklifSec(teklifId){
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;
+  c.teklifId=teklifId||'';
+  const t=teklifId?(state.offers||[]).find(x=>String(x.id)===String(teklifId)):null;
+  const det=document.getElementById('dp-teklif-detail');
+  const nm=document.getElementById('dp-teklif-name');
+  const pr=document.getElementById('dp-teklif-price');
+  if(t&&det&&nm&&pr){
+    nm.textContent=t.name; pr.textContent='₺'+Number(t.price).toLocaleString('tr-TR')+(t.duration_value?' · '+t.duration_value+' '+t.duration_unit:'');
+    det.style.display='block';
+  } else if(det){ det.style.display='none'; }
+  await sb.from('clients').update({teklif_id:teklifId||null}).eq('id',c.id);
+  if(t) toast('✅ '+t.name+' seçildi');
 }
 
 function saveLeadTutar(){
