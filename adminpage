@@ -1235,9 +1235,9 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
+    <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
     <div class="sidebar-footer">
@@ -2684,7 +2684,7 @@ async function loadFromSupabase(){
 
     const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
       cq, lq, gq, mq, dq,
-      sb.from('offers').select('*').order('created_at'),
+      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
       sb.from('users').select('*').order('created_at')
     ]);
 
@@ -4214,7 +4214,7 @@ function showApp(){
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
-  competitors=[]; kanbanCards=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
 
   render();
   setTimeout(() => buildChart(data6ay), 100);
@@ -4227,7 +4227,7 @@ function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
-  competitors=[]; kanbanCards=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
@@ -5616,7 +5616,7 @@ let currentTeklifId = null;
 /* ---- Supabase ---- */
 async function loadTeklifler() {
   try {
-    const { data, error } = await sb.from('offers').select('*').order('created_at');
+    const { data, error } = await sb.from('offers').select('*').eq('user_id', currentUser?.email||'').order('created_at');
     if(error) throw error;
     teklifler = (data||[]).map(r => ({
       id:           r.id,
@@ -5643,7 +5643,8 @@ async function insertTeklifSB(t) {
       name: t.name, category: t.category, price: t.price,
       duration_value: t.duration_value || null,
       duration_unit: t.duration_unit,
-      description: t.description, status: t.status
+      description: t.description, status: t.status,
+      user_id: currentUser?.email||null
     }).select().single();
     if(error) throw error;
     return data;
