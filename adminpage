@@ -2683,11 +2683,11 @@ async function loadFromSupabase(){
     const mq = sb.from('milestones').select('*').or(f).order('created_at');
     const dq = sb.from('daily_entries').select('*').or(f).order('created_at');
 
-    const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
+    const [clients, leads, goals, milestones, daily, offers, usersData] = (await Promise.allSettled([
       cq, lq, gq, mq, dq,
       sb.from('offers').select('*').or(f).order('created_at'),
       sb.from('users').select('*').order('created_at')
-    ]);
+    ])).map(r => r.status === 'fulfilled' ? r.value : { data: null, error: r.reason });
 
     if(clients.data?.length) state.clients = clients.data.map(c=>({
       id:c.id, name:c.name, type:c.type, status:c.status,
