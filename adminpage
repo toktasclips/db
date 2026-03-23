@@ -2675,20 +2675,12 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Admin tüm veriyi görür, client sadece kendininkini
-    let cq = sb.from('clients').select('*').order('created_at');
-    let lq = sb.from('leads').select('*').order('created_at');
-    let gq = sb.from('goals').select('*').order('created_at');
-    let mq = sb.from('milestones').select('*').order('created_at');
-    let dq = sb.from('daily_entries').select('*').order('created_at');
-
-    if(!isAdmin){
-      cq = cq.eq('user_id', email);
-      lq = lq.eq('user_id', email);
-      gq = gq.eq('user_id', email);
-      mq = mq.eq('user_id', email);
-      dq = dq.eq('user_id', email);
-    }
+    // Herkes sadece kendi verisini görür
+    const cq = sb.from('clients').select('*').eq('user_id', email).order('created_at');
+    const lq = sb.from('leads').select('*').eq('user_id', email).order('created_at');
+    const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
+    const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
+    const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
     const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
       cq, lq, gq, mq, dq,
