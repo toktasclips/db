@@ -2972,7 +2972,8 @@ function go(id,el){
   closeAllPanels();
   if(id==='daily') showDailyWelcome();
   if(id==='client-reports') renderClientReports();
-  if(id==='competitors') setTimeout(()=>{ if(!competitors.length) loadCompetitorsSB(); else renderCompetitors(); },50);
+  if(id==='competitors') setTimeout(()=>loadCompetitorsSB(), 50);
+  if(id==='icerik-yonetimi') setTimeout(()=>loadKanban(), 50);
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
@@ -3825,7 +3826,7 @@ async function addClient(){
   closeModal('modal-add-client');
   ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
@@ -4212,17 +4213,20 @@ function showApp(){
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[];
 
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
   loadFromSupabase().then(() => render());
+  loadKanban();
 }
 
 function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[];
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
@@ -4477,7 +4481,6 @@ document.addEventListener('DOMContentLoaded',function(){
   loadFromSupabase().then(()=>{
     setTimeout(()=>buildChart(data6ay),200);
   });
-  loadKanban();
 });
 </script>
 
