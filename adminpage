@@ -3355,6 +3355,7 @@ function renderReports(){
   const el=document.getElementById('reports-list');if(!el)return;
   if(!state.daily.length){
     el.innerHTML='<div class="empty" style="padding:48px"><div style="font-size:36px;margin-bottom:10px">📊</div><div>Henüz giriş yok.</div></div>';
+    buildDailyFollowerChart();
     return;
   }
   const cols=[
