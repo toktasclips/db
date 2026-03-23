@@ -2675,11 +2675,12 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
+    const legacyF = `user_id.eq.${email},user_id.eq.,user_id.is.null`;
     const cq = isAdmin
-      ? sb.from('clients').select('*').order('created_at')
+      ? sb.from('clients').select('*').or(legacyF).order('created_at')
       : sb.from('clients').select('*').eq('user_id', email).order('created_at');
     const lq = isAdmin
-      ? sb.from('leads').select('*').order('created_at')
+      ? sb.from('leads').select('*').or(legacyF).order('created_at')
       : sb.from('leads').select('*').eq('user_id', email).order('created_at');
     const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
     const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
