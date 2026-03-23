@@ -77,6 +77,18 @@
   --space-6: 24px;
   --space-8: 32px;
 
+  /* Short-hand aliases used in inline styles and legacy CSS */
+  --r:           var(--radius);          /* alias for --radius (6px) */
+  --divider:     var(--color-divider);
+  --border:      var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --text-1:      var(--color-text-primary);
+  --text-2:      var(--color-text-secondary);
+  --text-3:      var(--color-text-muted);
+  --bg-3:        var(--color-bg-tertiary);
+  --red:         var(--color-red);
+  --red-subtle:  var(--color-red-light);
+
   /* Typography */
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --text-xs:   11px;
@@ -1206,7 +1218,7 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
-<div class="app" id="app-root" style="display:none">>
+<div class="app" id="app-root" style="display:none">
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo"><div class="logo-icon-wrap">☕</div>Dijital <span>Barista</span></div>
@@ -1225,9 +1237,9 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
     <div class="nav-lbl admin-only">Yönetim</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item" onclick="go('teklifler',this)" class="nav-item admin-only"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
-    <div class="nav-item" onclick="go('client-reports',this)" class="nav-item admin-only"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
-    <div class="nav-item" onclick="go('users',this)" class="nav-item admin-only"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
+    <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
+    <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
+    <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
     <div class="sidebar-footer">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <div class="avatar av-blue" style="width:34px;height:34px;font-size:12px">DB</div>
@@ -2720,7 +2732,8 @@ async function loadFromSupabase(){
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
       id:o.id, name:o.name, price:o.price||0,
-      duration:o.duration||'', desc:o.description||''
+      duration_value:o.duration_value||null, duration_unit:o.duration_unit||'Ay',
+      desc:o.description||''
     }));
 
     // teklifler dizisini de doldur (lead panelinde teklif seçimi için)
@@ -2758,7 +2771,7 @@ async function saveClient(c){
 async function deleteSBClient(id){ await sb.from('clients').delete().eq('id',id); }
 
 async function saveLead(l){
-  const row={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[]};
+  const row={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[],user_id:currentUser?.email||null};
   if(l._new){ const r=await sb.from('leads').insert(row).select().single(); if(r.data)l.id=r.data.id; l._new=false; }
   else { await sb.from('leads').update(row).eq('id',l.id); }
 }
@@ -2787,7 +2800,7 @@ function renderGoalNotes(g){
   const el=document.getElementById('goal-panel-notes');if(!el)return;
   if(!g.notes||!g.notes.length){el.innerHTML='<div style="font-size:13px;color:var(--color-text-muted);padding:4px 0">Henüz not yok</div>';return;}
   el.innerHTML=g.notes.map((n,i)=>`
-    <div class="note-item">${n}
+    <div class="note-item">${escHtml(n)}
       <button class="note-del" onclick="delGoalNote(${i})">✕</button>
     </div>`).join('');
 }
@@ -2838,7 +2851,7 @@ function deleteCurrentGoal(){
 }
 
 async function saveGoal(g){
-  const row={name:g.name,date:g.date,icon:g.icon||'🎯',done:g.done||false,notes:g.notes||[]};
+  const row={name:g.name,date:g.date,icon:g.icon||'🎯',done:g.done||false,notes:g.notes||[],user_id:currentUser?.email||null};
   if(g._new){
     const r=await sb.from('goals').insert(row).select().single();
     if(r.error){console.error('Goal insert error:',r.error);toast('Hata: '+r.error.message);return;}
@@ -2852,7 +2865,7 @@ async function saveGoal(g){
 async function deleteSBGoal(id){ await sb.from('goals').delete().eq('id',id); }
 
 async function saveMilestone(m){
-  const row={title:m.title,date:m.date,status:m.status,notes:m.notes||[]};
+  const row={title:m.title,date:m.date,status:m.status,notes:m.notes||[],user_id:currentUser?.email||null};
   if(m._new){ const r=await sb.from('milestones').insert(row).select().single(); if(r.data)m.id=r.data.id; m._new=false; }
   else { await sb.from('milestones').update(row).eq('id',m.id); }
 }
@@ -2865,7 +2878,8 @@ async function saveDailyEntry(entry){
     takipci:entry.takipci,mail:entry.mail,icerik:entry.icerik,
     reklam:entry.reklam,tpm:entry.tpm,hotlist:entry.hotlist,
     musteri:entry.musteri,teklif:entry.teklif,alinan:entry.alinan,
-    anlasma:entry.anlasma,yorum:entry.yorum,win:''
+    anlasma:entry.anlasma,yorum:entry.yorum,win:'',
+    user_id:currentUser?.email||null
   };
   const r=await sb.from('daily_entries').insert(row).select().single();
   if(r.error){console.error('Daily save error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
@@ -2873,7 +2887,12 @@ async function saveDailyEntry(entry){
 }
 
 async function saveOffer(o){
-  const row={name:o.name,price:o.price||0,duration:o.duration||'',description:o.desc||''};
+  // Use duration_value/duration_unit columns (consistent with loadTeklifler / insertTeklifSB)
+  const row={
+    name:o.name, price:o.price||0,
+    duration_value:o.duration_value||null, duration_unit:o.duration_unit||'Ay',
+    description:o.desc||o.description||''
+  };
   if(o._new){ const r=await sb.from('offers').insert(row).select().single(); if(r.data)o.id=r.data.id; o._new=false; }
   else { await sb.from('offers').update(row).eq('id',o.id); }
 }
@@ -2914,9 +2933,20 @@ const dbContent = {
   ]
 };
 
+// Escape HTML to prevent XSS when injecting user data via innerHTML
+function escHtml(str){
+  if(str==null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 let clientFilter='all', clientSearch='';
 const avCls=['av-blue','av-green','av-orange','av-red','av-purple','av-teal'];
-const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const ini=n=>(n||'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
 const avc=i=>avCls[i%avCls.length];
 const bCls=s=>({Aktif:'b-green',Yeni:'b-amber',Takip:'b-red',Tamamlandı:'b-gray'}[s]||'b-gray');
 
@@ -3060,10 +3090,10 @@ function renderHealthPage(){
       :days<=7?`<span style="font-size:11px;font-weight:600;color:#ff9500">⏰ ${days} gün</span>`
       :`<span style="font-size:11px;font-weight:600;color:#34c759">📅 ${days} gün</span>`;
     return `<div class="hs-client-row" style="animation:fadeIn 0.18s ease both;animation-delay:${i*0.03}s" onclick="openClientPanel(${c.id})">
-      <div class="avatar ${avc(state.clients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${ini(c.name)}</div>
+      <div class="avatar ${avc(state.clients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
-        <div style="font-size:14px;font-weight:500">${c.name}</div>
-        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${[c.type,daysStr].filter(Boolean).join(' · ') || '—'}</div>
+        <div style="font-size:14px;font-weight:500">${escHtml(c.name)}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${escHtml(c.type||'') + (c.type && daysStr ? ' · ' : '') + (daysStr||'—')}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:18px;font-weight:700;color:${healthColor(h)}">${h}</div>
@@ -3122,27 +3152,27 @@ function renderDailyClients(){
   if(!state.clients.length){el.innerHTML='<div class="empty">Henüz müşteri yok</div>';return;}
   el.innerHTML=state.clients.slice(0,6).map((c,i)=>`
     <div class="c-item" onclick="openClientPanel(${c.id})" style="padding:10px 0">
-      <div class="avatar ${avc(i)}" style="width:38px;height:38px;font-size:13px">${ini(c.name)}</div>
+      <div class="avatar ${avc(i)}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
-        <div class="c-name">${c.name}</div>
-        <div class="c-meta">${c.type||'—'}</div>
+        <div class="c-name">${escHtml(c.name)}</div>
+        <div class="c-meta">${escHtml(c.type||'—')}</div>
       </div>
-      <span class="badge ${bCls(c.status)}">${c.status}</span>
+      <span class="badge ${bCls(c.status)}">${escHtml(c.status)}</span>
     </div>`).join('');
 }
 
 function renderDashClients(){
   document.getElementById('dash-clients').innerHTML=state.clients.slice(0,5).map((c,i)=>`
     <div class="c-item" onclick="openClientPanel(${c.id})">
-      <div class="avatar ${avc(i)}" style="width:36px;height:36px;font-size:13px">${ini(c.name)}</div>
+      <div class="avatar ${avc(i)}" style="width:36px;height:36px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
-        <div class="c-name">${c.name}</div>
+        <div class="c-name">${escHtml(c.name)}</div>
         <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">
           ${sessionsTag(c.remainingSessions??0)}
           ${deadlineTag(c.programEnd)}
         </div>
       </div>
-      <span class="badge ${bCls(c.status)}">${c.status}</span>
+      <span class="badge ${bCls(c.status)}">${escHtml(c.status)}</span>
     </div>`).join('');
 }
 
@@ -3208,10 +3238,10 @@ function renderPipeline(){
         onmouseover="this.style.background='#262626';this.style.borderColor='#3a3a3a'"
         onmouseout="this.style.background='#202020';this.style.borderColor='#2c2c2c'">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#aaa;flex-shrink:0">${l.name.charAt(0).toUpperCase()}</div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#aaa;flex-shrink:0">${escHtml((l.name||'?').charAt(0).toUpperCase())}</div>
           <div style="min-width:0">
-            <div style="font-size:13px;font-weight:600;color:#eaeaea;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</div>
-            ${l.social ? `<div style="font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${extractHandle(l.social)}</div>` : (l.source ? `<div style="font-size:10px;color:#555">${l.source}</div>` : '')}
+            <div style="font-size:13px;font-weight:600;color:#eaeaea;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(l.name)}</div>
+            ${l.social ? `<div style="font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(extractHandle(l.social))}</div>` : (l.source ? `<div style="font-size:10px;color:#555">${escHtml(l.source)}</div>` : '')}
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between">
@@ -3693,7 +3723,7 @@ async function approveLead(){
 }
 function renderClientNotes(c){
   document.getElementById('dp-notes').innerHTML=c.notes.length
-    ?c.notes.map((n,i)=>`<div class="note-item">${n}<button class="note-del" onclick="delClientNote(${i})">✕</button></div>`).join('')
+    ?c.notes.map((n,i)=>`<div class="note-item">${escHtml(n)}<button class="note-del" onclick="delClientNote(${i})">✕</button></div>`).join('')
     :'<div style="font-size:13px;color:var(--color-text-muted)">Henüz not yok</div>';
 }
 function addNoteToClient(){const inp=document.getElementById('dp-note-input'),v=inp.value.trim();if(!v)return;const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;c.notes.push(v);inp.value='';renderClientNotes(c);toast('Not eklendi ✓');saveClient(c);}
@@ -3744,7 +3774,7 @@ function openMsPanel(id){
 }
 function renderMsNotes(m){
   document.getElementById('ms-panel-notes').innerHTML=m.notes.length
-    ?m.notes.map((n,i)=>`<div class="note-item">${n}<button class="note-del" onclick="delMsNote(${i})">✕</button></div>`).join('')
+    ?m.notes.map((n,i)=>`<div class="note-item">${escHtml(n)}<button class="note-del" onclick="delMsNote(${i})">✕</button></div>`).join('')
     :'<div style="font-size:13px;color:var(--color-text-muted)">Henüz not yok</div>';
 }
 function setMsStatus(s){
@@ -3857,7 +3887,7 @@ function openLeadPanel(id){
 function renderLeadNotes(l){
   if(!l.notes)l.notes=[];
   document.getElementById('lead-panel-notes').innerHTML=l.notes.length
-    ?l.notes.map((n,i)=>`<div class="note-item">${n}<button class="note-del" onclick="delLeadNote(${i})">✕</button></div>`).join('')
+    ?l.notes.map((n,i)=>`<div class="note-item">${escHtml(n)}<button class="note-del" onclick="delLeadNote(${i})">✕</button></div>`).join('')
     :'<div style="font-size:13px;color:var(--color-text-muted)">Henüz not yok</div>';
 }
 function addNoteToLead(){
@@ -3968,8 +3998,8 @@ async function saveDaily(){
     window._editingDailyId = null;
     toast('Giriş güncellendi ✓');
   } else {
-    // YENİ KAYIT — aynı tarihe giriş var mı kontrol et
-    const {data:existing} = await sb.from('daily_entries').select('id').eq('entry_date',dateInput);
+    // YENİ KAYIT — aynı tarihe (bu kullanıcı için) giriş var mı kontrol et
+    const {data:existing} = await sb.from('daily_entries').select('id').eq('entry_date',dateInput).eq('user_id',currentUser?.email||'');
     if(existing && existing.length > 0){
       toast('⚠️ Bu tarihe zaten giriş yapılmış!');
       setTimeout(()=>{ if(confirm('Raporlar sayfasından düzenlemek ister misin?')) go('reports',document.querySelector('[onclick*=reports]')); },300);
