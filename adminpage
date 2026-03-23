@@ -2755,7 +2755,7 @@ async function saveClient(c){
     if(r.error){console.error('Insert error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
     if(r.data){c.id=+r.data.id; c._new=false;}
   } else {
-    const r=await sb.from('clients').update(row).eq('id',+c.id);
+    const r=await sb.from('clients').update(row).eq('id',c.id);
     if(r.error){console.error('Update error:',r.error);toast('Güncelleme hatası: '+r.error.message);}
   }
 }
@@ -3619,9 +3619,8 @@ function closePanel(id){document.getElementById(id).classList.remove('open');}
 function closeAllPanels(){document.querySelectorAll('.side-panel').forEach(p=>p.classList.remove('open'));}
 
 function openClientPanel(id){
-  id = +id;
-  const c=state.clients.find(x=>+x.id===id);if(!c)return;
-  state.currentClientId=id;
+  const c=state.clients.find(x=>String(x.id)===String(id));if(!c)return;
+  state.currentClientId=c.id;
   const idx=state.clients.indexOf(c);
   document.getElementById('dp-name').textContent=c.name;
   document.getElementById('dp-name2').textContent=c.name;
@@ -3670,7 +3669,7 @@ function calcDaysLeft(dateVal){
 async function saveClientSchedule(){
   const remaining=+document.getElementById('dp-remaining').value||0;
   const programEnd=document.getElementById('dp-end-date').value||'';
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));
   if(!c){toast('Müşteri bulunamadı');return;}
   c.remainingSessions=remaining;
   c.programEnd=programEnd;
@@ -3680,17 +3679,17 @@ async function saveClientSchedule(){
   const {error}=await sb.from('clients').update({
     remaining_sessions:remaining,
     program_end:programEnd||null
-  }).eq('id',+state.currentClientId);
+  }).eq('id',state.currentClientId);
   if(error){toast('Hata: '+error.message);console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Program bilgileri kaydedildi!');
 }
 
 async function saveClientHealth(){
   const health=+document.getElementById('dp-health-slider').value;
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));
   if(!c){toast('Müşteri bulunamadı');return;}
   c.health=health;
-  const {error}=await sb.from('clients').update({health}).eq('id',+state.currentClientId);
+  const {error}=await sb.from('clients').update({health}).eq('id',state.currentClientId);
   if(error){toast('Hata: '+error.message);console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Sağlık skoru kaydedildi!');
 }
@@ -3718,11 +3717,11 @@ function renderClientNotes(c){
     ?c.notes.map((n,i)=>`<div class="note-item">${escHtml(n)}<button class="note-del" onclick="delClientNote(${i})">✕</button></div>`).join('')
     :'<div style="font-size:13px;color:var(--color-text-muted)">Henüz not yok</div>';
 }
-function addNoteToClient(){const inp=document.getElementById('dp-note-input'),v=inp.value.trim();if(!v)return;const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;c.notes.push(v);inp.value='';renderClientNotes(c);toast('Not eklendi ✓');saveClient(c);}
-function delClientNote(i){const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;c.notes.splice(i,1);renderClientNotes(c);saveClient(c);}
-function cycleClientStatus(){const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;const ss=['Yeni','Aktif','Takip','Tamamlandı'];c.status=ss[(ss.indexOf(c.status)+1)%ss.length];document.getElementById('dp-badge').innerHTML=`<span class="badge ${bCls(c.status)}">${c.status}</span>`;renderClientList();renderStats();toast('Durum: '+c.status);}
+function addNoteToClient(){const inp=document.getElementById('dp-note-input'),v=inp.value.trim();if(!v)return;const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;c.notes.push(v);inp.value='';renderClientNotes(c);toast('Not eklendi ✓');saveClient(c);}
+function delClientNote(i){const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;c.notes.splice(i,1);renderClientNotes(c);saveClient(c);}
+function cycleClientStatus(){const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;const ss=['Yeni','Aktif','Takip','Tamamlandı'];c.status=ss[(ss.indexOf(c.status)+1)%ss.length];document.getElementById('dp-badge').innerHTML=`<span class="badge ${bCls(c.status)}">${c.status}</span>`;renderClientList();renderStats();toast('Durum: '+c.status);}
 function saveContactInfo(){
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;
   const newName=document.getElementById('dp-name-input').value.trim();
   if(!newName){toast('İsim boş olamaz');return;}
   c.name=newName;
@@ -4682,7 +4681,7 @@ function formatDateTR(ds){
 
 /* ---- SUPABASE CRUD ---- */
 async function loadKanban(){
-  const { data, error } = await sb.from('kanban_cards').select('*').order('created_at');
+  const { data, error } = await sb.from('kanban_cards').select('*').eq('user_id', currentUser?.email||'').order('created_at');
   if(error){ console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
     id: x.id, title: x.title, format: x.format||'📝 Diğer',
@@ -4693,7 +4692,7 @@ async function loadKanban(){
 
 async function insertKanban(card){
   const { data, error } = await sb.from('kanban_cards')
-    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note })
+    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note, user_id:currentUser?.email||null })
     .select().single();
   if(error){ toast('❌ Hata: '+error.message); return null; }
   return data.id;
@@ -4965,7 +4964,7 @@ let ctView = 'cards';
 /* ---- Supabase CRUD ---- */
 async function loadCompetitorsSB() {
   try {
-    const { data, error } = await sb.from('competitors').select('*').order('created_at');
+    const { data, error } = await sb.from('competitors').select('*').eq('user_id', currentUser?.email||'').order('created_at');
     if(error) throw error;
     competitors = (data||[]).map(r => ({
       id: r.id,
@@ -4993,7 +4992,8 @@ async function insertCompetitorSB(comp) {
       platform: comp.platform,
       category: comp.category,
       note: comp.note,
-      profile_link: comp.profileLink
+      profile_link: comp.profileLink,
+      user_id: currentUser?.email||null
     }).select().single();
     if(error) throw error;
     return data.id;
@@ -5962,9 +5962,7 @@ async function getThisMonthRevenue() {
     .gte('entry_date', start)
     .lte('entry_date', end);
 
-  if (!isAdmin) {
-    q = q.eq('user_id', currentUser.email);
-  }
+  q = q.eq('user_id', currentUser.email);
 
   const { data, error } = await q;
   if (error || !data) return 0;
