@@ -2677,7 +2677,7 @@ async function loadFromSupabase(){
 
     // Kendi verisi + user_id atanmamış eski kayıtlar (geçiş dönemi)
     const f = `user_id.eq.${email},user_id.is.null`;
-    const cq = sb.from('clients').select('*').or(f).order('created_at');
+    const cq = sb.from('clients').select('*').order('created_at');
     const lq = sb.from('leads').select('*').or(f).order('created_at');
     const gq = sb.from('goals').select('*').or(f).order('created_at');
     const mq = sb.from('milestones').select('*').or(f).order('created_at');
