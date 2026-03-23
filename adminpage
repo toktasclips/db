@@ -2675,17 +2675,19 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Kendi verisi + user_id atanmamış eski kayıtlar (geçiş dönemi)
-    const f = `user_id.eq.${email},user_id.is.null`;
-    const cq = sb.from('clients').select('*').order('created_at');
-    const lq = sb.from('leads').select('*').or(f).order('created_at');
-    const gq = sb.from('goals').select('*').or(f).order('created_at');
-    const mq = sb.from('milestones').select('*').or(f).order('created_at');
-    const dq = sb.from('daily_entries').select('*').or(f).order('created_at');
+    const cq = isAdmin
+      ? sb.from('clients').select('*').order('created_at')
+      : sb.from('clients').select('*').eq('user_id', email).order('created_at');
+    const lq = isAdmin
+      ? sb.from('leads').select('*').order('created_at')
+      : sb.from('leads').select('*').eq('user_id', email).order('created_at');
+    const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
+    const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
+    const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
     const [clients, leads, goals, milestones, daily, offers, usersData] = (await Promise.allSettled([
       cq, lq, gq, mq, dq,
-      sb.from('offers').select('*').or(f).order('created_at'),
+      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
       sb.from('users').select('*').order('created_at')
     ])).map(r => r.status === 'fulfilled' ? r.value : { data: null, error: r.reason });
 
