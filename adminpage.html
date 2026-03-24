@@ -4257,7 +4257,7 @@ async function addUser(){
   users.push({id:data.id,name,email,password});
 
   // 2. Clients tablosuna da ekle
-  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
+  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
   const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
   if(!ce&&cd){
     state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
