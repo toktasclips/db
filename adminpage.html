@@ -4221,7 +4221,7 @@ function showApp(){
   state.milestones=[]; state.daily=[]; state.offers=[];
   competitors=[]; kanbanCards=[]; teklifler=[];
 
-  render();
+  go('daily', document.querySelector('[onclick*="go(\'daily\'"]'));
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
   loadFromSupabase().then(() => render());
