@@ -1185,34 +1185,34 @@ select option { background: #232323; color: #e8e8e6; }
 
 
 <!-- ===== GİRİŞ EKRANI ===== -->
-<div id="login-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#17153a 0%,#1e1b4b 45%,#2a2560 100%)">
+<div id="login-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#191919">
   <div style="width:100%;max-width:420px;padding:24px">
-    <div style="background:rgba(255,255,255,0.06);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:20px;padding:48px 40px;border:1px solid rgba(255,255,255,0.11);box-shadow:0 30px 60px rgba(0,0,0,0.45)">
+    <div style="background:#232323;border-radius:20px;padding:48px 40px;border:1px solid rgba(255,255,255,0.07);box-shadow:0 30px 60px rgba(0,0,0,0.45)">
 
       <!-- Logo + Başlık -->
       <div style="text-align:center;margin-bottom:36px">
         <img src="logo.png" alt="Logo" style="height:64px;margin-bottom:18px;object-fit:contain" onerror="this.style.display='none'" />
-        <div style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px">Dijital Barista</div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.45);margin-top:5px">Dashboard</div>
+        <div style="font-size:22px;font-weight:700;color:#e8e8e6;letter-spacing:-0.5px">Dijital Barista</div>
+        <div style="font-size:14px;color:#6b6963;margin-top:5px">Dashboard</div>
       </div>
 
       <!-- E-posta -->
       <div style="margin-bottom:16px">
-        <label style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);margin-bottom:8px;display:block">E-posta adresi</label>
+        <label style="font-size:13px;font-weight:500;color:#9b9a97;margin-bottom:8px;display:block">E-posta adresi</label>
         <input id="login-email" type="email" placeholder="ornek@email.com"
-          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.07);font-size:14px;color:#ffffff;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
-          onfocus="this.style.borderColor='rgba(124,113,255,0.7)';this.style.background='rgba(255,255,255,0.10)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.15)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
+          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(124,113,255,0.6)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.12)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
           onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()" />
       </div>
 
       <!-- Şifre -->
       <div style="margin-bottom:28px">
-        <label style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);margin-bottom:8px;display:block">Şifre</label>
+        <label style="font-size:13px;font-weight:500;color:#9b9a97;margin-bottom:8px;display:block">Şifre</label>
         <input id="login-password" type="password" placeholder="••••••••"
-          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.07);font-size:14px;color:#ffffff;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
-          onfocus="this.style.borderColor='rgba(124,113,255,0.7)';this.style.background='rgba(255,255,255,0.10)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.15)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
+          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(124,113,255,0.6)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.12)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
           onkeydown="if(event.key==='Enter')doLogin()" />
       </div>
 
@@ -1221,9 +1221,9 @@ select option { background: #232323; color: #e8e8e6; }
 
       <!-- Giriş Yap butonu -->
       <button onclick="doLogin()"
-        style="width:100%;padding:13px;background:linear-gradient(135deg,#7c73ff,#6558f5);color:#ffffff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;letter-spacing:-0.1px;box-shadow:0 4px 18px rgba(108,99,255,0.45)"
-        onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 24px rgba(108,99,255,0.55)'"
-        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 18px rgba(108,99,255,0.45)'">Giriş Yap</button>
+        style="width:100%;padding:13px;background:#7c73ff;color:#ffffff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;letter-spacing:-0.1px"
+        onmouseover="this.style.background='#8b83ff';this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#7c73ff';this.style.transform='translateY(0)'">Giriş Yap</button>
 
     </div>
   </div>
