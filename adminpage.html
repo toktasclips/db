@@ -1186,34 +1186,44 @@ select option { background: #232323; color: #e8e8e6; }
 
 <!-- ===== GİRİŞ EKRANI ===== -->
 <div id="login-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#191919">
-  <div style="width:100%;max-width:380px;padding:24px">
-    <div style="text-align:center;margin-bottom:40px">
-      <div style="font-size:28px;margin-bottom:12px">☕</div>
-      <div style="font-size:20px;font-weight:600;letter-spacing:-0.4px;color:#e8e8e6">Dijital Barista</div>
-      <div style="font-size:13px;color:#6b6963;margin-top:6px">Hesabına giriş yap</div>
-    </div>
-    <div style="background:#232323;border-radius:12px;padding:28px;border:1px solid rgba(255,255,255,0.07)">
+  <div style="width:100%;max-width:420px;padding:24px">
+    <div style="background:#232323;border-radius:20px;padding:48px 40px;border:1px solid rgba(255,255,255,0.07);box-shadow:0 30px 60px rgba(0,0,0,0.45)">
+
+      <!-- Logo + Başlık -->
+      <div style="text-align:center;margin-bottom:20px">
+        <img src="logo.png" alt="Logo" style="width:300px;height:90px;object-fit:cover;object-position:center 48%" onerror="this.style.display='none'" />
+        <div style="font-size:15px;font-weight:500;color:#aaaaaa;margin-top:8px">Portal Girişi</div>
+      </div>
+
+      <!-- E-posta -->
       <div style="margin-bottom:16px">
-        <label style="font-size:12px;font-weight:500;color:#9b9a97;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px">E-posta</label>
+        <label style="font-size:13px;font-weight:500;color:#9b9a97;margin-bottom:8px;display:block">E-posta adresi</label>
         <input id="login-email" type="email" placeholder="ornek@email.com"
-          style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.15s"
-          onfocus="this.style.borderColor='rgba(74,158,255,0.5)';this.style.boxShadow='0 0 0 2px rgba(74,158,255,0.12)'"
+          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(124,113,255,0.6)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.12)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
           onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()" />
       </div>
-      <div style="margin-bottom:24px">
-        <label style="font-size:12px;font-weight:500;color:#9b9a97;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px">Şifre</label>
+
+      <!-- Şifre -->
+      <div style="margin-bottom:28px">
+        <label style="font-size:13px;font-weight:500;color:#9b9a97;margin-bottom:8px;display:block">Şifre</label>
         <input id="login-password" type="password" placeholder="••••••••"
-          style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.15s"
-          onfocus="this.style.borderColor='rgba(74,158,255,0.5)';this.style.boxShadow='0 0 0 2px rgba(74,158,255,0.12)'"
+          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:#282828;font-size:14px;color:#e8e8e6;outline:none;font-family:inherit;transition:all 0.2s;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(124,113,255,0.6)';this.style.boxShadow='0 0 0 3px rgba(124,113,255,0.12)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.07)';this.style.boxShadow='none'"
           onkeydown="if(event.key==='Enter')doLogin()" />
       </div>
-      <div id="login-error" style="display:none;background:rgba(229,115,115,0.10);color:#e57373;border-radius:6px;padding:10px 14px;font-size:13px;margin-bottom:16px;text-align:center;border:1px solid rgba(229,115,115,0.20)">E-posta veya şifre hatalı</div>
+
+      <!-- Hata mesajı -->
+      <div id="login-error" style="display:none;background:rgba(229,115,115,0.10);color:#e57373;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px;text-align:center;border:1px solid rgba(229,115,115,0.20)">E-posta veya şifre hatalı</div>
+
+      <!-- Giriş Yap butonu -->
       <button onclick="doLogin()"
-        style="width:100%;padding:10px;background:#e8e8e6;color:#191919;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;letter-spacing:-0.1px"
-        onmouseover="this.style.background='#ffffff'"
-        onmouseout="this.style.background='#e8e8e6'">Giriş Yap</button>
+        style="width:100%;padding:13px;background:#e8e8e6;color:#191919;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;letter-spacing:-0.1px"
+        onmouseover="this.style.background='#ffffff';this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#e8e8e6';this.style.transform='translateY(0)'">Giriş Yap</button>
+
     </div>
   </div>
 </div>
@@ -1235,9 +1245,9 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
+    <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
     <div class="sidebar-footer">
@@ -2675,40 +2685,37 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Admin tüm veriyi görür, client sadece kendininkini
-    let cq = sb.from('clients').select('*').order('created_at');
-    let lq = sb.from('leads').select('*').order('created_at');
-    let gq = sb.from('goals').select('*').order('created_at');
-    let mq = sb.from('milestones').select('*').order('created_at');
-    let dq = sb.from('daily_entries').select('*').order('created_at');
+    const cq = sb.from('clients').select('*').order('created_at');
+    const lq = sb.from('leads').select('*').order('created_at');
+    const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
+    const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
+    const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
-    if(!isAdmin){
-      cq = cq.eq('user_id', email);
-      lq = lq.eq('user_id', email);
-      gq = gq.eq('user_id', email);
-      mq = mq.eq('user_id', email);
-      dq = dq.eq('user_id', email);
-    }
-
-    const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
+    const [clients, leads, goals, milestones, daily, offers, usersData] = (await Promise.allSettled([
       cq, lq, gq, mq, dq,
-      sb.from('offers').select('*').order('created_at'),
+      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
       sb.from('users').select('*').order('created_at')
-    ]);
+    ])).map(r => r.status === 'fulfilled' ? r.value : { data: null, error: r.reason });
 
-    if(clients.data?.length) state.clients = clients.data.map(c=>({
-      id:c.id, name:c.name, type:c.type, status:c.status,
-      email:c.email||'', phone:c.phone||'', sessions:c.sessions||0,
-      remainingSessions:c.remaining_sessions||0,
-      programEnd:c.program_end||'', startDate:c.start_date||'',
-      program:c.program||'', health:c.health||5,
-      notes:c.notes||[], start:c.start_date||'', social:c.social||''
-    }));
+    const myClient = c => !c.user_id || c.user_id === '' || c.user_id === email;
+    if(clients.data?.length) state.clients = clients.data
+      .filter(myClient)
+      .map(c=>({
+        id:c.id, name:c.name, type:c.type, status:c.status,
+        email:c.email||'', phone:c.phone||'', sessions:c.sessions||0,
+        remainingSessions:c.remaining_sessions||0,
+        programEnd:c.program_end||'', startDate:c.start_date||'',
+        program:c.program||'', health:c.health||5,
+        notes:c.notes||[], start:c.start_date||'', social:c.social||''
+      }));
 
-    if(leads.data?.length) state.leads = leads.data.map(l=>({
-      id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
-      stage:l.stage, tutar:l.tutar||0, teklifId:l.teklif_id||'', note:l.note||'', notes:l.notes||[]
-    }));
+    const myLead = l => !l.user_id || l.user_id === '' || l.user_id === email;
+    if(leads.data?.length) state.leads = leads.data
+      .filter(myLead)
+      .map(l=>({
+        id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
+        stage:l.stage, tutar:l.tutar||0, teklifId:l.teklif_id||'', note:l.note||'', notes:l.notes||[]
+      }));
 
     if(goals.data?.length) state.goals = goals.data.map(g=>({
       id:g.id, name:g.name, date:g.date, icon:g.icon||'🎯', done:g.done||false, notes:g.notes||[]
@@ -2763,7 +2770,7 @@ async function saveClient(c){
     if(r.error){console.error('Insert error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
     if(r.data){c.id=+r.data.id; c._new=false;}
   } else {
-    const r=await sb.from('clients').update(row).eq('id',+c.id);
+    const r=await sb.from('clients').update(row).eq('id',c.id);
     if(r.error){console.error('Update error:',r.error);toast('Güncelleme hatası: '+r.error.message);}
   }
 }
@@ -2980,7 +2987,8 @@ function go(id,el){
   closeAllPanels();
   if(id==='daily') showDailyWelcome();
   if(id==='client-reports') renderClientReports();
-  if(id==='competitors') setTimeout(()=>{ if(!competitors.length) loadCompetitorsSB(); else renderCompetitors(); },50);
+  if(id==='competitors') setTimeout(()=>loadCompetitorsSB(), 50);
+  if(id==='icerik-yonetimi') setTimeout(()=>loadKanban(), 50);
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
@@ -3362,6 +3370,7 @@ function renderReports(){
   const el=document.getElementById('reports-list');if(!el)return;
   if(!state.daily.length){
     el.innerHTML='<div class="empty" style="padding:48px"><div style="font-size:36px;margin-bottom:10px">📊</div><div>Henüz giriş yok.</div></div>';
+    buildDailyFollowerChart();
     return;
   }
   const cols=[
@@ -3627,9 +3636,8 @@ function closePanel(id){document.getElementById(id).classList.remove('open');}
 function closeAllPanels(){document.querySelectorAll('.side-panel').forEach(p=>p.classList.remove('open'));}
 
 function openClientPanel(id){
-  id = +id;
-  const c=state.clients.find(x=>+x.id===id);if(!c)return;
-  state.currentClientId=id;
+  const c=state.clients.find(x=>String(x.id)===String(id));if(!c)return;
+  state.currentClientId=c.id;
   const idx=state.clients.indexOf(c);
   document.getElementById('dp-name').textContent=c.name;
   document.getElementById('dp-name2').textContent=c.name;
@@ -3678,7 +3686,7 @@ function calcDaysLeft(dateVal){
 async function saveClientSchedule(){
   const remaining=+document.getElementById('dp-remaining').value||0;
   const programEnd=document.getElementById('dp-end-date').value||'';
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));
   if(!c){toast('Müşteri bulunamadı');return;}
   c.remainingSessions=remaining;
   c.programEnd=programEnd;
@@ -3688,17 +3696,17 @@ async function saveClientSchedule(){
   const {error}=await sb.from('clients').update({
     remaining_sessions:remaining,
     program_end:programEnd||null
-  }).eq('id',+state.currentClientId);
+  }).eq('id',state.currentClientId);
   if(error){toast('Hata: '+error.message);console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Program bilgileri kaydedildi!');
 }
 
 async function saveClientHealth(){
   const health=+document.getElementById('dp-health-slider').value;
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));
   if(!c){toast('Müşteri bulunamadı');return;}
   c.health=health;
-  const {error}=await sb.from('clients').update({health}).eq('id',+state.currentClientId);
+  const {error}=await sb.from('clients').update({health}).eq('id',state.currentClientId);
   if(error){toast('Hata: '+error.message);console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Sağlık skoru kaydedildi!');
 }
@@ -3726,11 +3734,11 @@ function renderClientNotes(c){
     ?c.notes.map((n,i)=>`<div class="note-item">${escHtml(n)}<button class="note-del" onclick="delClientNote(${i})">✕</button></div>`).join('')
     :'<div style="font-size:13px;color:var(--color-text-muted)">Henüz not yok</div>';
 }
-function addNoteToClient(){const inp=document.getElementById('dp-note-input'),v=inp.value.trim();if(!v)return;const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;c.notes.push(v);inp.value='';renderClientNotes(c);toast('Not eklendi ✓');saveClient(c);}
-function delClientNote(i){const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;c.notes.splice(i,1);renderClientNotes(c);saveClient(c);}
-function cycleClientStatus(){const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;const ss=['Yeni','Aktif','Takip','Tamamlandı'];c.status=ss[(ss.indexOf(c.status)+1)%ss.length];document.getElementById('dp-badge').innerHTML=`<span class="badge ${bCls(c.status)}">${c.status}</span>`;renderClientList();renderStats();toast('Durum: '+c.status);}
+function addNoteToClient(){const inp=document.getElementById('dp-note-input'),v=inp.value.trim();if(!v)return;const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;c.notes.push(v);inp.value='';renderClientNotes(c);toast('Not eklendi ✓');saveClient(c);}
+function delClientNote(i){const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;c.notes.splice(i,1);renderClientNotes(c);saveClient(c);}
+function cycleClientStatus(){const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;const ss=['Yeni','Aktif','Takip','Tamamlandı'];c.status=ss[(ss.indexOf(c.status)+1)%ss.length];document.getElementById('dp-badge').innerHTML=`<span class="badge ${bCls(c.status)}">${c.status}</span>`;renderClientList();renderStats();toast('Durum: '+c.status);}
 function saveContactInfo(){
-  const c=state.clients.find(x=>+x.id===+state.currentClientId);if(!c)return;
+  const c=state.clients.find(x=>String(x.id)===String(state.currentClientId));if(!c)return;
   const newName=document.getElementById('dp-name-input').value.trim();
   if(!newName){toast('İsim boş olamaz');return;}
   c.name=newName;
@@ -3834,7 +3842,7 @@ async function addClient(){
   closeModal('modal-add-client');
   ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
@@ -4221,17 +4229,20 @@ function showApp(){
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
 
-  render();
+  go('daily', document.querySelector('[onclick*="go(\'daily\'"]'));
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
   loadFromSupabase().then(() => render());
+  loadKanban();
 }
 
 function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
@@ -4256,7 +4267,7 @@ async function addUser(){
   users.push({id:data.id,name,email,password});
 
   // 2. Clients tablosuna da ekle
-  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
   const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
   if(!ce&&cd){
     state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
@@ -4486,7 +4497,6 @@ document.addEventListener('DOMContentLoaded',function(){
   loadFromSupabase().then(()=>{
     setTimeout(()=>buildChart(data6ay),200);
   });
-  loadKanban();
 });
 </script>
 
@@ -4690,7 +4700,7 @@ function formatDateTR(ds){
 
 /* ---- SUPABASE CRUD ---- */
 async function loadKanban(){
-  const { data, error } = await sb.from('kanban_cards').select('*').order('created_at');
+  const { data, error } = await sb.from('kanban_cards').select('*').or(`user_id.eq.${currentUser?.email||''},user_id.is.null`).order('created_at');
   if(error){ console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
     id: x.id, title: x.title, format: x.format||'📝 Diğer',
@@ -4701,7 +4711,7 @@ async function loadKanban(){
 
 async function insertKanban(card){
   const { data, error } = await sb.from('kanban_cards')
-    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note })
+    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note, user_id:currentUser?.email||null })
     .select().single();
   if(error){ toast('❌ Hata: '+error.message); return null; }
   return data.id;
@@ -4973,7 +4983,7 @@ let ctView = 'cards';
 /* ---- Supabase CRUD ---- */
 async function loadCompetitorsSB() {
   try {
-    const { data, error } = await sb.from('competitors').select('*').order('created_at');
+    const { data, error } = await sb.from('competitors').select('*').or(`user_id.eq.${currentUser?.email||''},user_id.is.null`).order('created_at');
     if(error) throw error;
     competitors = (data||[]).map(r => ({
       id: r.id,
@@ -5001,7 +5011,8 @@ async function insertCompetitorSB(comp) {
       platform: comp.platform,
       category: comp.category,
       note: comp.note,
-      profile_link: comp.profileLink
+      profile_link: comp.profileLink,
+      user_id: currentUser?.email||null
     }).select().single();
     if(error) throw error;
     return data.id;
@@ -5620,7 +5631,8 @@ let currentTeklifId = null;
 /* ---- Supabase ---- */
 async function loadTeklifler() {
   try {
-    const { data, error } = await sb.from('offers').select('*').order('created_at');
+    const _f = `user_id.eq.${currentUser?.email||''},user_id.is.null`;
+    const { data, error } = await sb.from('offers').select('*').or(_f).order('created_at');
     if(error) throw error;
     teklifler = (data||[]).map(r => ({
       id:           r.id,
@@ -5647,7 +5659,8 @@ async function insertTeklifSB(t) {
       name: t.name, category: t.category, price: t.price,
       duration_value: t.duration_value || null,
       duration_unit: t.duration_unit,
-      description: t.description, status: t.status
+      description: t.description, status: t.status,
+      user_id: currentUser?.email||null
     }).select().single();
     if(error) throw error;
     return data;
@@ -5970,9 +5983,7 @@ async function getThisMonthRevenue() {
     .gte('entry_date', start)
     .lte('entry_date', end);
 
-  if (!isAdmin) {
-    q = q.eq('user_id', currentUser.email);
-  }
+  q = q.eq('user_id', currentUser.email);
 
   const { data, error } = await q;
   if (error || !data) return 0;
