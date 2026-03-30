@@ -4338,7 +4338,7 @@ function renderCRStats(){
   const lastMail=d.length?d[d.length-1].mail||0:0;
   const totalHotlist=d.reduce((a,x)=>a+(x.hotlist||0),0);
   document.getElementById('cr-stats').innerHTML=[
-    ['👥 Takipçi',lastTakipci.toLocaleString('tr-TR'),'#2c1a0e'],
+    ['👥 Takipçi',lastTakipci.toLocaleString('tr-TR'),'#e8e8e6'],
     ['📧 Mail Abone',lastMail.toLocaleString('tr-TR'),'#0071e3'],
     ['💰 Toplam Gelir','₺'+totalGelir.toLocaleString('tr-TR'),'var(--color-green)'],
     ['🔥 Hot-List',totalHotlist,'var(--color-amber)'],
@@ -4363,7 +4363,7 @@ function buildCRChart(){
   let values;
   if(crMetric==='gelir'){let c=0;values=d.map(x=>{c+=(x.alinan||0);return c;});}
   else values=d.map(x=>x[crMetric]||0);
-  const color={takipci:'#2c1a0e',mail:'#0071e3',gelir:'var(--color-green)'}[crMetric];
+  const color={takipci:'#e8e8e6',mail:'#0071e3',gelir:'var(--color-green)'}[crMetric];
   if(crChart)crChart.destroy();
   crChart=new Chart(ctx.getContext('2d'),{
     type:'line',
