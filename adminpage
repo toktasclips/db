@@ -2763,9 +2763,15 @@ async function saveClient(c){
 async function deleteSBClient(id){ await sb.from('clients').delete().eq('id',id); }
 
 async function saveLead(l){
-  const row={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[],user_id:currentUser?.email||null};
-  if(l._new){ const r=await sb.from('leads').insert(row).select().single(); if(r.data)l.id=r.data.id; l._new=false; }
-  else { await sb.from('leads').update(row).eq('id',l.id); }
+  const base={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[]};
+  if(l._new){
+    const r=await sb.from('leads').insert({...base,user_id:currentUser?.email||null}).select().single();
+    if(r.error){toast('❌ Kayıt hatası: '+r.error.message);return;}
+    if(r.data){l.id=r.data.id;} l._new=false;
+  } else {
+    const {error}=await sb.from('leads').update(base).eq('id',l.id);
+    if(error) toast('❌ Kayıt hatası: '+error.message);
+  }
 }
 async function deleteSBLead(id){ await sb.from('leads').delete().eq('id',id); }
 
