@@ -3841,7 +3841,8 @@ async function addClient(){
 }
 async function addLead(){
   const name=document.getElementById('l-name').value.trim();if(!name){toast('Ad Soyad zorunlu');return;}
-  const nl={id:Date.now(),_new:true,name,type:'',teklifId:'',social:document.getElementById('l-social').value.trim(),source:document.getElementById('l-source').value,stage:document.getElementById('l-stage').value,note:document.getElementById('l-note').value,notes:[],tutar:+document.getElementById('l-tutar').value||0};
+  const _note=document.getElementById('l-note').value.trim();
+  const nl={id:Date.now(),_new:true,name,type:'',teklifId:'',social:document.getElementById('l-social').value.trim(),source:document.getElementById('l-source').value,stage:document.getElementById('l-stage').value,note:'',notes:_note?[_note]:[],tutar:+document.getElementById('l-tutar').value||0};
   state.leads.push(nl);
   closeModal('modal-add-lead');
   document.getElementById('l-social-preview').style.display='none';
