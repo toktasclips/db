@@ -1235,9 +1235,9 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
+    <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
     <div class="sidebar-footer">
@@ -2675,32 +2675,37 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Herkes sadece kendi verisini görür
-    const cq = sb.from('clients').select('*').eq('user_id', email).order('created_at');
-    const lq = sb.from('leads').select('*').eq('user_id', email).order('created_at');
+    const cq = sb.from('clients').select('*').order('created_at');
+    const lq = sb.from('leads').select('*').order('created_at');
     const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
     const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
     const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
-    const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
+    const [clients, leads, goals, milestones, daily, offers, usersData] = (await Promise.allSettled([
       cq, lq, gq, mq, dq,
       sb.from('offers').select('*').eq('user_id', email).order('created_at'),
       sb.from('users').select('*').order('created_at')
-    ]);
+    ])).map(r => r.status === 'fulfilled' ? r.value : { data: null, error: r.reason });
 
-    if(clients.data?.length) state.clients = clients.data.map(c=>({
-      id:c.id, name:c.name, type:c.type, status:c.status,
-      email:c.email||'', phone:c.phone||'', sessions:c.sessions||0,
-      remainingSessions:c.remaining_sessions||0,
-      programEnd:c.program_end||'', startDate:c.start_date||'',
-      program:c.program||'', health:c.health||5,
-      notes:c.notes||[], start:c.start_date||'', social:c.social||''
-    }));
+    const myClient = c => !c.user_id || c.user_id === '' || c.user_id === email;
+    if(clients.data?.length) state.clients = clients.data
+      .filter(myClient)
+      .map(c=>({
+        id:c.id, name:c.name, type:c.type, status:c.status,
+        email:c.email||'', phone:c.phone||'', sessions:c.sessions||0,
+        remainingSessions:c.remaining_sessions||0,
+        programEnd:c.program_end||'', startDate:c.start_date||'',
+        program:c.program||'', health:c.health||5,
+        notes:c.notes||[], start:c.start_date||'', social:c.social||''
+      }));
 
-    if(leads.data?.length) state.leads = leads.data.map(l=>({
-      id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
-      stage:l.stage, tutar:l.tutar||0, teklifId:l.teklif_id||'', note:l.note||'', notes:l.notes||[]
-    }));
+    const myLead = l => !l.user_id || l.user_id === '' || l.user_id === email;
+    if(leads.data?.length) state.leads = leads.data
+      .filter(myLead)
+      .map(l=>({
+        id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
+        stage:l.stage, tutar:l.tutar||0, teklifId:l.teklif_id||'', note:l.note||'', notes:l.notes||[]
+      }));
 
     if(goals.data?.length) state.goals = goals.data.map(g=>({
       id:g.id, name:g.name, date:g.date, icon:g.icon||'🎯', done:g.done||false, notes:g.notes||[]
@@ -2763,15 +2768,9 @@ async function saveClient(c){
 async function deleteSBClient(id){ await sb.from('clients').delete().eq('id',id); }
 
 async function saveLead(l){
-  const base={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[]};
-  if(l._new){
-    const r=await sb.from('leads').insert({...base,user_id:currentUser?.email||null}).select().single();
-    if(r.error){toast('❌ Kayıt hatası: '+r.error.message);return;}
-    if(r.data){l.id=r.data.id;} l._new=false;
-  } else {
-    const {error}=await sb.from('leads').update(base).eq('id',l.id);
-    if(error) toast('❌ Kayıt hatası: '+error.message);
-  }
+  const row={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[],user_id:currentUser?.email||null};
+  if(l._new){ const r=await sb.from('leads').insert(row).select().single(); if(r.data)l.id=r.data.id; l._new=false; }
+  else { await sb.from('leads').update(row).eq('id',l.id); }
 }
 async function deleteSBLead(id){ await sb.from('leads').delete().eq('id',id); }
 
@@ -2978,7 +2977,8 @@ function go(id,el){
   closeAllPanels();
   if(id==='daily') showDailyWelcome();
   if(id==='client-reports') renderClientReports();
-  if(id==='competitors') setTimeout(()=>{ if(!competitors.length) loadCompetitorsSB(); else renderCompetitors(); },50);
+  if(id==='competitors') setTimeout(()=>loadCompetitorsSB(), 50);
+  if(id==='icerik-yonetimi') setTimeout(()=>loadKanban(), 50);
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
@@ -3360,6 +3360,7 @@ function renderReports(){
   const el=document.getElementById('reports-list');if(!el)return;
   if(!state.daily.length){
     el.innerHTML='<div class="empty" style="padding:48px"><div style="font-size:36px;margin-bottom:10px">📊</div><div>Henüz giriş yok.</div></div>';
+    buildDailyFollowerChart();
     return;
   }
   const cols=[
@@ -3831,7 +3832,7 @@ async function addClient(){
   closeModal('modal-add-client');
   ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
@@ -3841,8 +3842,7 @@ async function addClient(){
 }
 async function addLead(){
   const name=document.getElementById('l-name').value.trim();if(!name){toast('Ad Soyad zorunlu');return;}
-  const _note=document.getElementById('l-note').value.trim();
-  const nl={id:Date.now(),_new:true,name,type:'',teklifId:'',social:document.getElementById('l-social').value.trim(),source:document.getElementById('l-source').value,stage:document.getElementById('l-stage').value,note:'',notes:_note?[_note]:[],tutar:+document.getElementById('l-tutar').value||0};
+  const nl={id:Date.now(),_new:true,name,type:'',teklifId:'',social:document.getElementById('l-social').value.trim(),source:document.getElementById('l-source').value,stage:document.getElementById('l-stage').value,note:document.getElementById('l-note').value,notes:[],tutar:+document.getElementById('l-tutar').value||0};
   state.leads.push(nl);
   closeModal('modal-add-lead');
   document.getElementById('l-social-preview').style.display='none';
@@ -4219,17 +4219,20 @@ function showApp(){
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
 
-  render();
+  go('daily', document.querySelector('[onclick*="go(\'daily\'"]'));
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
   loadFromSupabase().then(() => render());
+  loadKanban();
 }
 
 function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
+  competitors=[]; kanbanCards=[]; teklifler=[];
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
@@ -4254,7 +4257,7 @@ async function addUser(){
   users.push({id:data.id,name,email,password});
 
   // 2. Clients tablosuna da ekle
-  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
   const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
   if(!ce&&cd){
     state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
@@ -4338,7 +4341,7 @@ function renderCRStats(){
   const lastMail=d.length?d[d.length-1].mail||0:0;
   const totalHotlist=d.reduce((a,x)=>a+(x.hotlist||0),0);
   document.getElementById('cr-stats').innerHTML=[
-    ['👥 Takipçi',lastTakipci.toLocaleString('tr-TR'),'#e8e8e6'],
+    ['👥 Takipçi',lastTakipci.toLocaleString('tr-TR'),'#2c1a0e'],
     ['📧 Mail Abone',lastMail.toLocaleString('tr-TR'),'#0071e3'],
     ['💰 Toplam Gelir','₺'+totalGelir.toLocaleString('tr-TR'),'var(--color-green)'],
     ['🔥 Hot-List',totalHotlist,'var(--color-amber)'],
@@ -4363,7 +4366,7 @@ function buildCRChart(){
   let values;
   if(crMetric==='gelir'){let c=0;values=d.map(x=>{c+=(x.alinan||0);return c;});}
   else values=d.map(x=>x[crMetric]||0);
-  const color={takipci:'#e8e8e6',mail:'#0071e3',gelir:'var(--color-green)'}[crMetric];
+  const color={takipci:'#2c1a0e',mail:'#0071e3',gelir:'var(--color-green)'}[crMetric];
   if(crChart)crChart.destroy();
   crChart=new Chart(ctx.getContext('2d'),{
     type:'line',
@@ -4484,7 +4487,6 @@ document.addEventListener('DOMContentLoaded',function(){
   loadFromSupabase().then(()=>{
     setTimeout(()=>buildChart(data6ay),200);
   });
-  loadKanban();
 });
 </script>
 
@@ -4527,6 +4529,10 @@ document.addEventListener('DOMContentLoaded',function(){
         <input class="form-input" id="ik-date" type="date" />
       </div>
       <div class="form-group">
+        <label class="form-label">İlham Alınan Video</label>
+        <input class="form-input" id="ik-link" type="url" placeholder="YouTube veya Instagram linki..." />
+      </div>
+      <div class="form-group">
         <label class="form-label">Not</label>
         <textarea class="form-input form-textarea" id="ik-note" placeholder="Kısa açıklama..." style="min-height:64px"></textarea>
       </div>
@@ -4538,130 +4544,164 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 </div>
 
-<!-- ===== KART DETAY OVERLAY (Notion tarzı) ===== -->
-<div id="kd-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px)" onclick="if(event.target===this)closeKartDetay()">
-  <div id="kd-panel" style="background:#1c1c1c;border:1px solid #2a2a2a;border-radius:16px;width:660px;max-width:92vw;max-height:88vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.45);position:relative;display:flex;flex-direction:column">
+<!-- ===== KART DETAY OVERLAY ===== -->
+<div id="kd-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)" onclick="if(event.target===this)closeKartDetay()">
+  <div id="kd-panel" style="background:#1c1c1c;border:1px solid #2a2a2a;border-radius:16px;width:1000px;max-width:96vw;height:88vh;box-shadow:0 10px 40px rgba(0,0,0,0.5);display:flex;flex-direction:column;overflow:hidden">
 
     <!-- ── HEADER ── -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:24px 24px 0;gap:12px;flex-shrink:0">
-      <!-- Title -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px 16px;gap:12px;flex-shrink:0;border-bottom:1px solid #262626">
       <div contenteditable="true" id="kd-title"
-        style="font-size:22px;font-weight:700;color:#f3f3f3;outline:none;line-height:1.3;flex:1;min-height:32px;letter-spacing:-0.3px;word-break:break-word"
+        style="font-size:20px;font-weight:700;color:#f3f3f3;outline:none;line-height:1.3;flex:1;min-height:28px;letter-spacing:-0.3px;word-break:break-word"
         onblur="saveKartField('title',this.textContent.trim())"></div>
-      <!-- Actions -->
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;padding-top:4px">
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
         <button onclick="deleteKanbanCard(window._kdId)"
           style="background:none;border:none;color:#666;cursor:pointer;font-size:13px;padding:6px 10px;border-radius:8px;font-family:inherit;font-weight:500;transition:all 0.15s;white-space:nowrap"
           onmouseover="this.style.color='#e07070';this.style.background='rgba(224,112,112,0.08)'"
           onmouseout="this.style.color='#666';this.style.background='none'">Sil</button>
         <button onclick="closeKartDetay()"
-          style="background:none;border:none;color:#555;cursor:pointer;font-size:18px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1"
+          style="background:none;border:none;color:#555;cursor:pointer;font-size:18px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all 0.15s"
           onmouseover="this.style.color='#ccc';this.style.background='#2a2a2a'"
           onmouseout="this.style.color='#555';this.style.background='none'">✕</button>
       </div>
     </div>
 
-    <!-- ── PROPERTIES ── -->
-    <div style="padding:20px 24px 0">
-      <div style="display:grid;grid-template-columns:160px 1fr;row-gap:4px;column-gap:0">
+    <!-- ── BODY ── -->
+    <div style="display:flex;flex:1;overflow:hidden">
+
+      <!-- SOL: Properties -->
+      <div style="width:240px;flex-shrink:0;border-right:1px solid #262626;padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
 
         <!-- Tarih -->
-        <div style="display:contents">
-          <div style="font-size:13px;font-weight:500;color:#8a8a8a;display:flex;align-items:center;gap:6px;padding:8px 8px 8px 0;border-radius:8px 0 0 8px">Tarih</div>
-          <div style="position:relative;display:flex;align-items:center">
-            <div id="kd-date-display" onclick="toggleKdCal(event)"
-              style="font-size:14px;color:#e8e8e8;padding:8px 10px;cursor:pointer;border-radius:0 8px 8px 0;transition:background 0.15s;min-height:36px;display:flex;align-items:center;width:100%"
-              onmouseover="this.style.background='#242424'"
-              onmouseout="this.style.background='transparent'">Tarih seç</div>
-            <!-- Mini Takvim -->
-            <div id="kd-cal-popup" style="display:none;position:absolute;left:0;top:40px;background:#1e1e1e;border:1px solid #333;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:600;padding:14px;width:260px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <button onclick="kdCalNav(-1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:2px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.background='#2a2a2a';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#aaa'">‹</button>
-                <span id="kd-cal-month" style="font-size:13px;font-weight:600;color:#eaeaea"></span>
-                <button onclick="kdCalNav(1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:2px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.background='#2a2a2a';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#aaa'">›</button>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:4px">
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pt</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Sa</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Ça</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pe</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Cu</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Ct</div>
-                <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pz</div>
-              </div>
-              <div id="kd-cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px"></div>
-              <div style="margin-top:10px;padding-top:8px;border-top:1px solid #282828;display:flex;justify-content:space-between">
-                <button onclick="kdSelectToday()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#8ab4f8;font-family:inherit;padding:2px 6px;border-radius:4px;transition:all 0.12s" onmouseover="this.style.background='#1f2a3a'" onmouseout="this.style.background='none'">Bugün</button>
-                <button onclick="kdClearDate()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#666;font-family:inherit;padding:2px 6px;border-radius:4px;transition:all 0.12s" onmouseover="this.style.background='#252525';this.style.color='#aaa'" onmouseout="this.style.background='none';this.style.color='#666'">Temizle</button>
-              </div>
+        <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.5px;padding:4px 8px 2px">Tarih</div>
+        <div style="position:relative">
+          <div id="kd-date-display" onclick="toggleKdCal(event)"
+            style="font-size:13px;color:#e8e8e8;padding:7px 10px;cursor:pointer;border-radius:8px;transition:background 0.15s;display:flex;align-items:center"
+            onmouseover="this.style.background='#242424'"
+            onmouseout="this.style.background='transparent'">Tarih seç</div>
+          <div id="kd-cal-popup" style="display:none;position:absolute;left:0;top:38px;background:#1e1e1e;border:1px solid #333;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:600;padding:14px;width:240px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <button onclick="kdCalNav(-1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:2px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.background='#2a2a2a';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#aaa'">‹</button>
+              <span id="kd-cal-month" style="font-size:13px;font-weight:600;color:#eaeaea"></span>
+              <button onclick="kdCalNav(1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:2px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.background='#2a2a2a';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#aaa'">›</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:4px">
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pt</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Sa</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Ça</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pe</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Cu</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Ct</div>
+              <div style="text-align:center;font-size:10px;font-weight:500;color:#555;padding:3px 0">Pz</div>
+            </div>
+            <div id="kd-cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px"></div>
+            <div style="margin-top:10px;padding-top:8px;border-top:1px solid #282828;display:flex;justify-content:space-between">
+              <button onclick="kdSelectToday()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#8ab4f8;font-family:inherit;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#1f2a3a'" onmouseout="this.style.background='none'">Bugün</button>
+              <button onclick="kdClearDate()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#666;font-family:inherit;padding:2px 6px;border-radius:4px" onmouseover="this.style.background='#252525';this.style.color='#aaa'" onmouseout="this.style.background='none';this.style.color='#666'">Temizle</button>
             </div>
           </div>
         </div>
 
         <!-- Format -->
-        <div style="display:contents">
-          <div style="font-size:13px;font-weight:500;color:#8a8a8a;display:flex;align-items:center;padding:8px 8px 8px 0">Format</div>
-          <div style="display:flex;align-items:center">
-            <select id="kd-format" onchange="saveKartField('format',this.value)"
-              style="border:none;outline:none;font-size:14px;color:#e8e8e8;background:transparent;font-family:inherit;padding:8px 10px;cursor:pointer;flex:1;appearance:none;border-radius:0 8px 8px 0;transition:background 0.15s;width:100%"
-              onmouseover="this.style.background='#242424'"
-              onmouseout="this.style.background='transparent'">
-              <option value="🎥 Video">🎥 Video</option>
-              <option value="📱 Kısa Video">📱 Kısa Video</option>
-              <option value="🖼️ Slayt">🖼️ Slayt</option>
-              <option value="📧 Bülten">📧 Bülten</option>
-              <option value="✨ Hikaye">✨ Hikaye</option>
-              <option value="📝 Diğer">📝 Diğer</option>
-            </select>
-          </div>
-        </div>
+        <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px 2px">Format</div>
+        <select id="kd-format" onchange="saveKartField('format',this.value)"
+          style="border:none;outline:none;font-size:13px;color:#e8e8e8;background:transparent;font-family:inherit;padding:7px 10px;cursor:pointer;appearance:none;border-radius:8px;transition:background 0.15s;width:100%"
+          onmouseover="this.style.background='#242424'"
+          onmouseout="this.style.background='transparent'">
+          <option value="🎥 Video">🎥 Video</option>
+          <option value="📱 Kısa Video">📱 Kısa Video</option>
+          <option value="🖼️ Slayt">🖼️ Slayt</option>
+          <option value="📧 Bülten">📧 Bülten</option>
+          <option value="✨ Hikaye">✨ Hikaye</option>
+          <option value="📝 Diğer">📝 Diğer</option>
+        </select>
 
         <!-- Durum -->
-        <div style="display:contents">
-          <div style="font-size:13px;font-weight:500;color:#8a8a8a;display:flex;align-items:center;padding:8px 8px 8px 0">Durum</div>
-          <div style="display:flex;align-items:center">
-            <select id="kd-col" onchange="saveKartField('col',this.value);renderKanban()"
-              style="border:none;outline:none;font-size:14px;color:#e8e8e8;background:transparent;font-family:inherit;padding:8px 10px;cursor:pointer;flex:1;appearance:none;border-radius:0 8px 8px 0;transition:background 0.15s;width:100%"
-              onmouseover="this.style.background='#242424'"
-              onmouseout="this.style.background='transparent'">
-              <option value="fikir">Video Fikri</option>
-              <option value="metin">Metin Yazılıyor</option>
-              <option value="duzenleme">Düzenlemeye Hazır</option>
-              <option value="paylasim">Paylaşıma Hazır</option>
-            </select>
-          </div>
-        </div>
+        <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px 2px">Durum</div>
+        <select id="kd-col" onchange="saveKartField('col',this.value);renderKanban()"
+          style="border:none;outline:none;font-size:13px;color:#e8e8e8;background:transparent;font-family:inherit;padding:7px 10px;cursor:pointer;appearance:none;border-radius:8px;transition:background 0.15s;width:100%"
+          onmouseover="this.style.background='#242424'"
+          onmouseout="this.style.background='transparent'">
+          <option value="fikir">Video Fikri</option>
+          <option value="metin">Metin Yazılıyor</option>
+          <option value="duzenleme">Düzenlemeye Hazır</option>
+          <option value="paylasim">Paylaşıma Hazır</option>
+        </select>
 
         <!-- İlham Linki -->
-        <div style="display:contents">
-          <div style="font-size:13px;font-weight:500;color:#8a8a8a;display:flex;align-items:center;padding:8px 8px 8px 0;line-height:1.3">İlham Linki</div>
-          <div style="display:flex;align-items:center;padding:4px 0">
-            <input id="kd-link" type="url" placeholder="Link eklenmemiş"
-              onblur="saveKartField('link',this.value.trim())"
-              style="border:none;outline:none;font-size:13px;color:#b8c0cc;background:transparent;font-family:inherit;padding:6px 10px;width:100%;border-radius:0 8px 8px 0;transition:all 0.15s"
-              onfocus="this.style.background='#222';this.style.borderRadius='8px'"
-              onblur_extra="this.style.background='transparent'" />
-          </div>
+        <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px 2px">İlham Linki</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input id="kd-link" type="url" placeholder="YouTube / Instagram..."
+            onblur="saveKartField('link',this.value.trim());document.getElementById('kd-link-btn').style.display=this.value.trim()?'flex':'none'"
+            style="border:none;outline:none;font-size:12px;color:#b8c0cc;background:transparent;font-family:inherit;padding:7px 10px;flex:1;border-radius:8px;transition:all 0.15s;min-width:0"
+            onfocus="this.style.background='#222'"
+            onblur_extra="this.style.background='transparent'" />
+          <a id="kd-link-btn" href="#" target="_blank" style="display:none;align-items:center;font-size:11px;font-weight:500;color:#8ab4f8;text-decoration:none;padding:4px 8px;background:#1a2332;border-radius:6px;flex-shrink:0;white-space:nowrap"
+            onclick="this.href=document.getElementById('kd-link').value">Aç ↗</a>
         </div>
 
       </div>
-    </div>
 
-    <!-- ── DIVIDER ── -->
-    <div style="margin:20px 24px;border-top:1px solid #2a2a2a"></div>
+      <!-- SAĞ: İçerik Yapısı -->
+      <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px">
 
-    <!-- ── NOTES ── -->
-    <div style="padding:0 24px 28px">
-      <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px">Not / Açıklama</div>
-      <div style="background:#181818;border:1px solid #262626;border-radius:12px;padding:14px 16px">
-        <textarea id="kd-note"
-          onblur="saveKartField('note',this.value)"
-          placeholder="Bir şeyler yaz..."
-          style="width:100%;border:none;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:100px;line-height:1.6;background:transparent"></textarea>
+        <!-- Giriş -->
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">1 — Giriş</span>
+            <div style="flex:1;height:1px;background:#262626"></div>
+          </div>
+          <textarea id="kd-giris" onblur="saveKartField('giris',this.value)"
+            placeholder="İlk cümle veya dikkat çekici açılış..."
+            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:90px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
+            onfocus="this.style.borderColor='#3a3a3a'"
+            onblur_extra="this.style.borderColor='#262626'"></textarea>
+        </div>
+
+        <!-- Gövde -->
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">2 — Gövde</span>
+            <div style="flex:1;height:1px;background:#262626"></div>
+          </div>
+          <textarea id="kd-govde" onblur="saveKartField('govde',this.value)"
+            placeholder="Ana içerik, bilgi veya hikaye..."
+            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:120px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
+            onfocus="this.style.borderColor='#3a3a3a'"
+            onblur_extra="this.style.borderColor='#262626'"></textarea>
+        </div>
+
+        <!-- Mesaj -->
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">3 — Mesaj</span>
+            <div style="flex:1;height:1px;background:#262626"></div>
+          </div>
+          <textarea id="kd-mesaj" onblur="saveKartField('mesaj',this.value)"
+            placeholder="Vermek istediğin ana mesaj..."
+            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:90px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
+            onfocus="this.style.borderColor='#3a3a3a'"
+            onblur_extra="this.style.borderColor='#262626'"></textarea>
+        </div>
+
+        <!-- CTA -->
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">4 — CTA</span>
+            <div style="flex:1;height:1px;background:#262626"></div>
+          </div>
+          <textarea id="kd-cta" onblur="saveKartField('cta',this.value)"
+            placeholder="Harekete geçirici çağrı..."
+            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:80px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
+            onfocus="this.style.borderColor='#3a3a3a'"
+            onblur_extra="this.style.borderColor='#262626'"></textarea>
+        </div>
+
       </div>
     </div>
 
   </div>
+</div>
+
 </div>
 
 <script>
@@ -4688,18 +4728,19 @@ function formatDateTR(ds){
 
 /* ---- SUPABASE CRUD ---- */
 async function loadKanban(){
-  const { data, error } = await sb.from('kanban_cards').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+  const { data, error } = await sb.from('kanban_cards').select('*').or(`user_id.eq.${currentUser?.email||''},user_id.is.null`).order('created_at');
   if(error){ console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
     id: x.id, title: x.title, format: x.format||'📝 Diğer',
-    col: x.col||'fikir', date: x.date||'', note: x.note||'', link: x.link||''
+    col: x.col||'fikir', date: x.date||'', note: x.note||'', link: x.link||'',
+    giris: x.giris||'', govde: x.govde||'', mesaj: x.mesaj||'', cta: x.cta||''
   }));
   renderKanban();
 }
 
 async function insertKanban(card){
   const { data, error } = await sb.from('kanban_cards')
-    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note, user_id:currentUser?.email||null })
+    .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note, link:card.link||null, giris:null, govde:null, mesaj:null, cta:null, user_id:currentUser?.email||null })
     .select().single();
   if(error){ toast('❌ Hata: '+error.message); return null; }
   return data.id;
@@ -4813,8 +4854,13 @@ function openKartDetay(id){
   document.getElementById('kd-date-display').style.color = c.date ? '#e8e8e8' : '#555';
   document.getElementById('kd-format').value = c.format;
   document.getElementById('kd-col').value    = c.col;
-  document.getElementById('kd-note').value   = c.note || '';
   document.getElementById('kd-link').value   = c.link || '';
+  document.getElementById('kd-link-btn').style.display = c.link ? 'flex' : 'none';
+  if(c.link) document.getElementById('kd-link-btn').href = c.link;
+  document.getElementById('kd-giris').value  = c.giris || '';
+  document.getElementById('kd-govde').value  = c.govde || '';
+  document.getElementById('kd-mesaj').value  = c.mesaj || '';
+  document.getElementById('kd-cta').value    = c.cta   || '';
   document.getElementById('kd-overlay').style.display = 'flex';
   closeKdCal();
   if(c.date){ const p=c.date.split('-'); kdCalYear=+p[0]; kdCalMonth=+p[1]-1; }
@@ -4892,6 +4938,7 @@ function openIcerikModal(col){
   document.getElementById('ik-title').value = '';
   document.getElementById('ik-note').value  = '';
   document.getElementById('ik-date').value  = '';
+  document.getElementById('ik-link').value  = '';
   if(col) document.getElementById('ik-col').value = col;
   openModal('modal-icerik-kart');
   setTimeout(()=>document.getElementById('ik-title').focus(), 100);
@@ -4904,11 +4951,12 @@ async function addKanbanCard(){
     format: document.getElementById('ik-format').value,
     col:    document.getElementById('ik-col').value,
     date:   document.getElementById('ik-date').value,
-    note:   document.getElementById('ik-note').value.trim()
+    note:   document.getElementById('ik-note').value.trim(),
+    link:   document.getElementById('ik-link').value.trim()
   };
   const newId = await insertKanban(card);
   if(!newId) return;
-  kanbanCards.push({ ...card, id: newId });
+  kanbanCards.push({ ...card, id: newId, giris:'', govde:'', mesaj:'', cta:'' });
   renderKanban();
   closeModal('modal-icerik-kart');
   toast('✅ Kart eklendi!');
@@ -4971,7 +5019,7 @@ let ctView = 'cards';
 /* ---- Supabase CRUD ---- */
 async function loadCompetitorsSB() {
   try {
-    const { data, error } = await sb.from('competitors').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+    const { data, error } = await sb.from('competitors').select('*').or(`user_id.eq.${currentUser?.email||''},user_id.is.null`).order('created_at');
     if(error) throw error;
     competitors = (data||[]).map(r => ({
       id: r.id,
@@ -5619,7 +5667,8 @@ let currentTeklifId = null;
 /* ---- Supabase ---- */
 async function loadTeklifler() {
   try {
-    const { data, error } = await sb.from('offers').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+    const _f = `user_id.eq.${currentUser?.email||''},user_id.is.null`;
+    const { data, error } = await sb.from('offers').select('*').or(_f).order('created_at');
     if(error) throw error;
     teklifler = (data||[]).map(r => ({
       id:           r.id,
@@ -5647,7 +5696,7 @@ async function insertTeklifSB(t) {
       duration_value: t.duration_value || null,
       duration_unit: t.duration_unit,
       description: t.description, status: t.status,
-      user_id: currentUser?.email || null
+      user_id: currentUser?.email||null
     }).select().single();
     if(error) throw error;
     return data;
