@@ -2684,7 +2684,7 @@ async function loadFromSupabase(){
 
     const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
       cq, lq, gq, mq, dq,
-      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
+      sb.from('offers').select('*').order('created_at'),
       sb.from('users').select('*').order('created_at')
     ]);
 
@@ -5619,7 +5619,7 @@ let currentTeklifId = null;
 /* ---- Supabase ---- */
 async function loadTeklifler() {
   try {
-    const { data, error } = await sb.from('offers').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+    const { data, error } = await sb.from('offers').select('*').order('created_at');
     if(error) throw error;
     teklifler = (data||[]).map(r => ({
       id:           r.id,
@@ -5646,8 +5646,7 @@ async function insertTeklifSB(t) {
       name: t.name, category: t.category, price: t.price,
       duration_value: t.duration_value || null,
       duration_unit: t.duration_unit,
-      description: t.description, status: t.status,
-      user_id: currentUser?.email || null
+      description: t.description, status: t.status
     }).select().single();
     if(error) throw error;
     return data;
