@@ -1180,6 +1180,57 @@ select option { background: #232323; color: #e8e8e6; }
   }
 }
 
+/* ===== EĞİTİM SİSTEMİ ===== */
+.tr-level-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+@media(max-width:900px){ .tr-level-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:560px){ .tr-level-grid{ grid-template-columns:1fr; } }
+
+.tr-level-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.tr-level-card:hover:not(.tr-locked) { border-color: var(--color-border-strong); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.tr-level-card.tr-active { border-color: rgba(74,158,255,0.4); background: rgba(74,158,255,0.05); }
+.tr-level-card.tr-active::before { content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(135deg,rgba(74,158,255,0.06),transparent); pointer-events:none; }
+.tr-level-card.tr-done { border-color: rgba(76,175,129,0.35); }
+.tr-level-card.tr-pending { border-color: rgba(224,165,83,0.35); }
+.tr-level-card.tr-locked { opacity:0.42; cursor:not-allowed; filter:blur(0.3px); }
+
+.tr-lvl-num { font-size:11px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.tr-lvl-title { font-size:14px; font-weight:600; color:var(--color-text-primary); margin-bottom:4px; }
+.tr-lvl-desc { font-size:12px; color:var(--color-text-muted); line-height:1.5; margin-bottom:12px; }
+.tr-pbar { height:3px; background:var(--color-bg-tertiary); border-radius:2px; overflow:hidden; margin-bottom:10px; }
+.tr-pfill { height:100%; border-radius:2px; background:var(--color-accent); transition:width 0.4s; }
+.tr-pfill.done { background:var(--color-green); }
+
+.tr-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:2px 8px; border-radius:20px; }
+.tr-badge.locked  { background:var(--color-bg-tertiary); color:var(--color-text-muted); }
+.tr-badge.active  { background:var(--color-blue-light); color:var(--color-blue); }
+.tr-badge.done    { background:var(--color-green-light); color:var(--color-green-text); }
+.tr-badge.pending { background:var(--color-amber-light); color:var(--color-amber); }
+
+.tr-module-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--color-divider); }
+.tr-module-item:last-child { border-bottom:none; }
+.tr-check { width:20px; height:20px; border-radius:50%; border:2px solid var(--color-border-strong); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; margin-top:1px; transition:all 0.15s; }
+.tr-check:hover { border-color:var(--color-accent); }
+.tr-check.checked { background:var(--color-green); border-color:var(--color-green); }
+.tr-check.checked::after { content:'✓'; font-size:11px; color:#fff; font-weight:700; }
+
+.tr-quiz-opt { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.12s; margin-bottom:8px; font-size:14px; color:var(--color-text-secondary); }
+.tr-quiz-opt:hover { border-color:var(--color-accent); color:var(--color-text-primary); background:var(--color-accent-light); }
+.tr-quiz-opt.selected { border-color:var(--color-accent); background:var(--color-accent-light); color:var(--color-text-primary); }
+.tr-quiz-opt.correct { border-color:var(--color-green); background:var(--color-green-light); color:var(--color-green-text); }
+.tr-quiz-opt.wrong   { border-color:var(--color-red); background:var(--color-red-light); color:var(--color-red); }
+
+@keyframes trUnlock { 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
+.tr-unlock-anim { animation: trUnlock 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
 </style>
 <body>
 
@@ -1236,8 +1287,10 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
     <div class="nav-item" onclick="go('etkinlikler',this)"><span style="width:20px;text-align:center">📅</span> Etkinlikler</div>
+    <div class="nav-item" onclick="go('egitim',this)"><span style="width:20px;text-align:center">🎓</span> Eğitim</div>
     <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
+    <div class="nav-item admin-only" onclick="go('egitim-admin',this)"><span style="width:20px;text-align:center">🏫</span> Eğitim Yönetimi</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
@@ -1630,6 +1683,55 @@ select option { background: #232323; color: #e8e8e6; }
     </div>
 
     <!-- ===== KULLANICILAR ===== -->
+    <!-- ===== EĞİTİM (USER) ===== -->
+    <div class="page" id="page-egitim">
+      <div class="page-head">
+        <div>
+          <div class="page-title">İş Geliştirme Eğitimi</div>
+          <div class="page-sub">Seviyeleri tamamla, yeteneklerini geliştir</div>
+        </div>
+        <div id="tr-user-badge" style="display:none"></div>
+      </div>
+      <!-- Level roadmap -->
+      <div id="tr-level-grid" class="tr-level-grid"></div>
+      <!-- Level detail -->
+      <div id="tr-detail" style="display:none">
+        <div class="card">
+          <div class="card-head" style="justify-content:space-between">
+            <span class="card-title" id="tr-detail-title"></span>
+            <button onclick="closeTrDetail()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:18px">✕</button>
+          </div>
+          <div class="card-body">
+            <div id="tr-module-list"></div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--color-divider)">
+              <button id="tr-quiz-btn" onclick="openQuizModal()" class="btn btn-primary" style="opacity:0.4;pointer-events:none">Quiz'e Geç →</button>
+              <div id="tr-pending-notice" style="display:none;margin-top:12px;padding:12px 16px;background:var(--color-amber-light);border-radius:var(--radius-md);font-size:13px;color:var(--color-amber)">
+                ⏳ Admin onayı bekleniyor. Onay sonrası bir sonraki seviye açılacak.
+              </div>
+              <div id="tr-approved-notice" style="display:none;margin-top:12px;padding:12px 16px;background:var(--color-green-light);border-radius:var(--radius-md);font-size:13px;color:var(--color-green-text)">
+                ✅ Bu seviye onaylandı. Bir sonraki seviye açık!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EĞİTİM YÖNETİMİ (ADMIN) ===== -->
+    <div class="page admin-only" id="page-egitim-admin">
+      <div class="page-head">
+        <div><div class="page-title">Eğitim Yönetimi</div><div class="page-sub">Kullanıcı ilerlemelerini yönet</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Onay Bekleyenler</span></div>
+        <div class="card-body"><div id="tr-admin-pending-list"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><span class="card-title">Tüm Kullanıcılar</span></div>
+        <div class="card-body"><div id="tr-admin-all-list"></div></div>
+      </div>
+    </div>
+
     <!-- ===== ETKİNLİKLER ===== -->
     <div class="page" id="page-etkinlikler">
       <div class="page-head">
@@ -2597,6 +2699,21 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
+<!-- ===== QUIZ MODAL ===== -->
+<div class="modal-bg" id="modal-quiz" onclick="if(event.target===this&&!quizSubmitted){}">
+  <div class="modal" style="width:560px;max-width:95vw">
+    <div class="modal-head">
+      <div class="modal-title" id="quiz-modal-title">Quiz</div>
+      <button class="modal-close" id="quiz-close-btn" onclick="closeModal('modal-quiz')" style="display:none">✕</button>
+    </div>
+    <div id="quiz-body" style="padding:4px 0 12px"></div>
+    <div class="modal-footer" id="quiz-footer">
+      <span id="quiz-counter" style="font-size:13px;color:var(--color-text-muted)"></span>
+      <button id="quiz-submit-btn" class="btn btn-primary" onclick="submitQuiz()" style="opacity:0.4;pointer-events:none">Gönder</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== ETKİNLİK DETAY MODAL ===== -->
 <div class="modal-bg" id="modal-evt-detail" onclick="if(event.target===this)closeModal('modal-evt-detail')">
   <div class="modal" style="width:480px">
@@ -3065,6 +3182,8 @@ function go(id,el){
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='etkinlikler') setTimeout(loadEvents, 50);
+  if(id==='egitim') setTimeout(loadTraining, 50);
+  if(id==='egitim-admin') setTimeout(loadTrainingAdmin, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
   render();
 }
@@ -6582,6 +6701,359 @@ async function deleteEvtFromDetail() {
 }
 
 function editEvtFromDetail() { openEventModal(currentEvtId); }
+
+// ===== EĞİTİM SİSTEMİ =====
+const TR_LEVELS = {
+  1: { title:'Temel Sistem',      desc:'İş geliştirmenin temelleri ve başlangıç noktası',
+       modules:[
+         {id:'1-1', title:'Giriş: Neden İş Geliştirme?',      desc:'İş geliştirmenin önemi ve bu eğitimin yapısı.',      video:''},
+         {id:'1-2', title:'Hedef Kitle Analizi',               desc:'Kime satıyorsunuz? ICP (Ideal Customer Profile) oluşturma.',video:''},
+         {id:'1-3', title:'Değer Önerisi Oluşturma',           desc:'Ürün/hizmetinizin temel değerini net ifade edin.',   video:''},
+       ],
+       quiz:[
+         {q:'ICP ne anlama gelir?', opts:['Ideal Customer Profile','Internal Company Process','Income Calculation Point','Integrated Content Plan'], correct:0},
+         {q:'Değer önerisi en çok neyi tanımlar?', opts:['Fiyat stratejisini','Müşterinin elde ettiği faydayı','Üretim maliyetini','Reklam bütçesini'], correct:1},
+         {q:'İş geliştirmede ilk adım genellikle nedir?', opts:['Reklam vermek','Fiyatı belirlemek','Pazar araştırması yapmak','Logo tasarlamak'], correct:2},
+       ]},
+  2: { title:'Müşteri Edinme',    desc:'Potansiyel müşteri bulma ve ilk temas stratejileri',
+       modules:[
+         {id:'2-1', title:'Lead Generation Temelleri',          desc:'Soğuk ve sıcak müşteri ayrımı, kaynak çeşitliliği.', video:''},
+         {id:'2-2', title:'Sosyal Medyada Müşteri Bulma',        desc:'Instagram, LinkedIn ve YouTube üzerinden organik müşteri.', video:''},
+         {id:'2-3', title:'İlk Temas Mesajları',                 desc:'DM ve e-posta ile ilk iletişim — ne yazmalı, ne yazmamalı.', video:''},
+       ],
+       quiz:[
+         {q:'Sıcak müşteri (warm lead) hangisidir?', opts:['Hiç duymamış biri','Markanızla daha önce etkileşim kurmuş biri','Rakip müşterisi','Pasif takipçi'], correct:1},
+         {q:'İlk temas mesajında kaçınılması gereken nedir?', opts:['Kısa tutmak','Hemen satış yapmaya çalışmak','Kişiselleştirmek','Değer sunmak'], correct:1},
+         {q:'Organik lead generation\'ın avantajı nedir?', opts:['Anlık sonuç','Düşük maliyet ve güven','Geniş kitle','Hızlı ölçeklenme'], correct:1},
+       ]},
+  3: { title:'Satış Süreci',      desc:'İlk görüşmeden kapanışa kadar satış akışı',
+       modules:[
+         {id:'3-1', title:'Discovery Call Yapısı',              desc:'Müşteriyi anlamak için doğru sorular sormak.',        video:''},
+         {id:'3-2', title:'Teklifin Sunulması',                  desc:'Proposal nasıl hazırlanır ve sunulur?',              video:''},
+         {id:'3-3', title:'İtirazları Yönetmek',                 desc:'Sık karşılaşılan itirazlar ve cevapları.',           video:''},
+         {id:'3-4', title:'Kapanış Teknikleri',                  desc:'Deal nasıl kapatılır? Pratik kapanış cümleleri.',   video:''},
+       ],
+       quiz:[
+         {q:'Discovery call\'ın temel amacı nedir?', opts:['Hemen satmak','Müşteriyi anlamak ve ihtiyacı belirlemek','Fiyat vermek','Demo yapmak'], correct:1},
+         {q:'En yaygın itiraz türü hangisidir?', opts:['Renk tercihi','Fiyat','Teslimat süresi','Logo'], correct:1},
+         {q:'Kapanışta en etkili yaklaşım nedir?', opts:['Baskı yapmak','Sessiz kalmak','Net bir sonraki adım önermek','İndirim vermek'], correct:2},
+       ]},
+  4: { title:'Fiyatlandırma',     desc:'Doğru fiyat stratejisi ve paket yapısı',
+       modules:[
+         {id:'4-1', title:'Value-Based Pricing',                 desc:'Değere göre fiyatlandırma neden önemlidir?',         video:''},
+         {id:'4-2', title:'Paket Stratejisi',                    desc:'Good / Better / Best paket yapısı oluşturma.',      video:''},
+         {id:'4-3', title:'Fiyat İtirazlarıyla Baş Etme',        desc:'Pahalı diyene ne cevap verilir?',                   video:''},
+       ],
+       quiz:[
+         {q:'Value-based pricing neye dayanır?', opts:['Rakip fiyatlarına','Müşterinin algıladığı değere','Üretim maliyetine','Sektör ortalamasına'], correct:1},
+         {q:'3\'lü paket yapısının amacı nedir?', opts:['Kafa karıştırmak','Ortadaki paketi cazip göstermek','Sadece bir seçenek sunmak','Fiyatı gizlemek'], correct:1},
+         {q:'Fiyat itirazında ilk yapılması gereken nedir?', opts:['Hemen indirim vermek','Değeri yeniden vurgulamak','Konuyu değiştirmek','Özür dilemek'], correct:1},
+       ]},
+  5: { title:'Müşteri Tutma',     desc:'Mevcut müşteriyi elde tutma ve büyütme stratejileri',
+       modules:[
+         {id:'5-1', title:'Onboarding Süreci',                   desc:'Müşteri ilk günden başarı hissetmeli.',              video:''},
+         {id:'5-2', title:'Müşteri Sağlığı Takibi',              desc:'Churn sinyallerini erkenden tespit etmek.',          video:''},
+         {id:'5-3', title:'Upsell & Cross-sell',                  desc:'Mevcut müşteriye nasıl daha fazla değer sunulur?',  video:''},
+       ],
+       quiz:[
+         {q:'Churn ne anlama gelir?', opts:['Müşteri kazanmak','Müşteri kaybetmek','Fiyat artışı','Yeni ürün çıkarmak'], correct:1},
+         {q:'İyi bir onboarding sürecinin amacı nedir?', opts:['Sözleşme imzalatmak','Müşteriyi erken başarıya taşımak','Fatura kesmek','Demo vermek'], correct:1},
+         {q:'Upsell nedir?', opts:['Alt ürün satmak','Daha üst paket veya ek hizmet satmak','Müşteri referansı istemek','İndirim teklif etmek'], correct:1},
+       ]},
+  6: { title:'Referans & Ağ',     desc:'Ağızdan ağıza pazarlama ve referans sistemi',
+       modules:[
+         {id:'6-1', title:'Referans Sistemi Kurmak',             desc:'Mevcut müşterileri kaynak olarak kullanmak.',        video:''},
+         {id:'6-2', title:'Topluluk & Network Gücü',             desc:'Etkinlikler, gruplar ve online topluluklar.',        video:''},
+         {id:'6-3', title:'İş Birlikleri',                       desc:'Tamamlayıcı işletmelerle ortaklık kurmak.',          video:''},
+       ],
+       quiz:[
+         {q:'Referans sisteminin en önemli şartı nedir?', opts:['Büyük bütçe','Mevcut müşterilerin memnun olması','Reklam vermek','Çok takipçi'], correct:1},
+         {q:'Network\'ün satışa faydası nedir?', opts:['Hızlı kapanış','Sıcak intro ve güven','Düşük fiyat','Geniş kitle'], correct:1},
+         {q:'Tamamlayıcı iş birliği örneği hangisidir?', opts:['Aynı hizmetleri veren iki firma','Web tasarımcı + içerik yazarı','Iki rakip marka','Tedarikçi ve müşteri'], correct:1},
+       ]},
+  7: { title:'Sistem & Otomasyon', desc:'Satış ve pazarlamayı sisteme bağlamak',
+       modules:[
+         {id:'7-1', title:'CRM Kullanımı',                       desc:'Müşteri takip sistemi nasıl kurulur ve kullanılır?',  video:''},
+         {id:'7-2', title:'Otomasyon Araçları',                   desc:'Make, Zapier ve e-posta otomasyonu.',                video:''},
+         {id:'7-3', title:'Rapor & Metrik Takibi',                desc:'Hangi sayılara bakılmalı? MRR, CAC, LTV.',           video:''},
+       ],
+       quiz:[
+         {q:'CRM\'in temel işlevi nedir?', opts:['Logo tasarımı','Müşteri ilişkilerini takip etmek','Ürün üretimi','Sosyal medya yönetimi'], correct:1},
+         {q:'MRR ne anlama gelir?', opts:['Monthly Recurring Revenue','Marketing Return Rate','Minimum Required Resources','Market Research Report'], correct:0},
+         {q:'CAC ne anlama gelir?', opts:['Customer Acquisition Cost','Content Analytics Chart','Company Asset Count','Client Approval Code'], correct:0},
+       ]},
+  8: { title:'Ölçeklendirme',     desc:'Büyüme stratejisi ve sürdürülebilir iş modeli',
+       modules:[
+         {id:'8-1', title:'Ekip Kurmak',                         desc:'Ne zaman ve nasıl işe alınır?',                       video:''},
+         {id:'8-2', title:'Hizmet Ürüne Dönüştürme',             desc:'Productized service nedir ve nasıl yapılır?',         video:''},
+         {id:'8-3', title:'Büyüme Stratejisi',                   desc:'Organik, paid ve partnership kanallarını ölçeklemek.',video:''},
+         {id:'8-4', title:'Mezuniyet & Sonraki Adımlar',         desc:'Bu eğitimden sonra nereye?',                          video:''},
+       ],
+       quiz:[
+         {q:'Productized service nedir?', opts:['Sınırsız özelleştirmeli hizmet','Paketlenmiş sabit kapsamlı hizmet ürünü','Yazılım geliştirme','Freelance iş'], correct:1},
+         {q:'Ölçeklemede en büyük engel nedir?', opts:['Müşteri sayısı','Zamansama bağımlılığı ve süreçsizlik','Kötü logo','Az takipçi'], correct:1},
+         {q:'Büyüme stratejisinde önce ne optimize edilmeli?', opts:['Mevcut kanal','Yeni kanal','Sosyal medya','Reklam bütçesi'], correct:0},
+       ]},
+};
+
+let trProgress = {}; // { levelNum: { modulesDone:[], quizDone:false, status:'locked' } }
+let trActiveLvl = null;
+let quizAnswers = {};
+let quizSubmitted = false;
+
+async function loadTraining() {
+  // Load from Supabase
+  const { data } = await sb.from('training_progress').select('*').eq('user_id', currentUser?.email||'');
+  trProgress = {};
+  (data||[]).forEach(r => {
+    trProgress[r.level_num] = { modulesDone: r.modules_done||[], quizDone: r.quiz_done||false, status: r.status||'locked' };
+  });
+  // Level 1 always active if not yet started
+  if (!trProgress[1]) {
+    trProgress[1] = { modulesDone:[], quizDone:false, status:'active' };
+    await upsertTrProgress(1);
+  }
+  renderTrRoadmap();
+}
+
+async function upsertTrProgress(levelNum) {
+  const p = trProgress[levelNum] || { modulesDone:[], quizDone:false, status:'locked' };
+  await sb.from('training_progress').upsert({
+    user_id: currentUser?.email, level_num: levelNum,
+    modules_done: p.modulesDone, quiz_done: p.quizDone, status: p.status
+  }, { onConflict: 'user_id,level_num' });
+}
+
+function renderTrRoadmap() {
+  const grid = document.getElementById('tr-level-grid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(TR_LEVELS).map(([num, lvl]) => {
+    const n = parseInt(num);
+    const p = trProgress[n] || { modulesDone:[], quizDone:false, status:'locked' };
+    const total = lvl.modules.length;
+    const done = p.modulesDone.length;
+    const pct = total > 0 ? Math.round((done/total)*100) : 0;
+    const st = p.status;
+    const cls = st==='locked'?'tr-locked': st==='active'?'tr-active': st==='pending'?'tr-pending': 'tr-done';
+    const badge = st==='locked' ? '<span class="tr-badge locked">🔒 Kilitli</span>'
+                : st==='active'   ? '<span class="tr-badge active">▶ Aktif</span>'
+                : st==='pending'  ? '<span class="tr-badge pending">⏳ Onay Bekliyor</span>'
+                : '<span class="tr-badge done">✅ Tamamlandı</span>';
+    return `<div class="tr-level-card ${cls}" onclick="openTrLevel(${n})">
+      <div class="tr-lvl-num">Level ${n}</div>
+      <div class="tr-lvl-title">${lvl.title}</div>
+      <div class="tr-lvl-desc">${lvl.desc}</div>
+      <div class="tr-pbar"><div class="tr-pfill ${st==='done'?'done':''}" style="width:${st==='locked'?0:pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        ${badge}
+        ${st!=='locked'?`<span style="font-size:11px;color:var(--color-text-muted)">${done}/${total} modül</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openTrLevel(n) {
+  const p = trProgress[n] || {};
+  if (p.status === 'locked') { toast('Bu seviye henüz kilitli'); return; }
+  trActiveLvl = n;
+  const lvl = TR_LEVELS[n];
+  const detail = document.getElementById('tr-detail');
+  document.getElementById('tr-detail-title').textContent = `Level ${n} — ${lvl.title}`;
+  renderTrModules(n);
+  detail.style.display = 'block';
+  detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  updateTrQuizBtn(n);
+  const pendingNotice  = document.getElementById('tr-pending-notice');
+  const approvedNotice = document.getElementById('tr-approved-notice');
+  pendingNotice.style.display  = p.status==='pending'  ? 'block' : 'none';
+  approvedNotice.style.display = p.status==='done'     ? 'block' : 'none';
+}
+
+function closeTrDetail() { document.getElementById('tr-detail').style.display='none'; trActiveLvl=null; }
+
+function renderTrModules(n) {
+  const lvl = TR_LEVELS[n];
+  const p = trProgress[n] || { modulesDone:[] };
+  const list = document.getElementById('tr-module-list');
+  list.innerHTML = lvl.modules.map((m,i) => {
+    const done = p.modulesDone.includes(m.id);
+    return `<div class="tr-module-item">
+      <div class="tr-check ${done?'checked':''}" onclick="toggleModule(${n},'${m.id}')"></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px;${done?'text-decoration:line-through;opacity:0.6':''}">${i+1}. ${m.title}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);line-height:1.5">${m.desc}</div>
+        ${m.video ? `<a href="${m.video}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--color-accent);margin-top:6px;text-decoration:none">▶ Videoyu İzle</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleModule(n, moduleId) {
+  const p = trProgress[n] || { modulesDone:[], quizDone:false, status:'active' };
+  if (p.status === 'pending' || p.status === 'done') return;
+  const idx = p.modulesDone.indexOf(moduleId);
+  if (idx >= 0) p.modulesDone.splice(idx, 1);
+  else p.modulesDone.push(moduleId);
+  trProgress[n] = p;
+  await upsertTrProgress(n);
+  renderTrModules(n);
+  renderTrRoadmap();
+  updateTrQuizBtn(n);
+}
+
+function updateTrQuizBtn(n) {
+  const lvl = TR_LEVELS[n];
+  const p = trProgress[n] || { modulesDone:[] };
+  const btn = document.getElementById('tr-quiz-btn');
+  if (!btn) return;
+  const allDone = lvl.modules.every(m => p.modulesDone.includes(m.id));
+  const isDoneOrPending = p.status === 'done' || p.status === 'pending';
+  if (isDoneOrPending) {
+    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none';
+    btn.textContent = p.status === 'pending' ? '⏳ Onay Bekleniyor' : '✅ Tamamlandı';
+  } else if (allDone) {
+    btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; btn.textContent = 'Quiz\'e Geç →';
+  } else {
+    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; btn.textContent = 'Tüm modülleri tamamla';
+  }
+}
+
+// ---- QUIZ ----
+function openQuizModal() {
+  if (!trActiveLvl) return;
+  const lvl = TR_LEVELS[trActiveLvl];
+  quizAnswers = {};
+  quizSubmitted = false;
+  document.getElementById('quiz-modal-title').textContent = `Level ${trActiveLvl} — Quiz`;
+  document.getElementById('quiz-close-btn').style.display = 'none';
+  renderQuizBody();
+  openModal('modal-quiz');
+}
+
+function renderQuizBody() {
+  const lvl = TR_LEVELS[trActiveLvl];
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = lvl.quiz.map((q,qi) => `
+    <div style="margin-bottom:20px">
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;line-height:1.5">${qi+1}. ${q.q}</div>
+      ${q.opts.map((opt,oi) => `<div class="tr-quiz-opt ${quizAnswers[qi]===oi?'selected':''}" onclick="selectQuizOpt(${qi},${oi})">${opt}</div>`).join('')}
+    </div>
+  `).join('');
+  updateQuizCounter();
+}
+
+function selectQuizOpt(qi, oi) {
+  if (quizSubmitted) return;
+  quizAnswers[qi] = oi;
+  renderQuizBody();
+}
+
+function updateQuizCounter() {
+  const lvl = TR_LEVELS[trActiveLvl];
+  const answered = Object.keys(quizAnswers).length;
+  const total = lvl.quiz.length;
+  document.getElementById('quiz-counter').textContent = `${answered}/${total} cevaplandı`;
+  const btn = document.getElementById('quiz-submit-btn');
+  if (answered === total) { btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
+  else { btn.style.opacity='0.4'; btn.style.pointerEvents='none'; }
+}
+
+async function submitQuiz() {
+  const lvl = TR_LEVELS[trActiveLvl];
+  quizSubmitted = true;
+  // Show results briefly
+  const body = document.getElementById('quiz-body');
+  let correct = 0;
+  body.innerHTML = lvl.quiz.map((q,qi) => {
+    const chosen = quizAnswers[qi];
+    const isCorrect = chosen === q.correct;
+    if (isCorrect) correct++;
+    return `<div style="margin-bottom:20px">
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;line-height:1.5">${qi+1}. ${q.q}</div>
+      ${q.opts.map((opt,oi) => `<div class="tr-quiz-opt ${oi===q.correct?'correct':oi===chosen&&chosen!==q.correct?'wrong':''}">${opt}</div>`).join('')}
+    </div>`;
+  }).join('');
+  document.getElementById('quiz-footer').innerHTML = `
+    <div style="font-size:13px;color:var(--color-text-secondary)">${correct}/${lvl.quiz.length} doğru</div>
+    <button class="btn btn-primary" onclick="finishQuiz()">Gönder ve Onay Bekle</button>
+  `;
+}
+
+async function finishQuiz() {
+  const n = trActiveLvl;
+  const p = trProgress[n] || { modulesDone:[], status:'active' };
+  p.quizDone = true;
+  p.status = 'pending';
+  trProgress[n] = p;
+  await upsertTrProgress(n);
+  closeModal('modal-quiz');
+  renderTrRoadmap();
+  openTrLevel(n);
+  toast('✅ Quiz gönderildi — admin onayı bekleniyor');
+}
+
+// ---- ADMIN TRAINING ----
+async function loadTrainingAdmin() {
+  const { data } = await sb.from('training_progress').select('*').order('updated_at', { ascending:false });
+  const all = data || [];
+  const pending = all.filter(r => r.status === 'pending');
+  const pendingEl = document.getElementById('tr-admin-pending-list');
+  const allEl = document.getElementById('tr-admin-all-list');
+  if (!pendingEl || !allEl) return;
+  if (pending.length === 0) {
+    pendingEl.innerHTML = '<div style="color:var(--color-text-muted);font-size:13px">Onay bekleyen yok</div>';
+  } else {
+    pendingEl.innerHTML = pending.map(r => trAdminRow(r, true)).join('');
+  }
+  // Group by user
+  const byUser = {};
+  all.forEach(r => { if(!byUser[r.user_id]) byUser[r.user_id]=[]; byUser[r.user_id].push(r); });
+  allEl.innerHTML = Object.entries(byUser).map(([uid, rows]) => {
+    const maxLevel = Math.max(...rows.map(r=>r.level_num));
+    const pendingRow = rows.find(r=>r.status==='pending');
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${uid}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Max Level: ${maxLevel} · ${pendingRow?'⏳ Onay Bekliyor':'—'}</div>
+      </div>
+      ${pendingRow ? `<button class="btn btn-ghost" onclick="approveTrUser('${uid}',${pendingRow.level_num})" style="font-size:12px">Onayla</button>
+        <button class="btn btn-danger" onclick="rejectTrUser('${uid}',${pendingRow.level_num})" style="font-size:12px">Reddet</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function trAdminRow(r, showBtns) {
+  const lvl = TR_LEVELS[r.level_num];
+  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${r.user_id}</div>
+      <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Level ${r.level_num} — ${lvl?.title||''} · ${r.modules_done?.length||0} modül tamamlandı</div>
+    </div>
+    ${showBtns ? `<button class="btn btn-primary" onclick="approveTrUser('${r.user_id}',${r.level_num})" style="font-size:12px">✓ Onayla</button>
+      <button class="btn btn-danger" onclick="rejectTrUser('${r.user_id}',${r.level_num})" style="font-size:12px">✕ Reddet</button>` : '<span class="tr-badge pending">Bekliyor</span>'}
+  </div>`;
+}
+
+async function approveTrUser(userId, levelNum) {
+  // Mark current level as done
+  await sb.from('training_progress').update({ status:'done' }).eq('user_id', userId).eq('level_num', levelNum);
+  // Unlock next level if exists
+  const nextLevel = levelNum + 1;
+  if (TR_LEVELS[nextLevel]) {
+    await sb.from('training_progress').upsert({
+      user_id: userId, level_num: nextLevel, modules_done: [], quiz_done: false, status: 'active'
+    }, { onConflict: 'user_id,level_num' });
+  }
+  toast(`✅ Level ${levelNum} onaylandı — Level ${nextLevel} açıldı`);
+  loadTrainingAdmin();
+}
+
+async function rejectTrUser(userId, levelNum) {
+  await sb.from('training_progress').update({ status:'active', quiz_done:false }).eq('user_id', userId).eq('level_num', levelNum);
+  toast(`↩ Level ${levelNum} reddedildi — kullanıcı tekrar quiz yapabilir`);
+  loadTrainingAdmin();
+}
+// ===== EĞİTİM SİSTEMİ END =====
 
 </script>
 
