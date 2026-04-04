@@ -1235,6 +1235,7 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
+    <div class="nav-item" onclick="go('etkinlikler',this)"><span style="width:20px;text-align:center">📅</span> Etkinlikler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
     <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
@@ -1629,6 +1630,43 @@ select option { background: #232323; color: #e8e8e6; }
     </div>
 
     <!-- ===== KULLANICILAR ===== -->
+    <!-- ===== ETKİNLİKLER ===== -->
+    <div class="page" id="page-etkinlikler">
+      <div class="page-head">
+        <div><div class="page-title">Etkinlikler</div><div class="page-sub">Takvim ve program</div></div>
+        <button class="btn btn-primary admin-only" onclick="openEventModal()">+ Yeni Etkinlik</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start">
+        <!-- Calendar -->
+        <div class="card" style="overflow:visible">
+          <div class="card-head" style="justify-content:space-between">
+            <button onclick="evtCalPrev()" style="background:none;border:none;color:var(--color-text-secondary);cursor:pointer;font-size:18px;padding:0 8px">‹</button>
+            <span id="evt-cal-title" class="card-title"></span>
+            <button onclick="evtCalNext()" style="background:none;border:none;color:var(--color-text-secondary);cursor:pointer;font-size:18px;padding:0 8px">›</button>
+          </div>
+          <div class="card-body" style="padding:12px">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Pzt</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Sal</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Çar</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Per</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Cum</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Cmt</div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-muted);padding:4px">Paz</div>
+            </div>
+            <div id="evt-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+          </div>
+        </div>
+        <!-- Event list for selected day / upcoming -->
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title" id="evt-panel-title">Yaklaşan Etkinlikler</span></div>
+            <div class="card-body" id="evt-panel-list" style="padding:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page admin-only" id="page-users">
       <div class="page-head">
         <div><div class="page-title">Kullanıcılar</div><div class="page-sub">Müşteri hesaplarını yönet</div></div>
@@ -2559,6 +2597,51 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
+<!-- ===== ETKİNLİK DETAY MODAL ===== -->
+<div class="modal-bg" id="modal-evt-detail" onclick="if(event.target===this)closeModal('modal-evt-detail')">
+  <div class="modal" style="width:480px">
+    <div class="modal-head">
+      <div class="modal-title" id="evt-detail-title"></div>
+      <button class="modal-close" onclick="closeModal('modal-evt-detail')">✕</button>
+    </div>
+    <div style="padding:0 0 8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--color-text-muted)">📅</span>
+        <span id="evt-detail-datetime" style="font-size:13px;color:var(--color-text-secondary)"></span>
+      </div>
+      <p id="evt-detail-desc" style="font-size:14px;color:var(--color-text-secondary);line-height:1.6;white-space:pre-wrap;margin-bottom:16px"></p>
+      <a id="evt-detail-link" href="#" target="_blank" style="display:none">
+        <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:14px">🔗 Etkinliğe Katıl</button>
+      </a>
+    </div>
+    <div id="evt-detail-admin-actions" class="modal-footer" style="display:none">
+      <button class="btn btn-danger" onclick="deleteEvtFromDetail()">Sil</button>
+      <button class="btn btn-ghost" onclick="editEvtFromDetail()">Düzenle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ETKİNLİK OLUŞTUR/DÜZENLE MODAL ===== -->
+<div class="modal-bg" id="modal-evt-form" onclick="if(event.target===this)closeModal('modal-evt-form')">
+  <div class="modal" style="width:480px">
+    <div class="modal-head">
+      <div class="modal-title" id="evt-form-title">Yeni Etkinlik</div>
+      <button class="modal-close" onclick="closeModal('modal-evt-form')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Başlık *</label><input class="form-input" id="evt-f-title" placeholder="Etkinlik adı" /></div>
+    <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input form-textarea" id="evt-f-desc" placeholder="Detaylar..." style="min-height:80px"></textarea></div>
+    <div class="two-form" style="margin-bottom:16px">
+      <div><label class="form-label">Tarih *</label><input class="form-input" id="evt-f-date" type="date" /></div>
+      <div><label class="form-label">Saat</label><input class="form-input" id="evt-f-time" type="time" /></div>
+    </div>
+    <div class="form-group"><label class="form-label">Katılım Linki (opsiyonel)</label><input class="form-input" id="evt-f-link" type="url" placeholder="https://meet.google.com/..." /></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-evt-form')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modal-add-user">
   <div class="modal" style="width:420px">
     <div class="modal-head"><div class="modal-title">Yeni Kullanıcı</div><button class="modal-close" onclick="closeModal('modal-add-user')">✕</button></div>
@@ -2981,6 +3064,7 @@ function go(id,el){
   if(id==='competitors') setTimeout(()=>{ if(!competitors.length) loadCompetitorsSB(); else renderCompetitors(); },50);
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
+  if(id==='etkinlikler') setTimeout(loadEvents, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
   render();
 }
@@ -6296,6 +6380,148 @@ function openInstagramEkle() {
     }
   }, 120);
 }
+
+// ===== ETKİNLİKLER =====
+let events = [];
+let evtCalYear = new Date().getFullYear();
+let evtCalMonth = new Date().getMonth();
+let currentEvtId = null;
+
+async function loadEvents() {
+  const { data, error } = await sb.from('events').select('*').order('date').order('time');
+  if (!error && data) {
+    events = data.map(e => ({
+      id: e.id, title: e.title, description: e.description || '',
+      date: e.date, time: e.time || '', link: e.link || '',
+      created_by: e.created_by || ''
+    }));
+  }
+  renderEvtCalendar();
+  renderEvtUpcoming();
+}
+
+function renderEvtCalendar() {
+  const grid = document.getElementById('evt-cal-grid');
+  const title = document.getElementById('evt-cal-title');
+  if (!grid || !title) return;
+  const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  title.textContent = months[evtCalMonth] + ' ' + evtCalYear;
+  const firstDay = new Date(evtCalYear, evtCalMonth, 1);
+  const lastDay = new Date(evtCalYear, evtCalMonth + 1, 0);
+  let startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  const today = new Date().toISOString().split('T')[0];
+  const evtDates = {};
+  events.forEach(e => { if (!evtDates[e.date]) evtDates[e.date] = []; evtDates[e.date].push(e); });
+  let html = '';
+  for (let i = 0; i < startDow; i++) html += '<div></div>';
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const dateStr = evtCalYear + '-' + String(evtCalMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = dateStr === today;
+    const hasEvt = evtDates[dateStr]?.length > 0;
+    html += `<div onclick="evtDayClick('${dateStr}')" style="border-radius:6px;padding:6px 4px;text-align:center;cursor:pointer;background:${isToday?'var(--color-accent-light)':'transparent'};border:1px solid ${isToday?'var(--color-accent)':'transparent'};transition:background 0.1s;min-height:44px;" onmouseover="this.style.background='var(--color-surface-hover)'" onmouseout="this.style.background='${isToday?'var(--color-accent-light)':'transparent'}'">
+      <div style="font-size:13px;font-weight:${isToday?'700':'400'};color:${isToday?'var(--color-accent)':'var(--color-text-primary)'};">${d}</div>
+      ${hasEvt?`<div style="display:flex;justify-content:center;gap:2px;margin-top:3px">${evtDates[dateStr].slice(0,3).map(()=>'<span style="width:5px;height:5px;border-radius:50%;background:var(--color-accent);display:inline-block"></span>').join('')}</div>`:''}
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function evtCalPrev() { if (evtCalMonth===0){evtCalMonth=11;evtCalYear--;}else evtCalMonth--; renderEvtCalendar(); }
+function evtCalNext() { if (evtCalMonth===11){evtCalMonth=0;evtCalYear++;}else evtCalMonth++; renderEvtCalendar(); }
+
+function evtDayClick(dateStr) {
+  const dayEvts = events.filter(e => e.date === dateStr);
+  const panel = document.getElementById('evt-panel-list');
+  const panelTitle = document.getElementById('evt-panel-title');
+  if (!panel) return;
+  const d = new Date(dateStr + 'T00:00:00');
+  panelTitle.textContent = d.toLocaleDateString('tr-TR',{day:'numeric',month:'long'});
+  panel.innerHTML = dayEvts.length === 0
+    ? '<div style="color:var(--color-text-muted);font-size:13px;padding:8px 0">Bu gün etkinlik yok</div>'
+    : dayEvts.map(e => evtCardHTML(e)).join('');
+}
+
+function renderEvtUpcoming() {
+  const panel = document.getElementById('evt-panel-list');
+  const panelTitle = document.getElementById('evt-panel-title');
+  if (!panel) return;
+  panelTitle.textContent = 'Yaklaşan Etkinlikler';
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = events.filter(e => e.date >= today).slice(0,8);
+  panel.innerHTML = upcoming.length === 0
+    ? '<div style="color:var(--color-text-muted);font-size:13px;padding:8px 0">Yaklaşan etkinlik yok</div>'
+    : upcoming.map(e => evtCardHTML(e)).join('');
+}
+
+function evtCardHTML(e) {
+  const timeStr = e.time ? e.time.slice(0,5) : '';
+  const d = new Date(e.date + 'T00:00:00');
+  const dateStr = d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+  return `<div onclick="openEvtDetail('${e.id}')" style="padding:10px 12px;border-radius:8px;border:1px solid var(--color-border);margin-bottom:6px;cursor:pointer;transition:background 0.1s;background:var(--color-surface);" onmouseover="this.style.background='var(--color-surface-hover)'" onmouseout="this.style.background='var(--color-surface)'">
+    <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px">${e.title}</div>
+    <div style="font-size:11px;color:var(--color-text-muted)">${dateStr}${timeStr?' · '+timeStr:''}${e.link?' · 🔗':''}</div>
+  </div>`;
+}
+
+function openEvtDetail(id) {
+  const e = events.find(x => x.id === id);
+  if (!e) return;
+  currentEvtId = id;
+  document.getElementById('evt-detail-title').textContent = e.title;
+  const d = new Date(e.date + 'T00:00:00');
+  const dateStr = d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('evt-detail-datetime').textContent = dateStr + (e.time?' · '+e.time.slice(0,5):'');
+  document.getElementById('evt-detail-desc').textContent = e.description || '';
+  const linkEl = document.getElementById('evt-detail-link');
+  if (e.link) { linkEl.href = e.link; linkEl.style.display = 'block'; } else linkEl.style.display = 'none';
+  document.getElementById('evt-detail-admin-actions').style.display = currentUser?.role==='admin' ? 'flex' : 'none';
+  openModal('modal-evt-detail');
+}
+
+function openEventModal(editId) {
+  currentEvtId = editId || null;
+  document.getElementById('evt-form-title').textContent = editId ? 'Etkinliği Düzenle' : 'Yeni Etkinlik';
+  if (editId) {
+    const e = events.find(x => x.id === editId);
+    document.getElementById('evt-f-title').value = e.title;
+    document.getElementById('evt-f-desc').value = e.description || '';
+    document.getElementById('evt-f-date').value = e.date;
+    document.getElementById('evt-f-time').value = e.time ? e.time.slice(0,5) : '';
+    document.getElementById('evt-f-link').value = e.link || '';
+  } else {
+    ['evt-f-title','evt-f-desc','evt-f-date','evt-f-time','evt-f-link'].forEach(id => document.getElementById(id).value = '');
+  }
+  closeModal('modal-evt-detail');
+  openModal('modal-evt-form');
+}
+
+async function saveEvent() {
+  const title = document.getElementById('evt-f-title').value.trim();
+  const date = document.getElementById('evt-f-date').value;
+  if (!title || !date) { toast('❌ Başlık ve tarih zorunlu'); return; }
+  const row = { title, date, description: document.getElementById('evt-f-desc').value.trim(), time: document.getElementById('evt-f-time').value || null, link: document.getElementById('evt-f-link').value.trim() || null, created_by: currentUser?.email || '' };
+  if (currentEvtId) {
+    const { error } = await sb.from('events').update(row).eq('id', currentEvtId);
+    if (error) { toast('❌ ' + error.message); return; }
+  } else {
+    const { error } = await sb.from('events').insert(row).select().single();
+    if (error) { toast('❌ ' + error.message); return; }
+  }
+  toast('✅ Kaydedildi');
+  closeModal('modal-evt-form');
+  await loadEvents();
+}
+
+async function deleteEvtFromDetail() {
+  if (!currentEvtId || !confirm('Etkinlik silinsin mi?')) return;
+  await sb.from('events').delete().eq('id', currentEvtId);
+  toast('🗑 Silindi');
+  closeModal('modal-evt-detail');
+  await loadEvents();
+}
+
+function editEvtFromDetail() { openEventModal(currentEvtId); }
 
 </script>
 
