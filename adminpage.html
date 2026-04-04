@@ -1181,55 +1181,146 @@ select option { background: #232323; color: #e8e8e6; }
 }
 
 /* ===== EĞİTİM SİSTEMİ ===== */
-.tr-level-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
-@media(max-width:900px){ .tr-level-grid{ grid-template-columns:repeat(2,1fr); } }
-@media(max-width:560px){ .tr-level-grid{ grid-template-columns:1fr; } }
+/* Level Grid */
+.tr-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
+@media(max-width:900px){ .tr-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:560px){ .tr-grid{ grid-template-columns:1fr; } }
 
-.tr-level-card {
+.tr-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 18px 16px;
-  cursor: pointer;
-  transition: all 0.18s;
-  position: relative;
+  border-radius: var(--radius-xl);
   overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  position: relative;
 }
-.tr-level-card:hover:not(.tr-locked) { border-color: var(--color-border-strong); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
-.tr-level-card.tr-active { border-color: rgba(74,158,255,0.4); background: rgba(74,158,255,0.05); }
-.tr-level-card.tr-active::before { content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(135deg,rgba(74,158,255,0.06),transparent); pointer-events:none; }
-.tr-level-card.tr-done { border-color: rgba(76,175,129,0.35); }
-.tr-level-card.tr-pending { border-color: rgba(224,165,83,0.35); }
-.tr-level-card.tr-locked { opacity:0.42; cursor:not-allowed; filter:blur(0.3px); }
+.tr-card:hover:not(.tr-locked) { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--color-border-strong); }
+.tr-card.tr-active  { border-color: rgba(74,158,255,0.45); box-shadow: 0 0 0 1px rgba(74,158,255,0.15); }
+.tr-card.tr-done    { border-color: rgba(76,175,129,0.4); }
+.tr-card.tr-pending { border-color: rgba(224,165,83,0.4); }
+.tr-card.tr-locked  { opacity: 0.38; cursor: not-allowed; }
 
-.tr-lvl-num { font-size:11px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
-.tr-lvl-title { font-size:14px; font-weight:600; color:var(--color-text-primary); margin-bottom:4px; }
-.tr-lvl-desc { font-size:12px; color:var(--color-text-muted); line-height:1.5; margin-bottom:12px; }
-.tr-pbar { height:3px; background:var(--color-bg-tertiary); border-radius:2px; overflow:hidden; margin-bottom:10px; }
-.tr-pfill { height:100%; border-radius:2px; background:var(--color-accent); transition:width 0.4s; }
-.tr-pfill.done { background:var(--color-green); }
+.tr-card-cover {
+  height: 80px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  position: relative; overflow: hidden;
+}
+.tr-card-cover-num { font-size: 32px; font-weight: 800; opacity: 0.18; letter-spacing: -2px; color: #fff; }
+.tr-card-cover-icon { font-size: 22px; }
 
-.tr-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:2px 8px; border-radius:20px; }
+.tr-card-body { padding: 16px 18px 18px; }
+.tr-card-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; }
+.tr-card-desc  { font-size: 12px; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 14px; }
+.tr-pbar { height: 3px; background: var(--color-bg-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.tr-pfill { height: 100%; border-radius: 2px; background: var(--color-accent); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.tr-pfill.green { background: var(--color-green); }
+.tr-card-footer { display:flex; align-items:center; justify-content:space-between; }
+
+.tr-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px; white-space:nowrap; }
 .tr-badge.locked  { background:var(--color-bg-tertiary); color:var(--color-text-muted); }
 .tr-badge.active  { background:var(--color-blue-light); color:var(--color-blue); }
 .tr-badge.done    { background:var(--color-green-light); color:var(--color-green-text); }
 .tr-badge.pending { background:var(--color-amber-light); color:var(--color-amber); }
 
-.tr-module-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--color-divider); }
-.tr-module-item:last-child { border-bottom:none; }
-.tr-check { width:20px; height:20px; border-radius:50%; border:2px solid var(--color-border-strong); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; margin-top:1px; transition:all 0.15s; }
-.tr-check:hover { border-color:var(--color-accent); }
-.tr-check.checked { background:var(--color-green); border-color:var(--color-green); }
-.tr-check.checked::after { content:'✓'; font-size:11px; color:#fff; font-weight:700; }
+/* Classroom View */
+.tr-classroom {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--color-bg);
+  flex-direction: column;
+}
+.tr-classroom.open { display: flex; }
 
-.tr-quiz-opt { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.12s; margin-bottom:8px; font-size:14px; color:var(--color-text-secondary); }
+.tr-classroom-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  background: var(--color-bg);
+}
+.tr-classroom-body { display: flex; flex: 1; overflow: hidden; }
+
+/* Left sidebar */
+.tr-sidebar {
+  width: 280px; flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+  background: var(--color-bg);
+}
+.tr-sidebar-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--color-divider); flex-shrink: 0; }
+.tr-sidebar-progress { height: 3px; background: var(--color-bg-tertiary); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+.tr-sidebar-pfill { height: 100%; border-radius: 2px; background: var(--color-accent); transition: width 0.4s; }
+
+.tr-mod-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid var(--color-divider);
+  position: relative;
+}
+.tr-mod-item:hover { background: var(--color-surface-hover); }
+.tr-mod-item.active { background: var(--color-surface); }
+.tr-mod-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--color-accent); border-radius:0 2px 2px 0; }
+.tr-mod-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--color-border-strong); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.tr-mod-check.done { background: var(--color-green); border-color: var(--color-green); }
+.tr-mod-check.done::after { content:'✓'; font-size:10px; color:#fff; font-weight:700; }
+.tr-mod-title { font-size: 13px; color: var(--color-text-secondary); line-height: 1.4; }
+.tr-mod-item.active .tr-mod-title { color: var(--color-text-primary); font-weight: 500; }
+
+.tr-sidebar-quiz {
+  margin: 12px 16px 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+}
+
+/* Right content */
+.tr-content { flex: 1; overflow-y: auto; padding: 28px 36px; max-width: 820px; }
+@media(max-width:700px){ .tr-content{ padding: 20px 16px; } }
+
+.tr-video-wrap {
+  width: 100%; aspect-ratio: 16/9;
+  background: #0d0d0d;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: center;
+}
+.tr-video-wrap iframe { width:100%; height:100%; border:none; }
+.tr-video-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--color-text-muted); }
+
+.tr-content-title { font-size: 20px; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.3px; margin-bottom: 6px; }
+.tr-content-meta  { font-size: 12px; color: var(--color-text-muted); margin-bottom: 20px; }
+.tr-content-desc  { font-size: 15px; color: var(--color-text-secondary); line-height: 1.75; margin-bottom: 20px; }
+.tr-content-notes { font-size: 14px; color: var(--color-text-secondary); line-height: 1.8; white-space: pre-wrap; padding: 16px 20px; background: var(--color-bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 20px; }
+.tr-content-resources { margin-bottom: 24px; }
+.tr-resource-item { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--radius); border:1px solid var(--color-border); margin-bottom:6px; font-size:13px; color:var(--color-text-secondary); text-decoration:none; transition:background 0.1s; }
+.tr-resource-item:hover { background:var(--color-surface-hover); color:var(--color-text-primary); }
+
+/* Quiz */
+.tr-quiz-wrap { max-width: 600px; }
+.tr-quiz-q { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; line-height: 1.5; }
+.tr-quiz-opt { display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.12s; margin-bottom:8px; font-size:14px; color:var(--color-text-secondary); }
 .tr-quiz-opt:hover { border-color:var(--color-accent); color:var(--color-text-primary); background:var(--color-accent-light); }
 .tr-quiz-opt.selected { border-color:var(--color-accent); background:var(--color-accent-light); color:var(--color-text-primary); }
-.tr-quiz-opt.correct { border-color:var(--color-green); background:var(--color-green-light); color:var(--color-green-text); }
-.tr-quiz-opt.wrong   { border-color:var(--color-red); background:var(--color-red-light); color:var(--color-red); }
+.tr-quiz-opt.correct  { border-color:var(--color-green); background:var(--color-green-light); color:var(--color-green-text); }
+.tr-quiz-opt.wrong    { border-color:var(--color-red); background:var(--color-red-light); color:var(--color-red); }
+.tr-quiz-radio { width:14px; height:14px; border-radius:50%; border:1.5px solid currentColor; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.tr-quiz-opt.selected .tr-quiz-radio::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--color-accent); }
 
-@keyframes trUnlock { 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
-.tr-unlock-anim { animation: trUnlock 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes trUnlock { 0%{transform:scale(0.92);opacity:0} 60%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
+.tr-unlock-anim { animation: trUnlock 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@media(max-width:700px){
+  .tr-classroom-body { flex-direction: column; }
+  .tr-sidebar { width:100%; height:auto; border-right:none; border-bottom:1px solid var(--color-border); }
+  .tr-sidebar { max-height: 240px; }
+}
 
 </style>
 <body>
@@ -1690,31 +1781,8 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="page-title">İş Geliştirme Eğitimi</div>
           <div class="page-sub">Seviyeleri tamamla, yeteneklerini geliştir</div>
         </div>
-        <div id="tr-user-badge" style="display:none"></div>
       </div>
-      <!-- Level roadmap -->
-      <div id="tr-level-grid" class="tr-level-grid"></div>
-      <!-- Level detail -->
-      <div id="tr-detail" style="display:none">
-        <div class="card">
-          <div class="card-head" style="justify-content:space-between">
-            <span class="card-title" id="tr-detail-title"></span>
-            <button onclick="closeTrDetail()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:18px">✕</button>
-          </div>
-          <div class="card-body">
-            <div id="tr-module-list"></div>
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--color-divider)">
-              <button id="tr-quiz-btn" onclick="openQuizModal()" class="btn btn-primary" style="opacity:0.4;pointer-events:none">Quiz'e Geç →</button>
-              <div id="tr-pending-notice" style="display:none;margin-top:12px;padding:12px 16px;background:var(--color-amber-light);border-radius:var(--radius-md);font-size:13px;color:var(--color-amber)">
-                ⏳ Admin onayı bekleniyor. Onay sonrası bir sonraki seviye açılacak.
-              </div>
-              <div id="tr-approved-notice" style="display:none;margin-top:12px;padding:12px 16px;background:var(--color-green-light);border-radius:var(--radius-md);font-size:13px;color:var(--color-green-text)">
-                ✅ Bu seviye onaylandı. Bir sonraki seviye açık!
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div id="tr-grid" class="tr-grid"></div>
     </div>
 
     <!-- ===== EĞİTİM YÖNETİMİ (ADMIN) ===== -->
@@ -1723,7 +1791,7 @@ select option { background: #232323; color: #e8e8e6; }
         <div><div class="page-title">Eğitim Yönetimi</div><div class="page-sub">Kullanıcı ilerlemelerini yönet</div></div>
       </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">Onay Bekleyenler</span></div>
+        <div class="card-head"><span class="card-title">⏳ Onay Bekleyenler</span></div>
         <div class="card-body"><div id="tr-admin-pending-list"></div></div>
       </div>
       <div class="card" style="margin-top:16px">
@@ -2699,17 +2767,32 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
-<!-- ===== QUIZ MODAL ===== -->
-<div class="modal-bg" id="modal-quiz" onclick="if(event.target===this&&!quizSubmitted){}">
-  <div class="modal" style="width:560px;max-width:95vw">
-    <div class="modal-head">
-      <div class="modal-title" id="quiz-modal-title">Quiz</div>
-      <button class="modal-close" id="quiz-close-btn" onclick="closeModal('modal-quiz')" style="display:none">✕</button>
+<!-- ===== EĞİTİM CLASSROOM ===== -->
+<div class="tr-classroom" id="tr-classroom">
+  <!-- Header -->
+  <div class="tr-classroom-header">
+    <button onclick="closeTrClassroom()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:20px;line-height:1;padding:0;flex-shrink:0" title="Geri">←</button>
+    <div style="flex:1">
+      <div id="tr-cls-title" style="font-size:15px;font-weight:600;color:var(--color-text-primary)"></div>
+      <div id="tr-cls-sub" style="font-size:12px;color:var(--color-text-muted);margin-top:1px"></div>
     </div>
-    <div id="quiz-body" style="padding:4px 0 12px"></div>
-    <div class="modal-footer" id="quiz-footer">
-      <span id="quiz-counter" style="font-size:13px;color:var(--color-text-muted)"></span>
-      <button id="quiz-submit-btn" class="btn btn-primary" onclick="submitQuiz()" style="opacity:0.4;pointer-events:none">Gönder</button>
+    <div id="tr-cls-badge"></div>
+  </div>
+  <!-- Body -->
+  <div class="tr-classroom-body">
+    <!-- Left sidebar: module list -->
+    <div class="tr-sidebar">
+      <div class="tr-sidebar-head">
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Dersler</div>
+        <div class="tr-sidebar-progress"><div id="tr-sp-fill" class="tr-sidebar-pfill" style="width:0%"></div></div>
+        <div id="tr-sp-text" style="font-size:11px;color:var(--color-text-muted);margin-top:6px"></div>
+      </div>
+      <div id="tr-mod-list" style="flex:1"></div>
+      <div class="tr-sidebar-quiz" id="tr-sidebar-quiz-area"></div>
+    </div>
+    <!-- Right content -->
+    <div class="tr-content" id="tr-content-area">
+      <div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--color-text-muted);font-size:14px">← Bir ders seç</div>
     </div>
   </div>
 </div>
@@ -6708,6 +6791,9 @@ async function deleteEvtFromDetail() {
 function editEvtFromDetail() { openEventModal(currentEvtId); }
 
 // ===== EĞİTİM SİSTEMİ =====
+const TR_COLORS = ['#1a2332','#1e2820','#221e30','#221e1a','#1a2226','#20261a','#261e20','#1e2030'];
+const TR_ICONS  = ['🏗','💡','📣','💰','🤝','🔗','⚙️','🚀'];
+
 const TR_LEVELS = {
   1: { title:'Temel Sistem',      desc:'İş geliştirmenin temelleri ve başlangıç noktası',
        modules:[
@@ -6801,24 +6887,23 @@ const TR_LEVELS = {
        ]},
 };
 
-let trProgress = {}; // { levelNum: { modulesDone:[], quizDone:false, status:'locked' } }
+let trProgress  = {};
 let trActiveLvl = null;
-let quizAnswers = {};
-let quizSubmitted = false;
+let trActiveMod = null;
+let trQuizAnswers = {};
+let trQuizDone = false;
 
 async function loadTraining() {
-  // Load from Supabase
   const { data } = await sb.from('training_progress').select('*').eq('user_id', currentUser?.email||'');
   trProgress = {};
   (data||[]).forEach(r => {
     trProgress[r.level_num] = { modulesDone: r.modules_done||[], quizDone: r.quiz_done||false, status: r.status||'locked' };
   });
-  // Level 1 always active if not yet started
   if (!trProgress[1]) {
     trProgress[1] = { modulesDone:[], quizDone:false, status:'active' };
     await upsertTrProgress(1);
   }
-  renderTrRoadmap();
+  renderTrGrid();
 }
 
 async function upsertTrProgress(levelNum) {
@@ -6829,175 +6914,248 @@ async function upsertTrProgress(levelNum) {
   }, { onConflict: 'user_id,level_num' });
 }
 
-function renderTrRoadmap() {
-  const grid = document.getElementById('tr-level-grid');
+// ---- RENDER GRID ----
+function renderTrGrid() {
+  const grid = document.getElementById('tr-grid');
   if (!grid) return;
   grid.innerHTML = Object.entries(TR_LEVELS).map(([num, lvl]) => {
     const n = parseInt(num);
-    const p = trProgress[n] || { modulesDone:[], quizDone:false, status:'locked' };
+    const p = trProgress[n] || { modulesDone:[], status:'locked' };
     const total = lvl.modules.length;
-    const done = p.modulesDone.length;
-    const pct = total > 0 ? Math.round((done/total)*100) : 0;
+    const doneCnt = p.modulesDone.length;
+    const pct = total > 0 ? Math.round((doneCnt/total)*100) : 0;
     const st = p.status;
-    const cls = st==='locked'?'tr-locked': st==='active'?'tr-active': st==='pending'?'tr-pending': 'tr-done';
-    const badge = st==='locked' ? '<span class="tr-badge locked">🔒 Kilitli</span>'
-                : st==='active'   ? '<span class="tr-badge active">▶ Aktif</span>'
-                : st==='pending'  ? '<span class="tr-badge pending">⏳ Onay Bekliyor</span>'
-                : '<span class="tr-badge done">✅ Tamamlandı</span>';
-    return `<div class="tr-level-card ${cls}" onclick="openTrLevel(${n})">
-      <div class="tr-lvl-num">Level ${n}</div>
-      <div class="tr-lvl-title">${lvl.title}</div>
-      <div class="tr-lvl-desc">${lvl.desc}</div>
-      <div class="tr-pbar"><div class="tr-pfill ${st==='done'?'done':''}" style="width:${st==='locked'?0:pct}%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        ${badge}
-        ${st!=='locked'?`<span style="font-size:11px;color:var(--color-text-muted)">${done}/${total} modül</span>`:''}
+    const cls = st==='locked'?'tr-locked': st==='active'?'tr-active': st==='pending'?'tr-pending':'tr-done';
+    const badge = st==='locked'  ? '<span class="tr-badge locked">🔒 Kilitli</span>'
+                : st==='active'  ? '<span class="tr-badge active">▶ Aktif</span>'
+                : st==='pending' ? '<span class="tr-badge pending">⏳ Onay Bekliyor</span>'
+                                 : '<span class="tr-badge done">✅ Tamamlandı</span>';
+    const coverBg = TR_COLORS[(n-1)%TR_COLORS.length];
+    const icon    = TR_ICONS[(n-1)%TR_ICONS.length];
+    return `<div class="tr-card ${cls}" onclick="openTrClassroom(${n})">
+      <div class="tr-card-cover" style="background:${coverBg}">
+        <div class="tr-card-cover-num">${n}</div>
+        <div class="tr-card-cover-icon">${st==='locked'?'🔒':st==='done'?'✅':icon}</div>
+      </div>
+      <div class="tr-card-body">
+        <div style="font-size:10px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Level ${n}</div>
+        <div class="tr-card-title">${lvl.title}</div>
+        <div class="tr-card-desc">${lvl.desc}</div>
+        <div class="tr-pbar"><div class="tr-pfill ${st==='done'?'green':''}" style="width:${st==='locked'?0:st==='done'?100:pct}%"></div></div>
+        <div class="tr-card-footer">
+          ${badge}
+          ${st!=='locked'?`<span style="font-size:11px;color:var(--color-text-muted)">${st==='done'?'Tamamlandı':doneCnt+'/'+total+' ders'}</span>`:''}
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
-function openTrLevel(n) {
+// ---- CLASSROOM ----
+function openTrClassroom(n) {
   const p = trProgress[n] || {};
-  if (p.status === 'locked') { toast('Bu seviye henüz kilitli'); return; }
+  if (p.status === 'locked') { toast('Bu seviye henüz kilitli 🔒'); return; }
   trActiveLvl = n;
+  trActiveMod = null;
   const lvl = TR_LEVELS[n];
-  const detail = document.getElementById('tr-detail');
-  document.getElementById('tr-detail-title').textContent = `Level ${n} — ${lvl.title}`;
-  renderTrModules(n);
-  detail.style.display = 'block';
-  detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  updateTrQuizBtn(n);
-  const pendingNotice  = document.getElementById('tr-pending-notice');
-  const approvedNotice = document.getElementById('tr-approved-notice');
-  pendingNotice.style.display  = p.status==='pending'  ? 'block' : 'none';
-  approvedNotice.style.display = p.status==='done'     ? 'block' : 'none';
+  // Header
+  document.getElementById('tr-cls-title').textContent = `Level ${n} — ${lvl.title}`;
+  document.getElementById('tr-cls-sub').textContent   = lvl.desc;
+  const badge = p.status==='pending' ? '<span class="tr-badge pending">⏳ Onay Bekliyor</span>'
+              : p.status==='done'    ? '<span class="tr-badge done">✅ Tamamlandı</span>'  : '';
+  document.getElementById('tr-cls-badge').innerHTML = badge;
+  // Show classroom
+  document.getElementById('tr-classroom').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderTrSidebar(n);
+  renderTrQuizArea(n);
+  // Auto-select first incomplete module
+  const firstIncomplete = lvl.modules.find(m => !p.modulesDone.includes(m.id));
+  const first = firstIncomplete || lvl.modules[0];
+  if (first) selectTrModule(n, first.id);
 }
 
-function closeTrDetail() { document.getElementById('tr-detail').style.display='none'; trActiveLvl=null; }
+function closeTrClassroom() {
+  document.getElementById('tr-classroom').classList.remove('open');
+  document.body.style.overflow = '';
+  trActiveLvl = null; trActiveMod = null;
+  renderTrGrid();
+}
 
-function renderTrModules(n) {
+function renderTrSidebar(n) {
   const lvl = TR_LEVELS[n];
-  const p = trProgress[n] || { modulesDone:[] };
-  const list = document.getElementById('tr-module-list');
-  list.innerHTML = lvl.modules.map((m,i) => {
-    const done = p.modulesDone.includes(m.id);
-    return `<div class="tr-module-item">
-      <div class="tr-check ${done?'checked':''}" onclick="toggleModule(${n},'${m.id}')"></div>
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px;${done?'text-decoration:line-through;opacity:0.6':''}">${i+1}. ${m.title}</div>
-        <div style="font-size:12px;color:var(--color-text-muted);line-height:1.5">${m.desc}</div>
-        ${m.video ? `<div style="margin-top:10px;border-radius:10px;overflow:hidden;aspect-ratio:16/9;background:#000"><iframe src="https://www.youtube.com/embed/${getYtId(m.video)}?rel=0&modestbranding=1" style="width:100%;height:100%;border:none" allowfullscreen></iframe></div>` : ''}
-      </div>
+  const p   = trProgress[n] || { modulesDone:[] };
+  const total = lvl.modules.length;
+  const done  = p.modulesDone.length;
+  const pct   = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('tr-sp-fill').style.width = pct + '%';
+  document.getElementById('tr-sp-text').textContent = `${done}/${total} ders tamamlandı`;
+  document.getElementById('tr-mod-list').innerHTML = lvl.modules.map((m,i) => {
+    const isDone = p.modulesDone.includes(m.id);
+    const isActive = trActiveMod === m.id;
+    return `<div class="tr-mod-item ${isActive?'active':''}" onclick="selectTrModule(${n},'${m.id}')">
+      <div class="tr-mod-check ${isDone?'done':''}"></div>
+      <div class="tr-mod-title">${i+1}. ${m.title}</div>
     </div>`;
   }).join('');
 }
 
-async function toggleModule(n, moduleId) {
-  const p = trProgress[n] || { modulesDone:[], quizDone:false, status:'active' };
-  if (p.status === 'pending' || p.status === 'done') return;
-  const idx = p.modulesDone.indexOf(moduleId);
-  if (idx >= 0) p.modulesDone.splice(idx, 1);
-  else p.modulesDone.push(moduleId);
-  trProgress[n] = p;
-  await upsertTrProgress(n);
-  renderTrModules(n);
-  renderTrRoadmap();
-  updateTrQuizBtn(n);
-}
-
-function updateTrQuizBtn(n) {
+function renderTrQuizArea(n) {
   const lvl = TR_LEVELS[n];
-  const p = trProgress[n] || { modulesDone:[] };
-  const btn = document.getElementById('tr-quiz-btn');
-  if (!btn) return;
+  const p   = trProgress[n] || { modulesDone:[] };
   const allDone = lvl.modules.every(m => p.modulesDone.includes(m.id));
-  const isDoneOrPending = p.status === 'done' || p.status === 'pending';
-  if (isDoneOrPending) {
-    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none';
-    btn.textContent = p.status === 'pending' ? '⏳ Onay Bekleniyor' : '✅ Tamamlandı';
+  const st  = p.status;
+  const area = document.getElementById('tr-sidebar-quiz-area');
+  if (st === 'pending') {
+    area.innerHTML = `<div style="font-size:12px;color:var(--color-amber);font-weight:500;margin-bottom:4px">⏳ Onay bekleniyor</div><div style="font-size:11px;color:var(--color-text-muted);line-height:1.5">Quiz tamamlandı. Admin onayı sonrası bir sonraki seviye açılacak.</div>`;
+  } else if (st === 'done') {
+    area.innerHTML = `<div style="font-size:12px;color:var(--color-green-text);font-weight:500">✅ Seviye tamamlandı</div>`;
   } else if (allDone) {
-    btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; btn.textContent = 'Quiz\'e Geç →';
+    area.innerHTML = `<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Tüm dersler tamamlandı!</div><button class="btn btn-primary" style="width:100%;justify-content:center;font-size:13px" onclick="openTrQuiz()">Quiz'e Geç →</button>`;
   } else {
-    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; btn.textContent = 'Tüm modülleri tamamla';
+    area.innerHTML = `<div style="font-size:11px;color:var(--color-text-muted);line-height:1.5">Tüm dersleri tamamladıktan sonra quiz aktif olacak.</div>`;
   }
 }
 
-// ---- QUIZ ----
-function openQuizModal() {
-  if (!trActiveLvl) return;
-  const lvl = TR_LEVELS[trActiveLvl];
-  quizAnswers = {};
-  quizSubmitted = false;
-  document.getElementById('quiz-modal-title').textContent = `Level ${trActiveLvl} — Quiz`;
-  document.getElementById('quiz-close-btn').style.display = 'none';
-  renderQuizBody();
-  openModal('modal-quiz');
-}
-
-function renderQuizBody() {
-  const lvl = TR_LEVELS[trActiveLvl];
-  const body = document.getElementById('quiz-body');
-  body.innerHTML = lvl.quiz.map((q,qi) => `
-    <div style="margin-bottom:20px">
-      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;line-height:1.5">${qi+1}. ${q.q}</div>
-      ${q.opts.map((opt,oi) => `<div class="tr-quiz-opt ${quizAnswers[qi]===oi?'selected':''}" onclick="selectQuizOpt(${qi},${oi})">${opt}</div>`).join('')}
+function selectTrModule(n, modId) {
+  trActiveMod = modId;
+  const lvl = TR_LEVELS[n];
+  const m   = lvl.modules.find(x => x.id === modId);
+  const p   = trProgress[n] || { modulesDone:[] };
+  if (!m) return;
+  // Update sidebar active state
+  document.querySelectorAll('.tr-mod-item').forEach(el => el.classList.remove('active'));
+  const items = document.querySelectorAll('.tr-mod-item');
+  const idx = lvl.modules.findIndex(x => x.id === modId);
+  if (items[idx]) items[idx].classList.add('active');
+  // Render content
+  const isDone = p.modulesDone.includes(modId);
+  const locked = p.status === 'pending' || p.status === 'done';
+  const ytId = m.video ? getYtId(m.video) : '';
+  document.getElementById('tr-content-area').innerHTML = `
+    <div class="tr-content-title">${m.title}</div>
+    <div class="tr-content-meta">Level ${n} · Ders ${idx+1}/${lvl.modules.length}</div>
+    ${ytId ? `<div class="tr-video-wrap"><iframe src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1" allowfullscreen></iframe></div>`
+           : `<div class="tr-video-wrap"><div class="tr-video-placeholder"><span style="font-size:32px">🎬</span><span style="font-size:13px">Video yakında eklenecek</span></div></div>`}
+    <div class="tr-content-desc">${m.desc}</div>
+    ${m.notes ? `<div class="tr-content-notes">${m.notes}</div>` : ''}
+    ${m.resources?.length ? `<div class="tr-content-resources"><div style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Kaynaklar</div>${m.resources.map(r=>`<a href="${r.url}" target="_blank" class="tr-resource-item">🔗 ${r.label}</a>`).join('')}</div>` : ''}
+    <div style="padding-top:8px;border-top:1px solid var(--color-divider)">
+      ${isDone
+        ? `<button class="btn btn-ghost" onclick="trToggleModule(${n},'${modId}')" ${locked?'disabled':''}>✓ Tamamlandı olarak işaretlendi</button>`
+        : `<button class="btn btn-primary" onclick="trToggleModule(${n},'${modId}')" ${locked?'disabled':''}>Tamamlandı Olarak İşaretle ✓</button>`
+      }
     </div>
-  `).join('');
-  updateQuizCounter();
-}
-
-function selectQuizOpt(qi, oi) {
-  if (quizSubmitted) return;
-  quizAnswers[qi] = oi;
-  renderQuizBody();
-}
-
-function updateQuizCounter() {
-  const lvl = TR_LEVELS[trActiveLvl];
-  const answered = Object.keys(quizAnswers).length;
-  const total = lvl.quiz.length;
-  document.getElementById('quiz-counter').textContent = `${answered}/${total} cevaplandı`;
-  const btn = document.getElementById('quiz-submit-btn');
-  if (answered === total) { btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
-  else { btn.style.opacity='0.4'; btn.style.pointerEvents='none'; }
-}
-
-async function submitQuiz() {
-  const lvl = TR_LEVELS[trActiveLvl];
-  quizSubmitted = true;
-  // Show results briefly
-  const body = document.getElementById('quiz-body');
-  let correct = 0;
-  body.innerHTML = lvl.quiz.map((q,qi) => {
-    const chosen = quizAnswers[qi];
-    const isCorrect = chosen === q.correct;
-    if (isCorrect) correct++;
-    return `<div style="margin-bottom:20px">
-      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;line-height:1.5">${qi+1}. ${q.q}</div>
-      ${q.opts.map((opt,oi) => `<div class="tr-quiz-opt ${oi===q.correct?'correct':oi===chosen&&chosen!==q.correct?'wrong':''}">${opt}</div>`).join('')}
-    </div>`;
-  }).join('');
-  document.getElementById('quiz-footer').innerHTML = `
-    <div style="font-size:13px;color:var(--color-text-secondary)">${correct}/${lvl.quiz.length} doğru</div>
-    <button class="btn btn-primary" onclick="finishQuiz()">Gönder ve Onay Bekle</button>
   `;
 }
 
-async function finishQuiz() {
-  const n = trActiveLvl;
-  const p = trProgress[n] || { modulesDone:[], status:'active' };
-  p.quizDone = true;
-  p.status = 'pending';
+async function trToggleModule(n, modId) {
+  const p = trProgress[n] || { modulesDone:[], quizDone:false, status:'active' };
+  if (p.status === 'pending' || p.status === 'done') return;
+  const idx = p.modulesDone.indexOf(modId);
+  if (idx >= 0) p.modulesDone.splice(idx,1); else p.modulesDone.push(modId);
   trProgress[n] = p;
   await upsertTrProgress(n);
-  closeModal('modal-quiz');
-  renderTrRoadmap();
-  openTrLevel(n);
+  renderTrSidebar(n);
+  renderTrQuizArea(n);
+  selectTrModule(n, modId);
+}
+
+// ---- QUIZ ----
+function openTrQuiz() {
+  trQuizAnswers = {};
+  trQuizDone = false;
+  renderTrQuizContent();
+}
+
+function renderTrQuizContent() {
+  const n   = trActiveLvl;
+  const lvl = TR_LEVELS[n];
+  const content = document.getElementById('tr-content-area');
+  content.innerHTML = `
+    <div class="tr-content-title">Level ${n} Quiz</div>
+    <div class="tr-content-meta" style="margin-bottom:24px">${lvl.quiz.length} soru · Tüm soruları cevaplayın</div>
+    <div class="tr-quiz-wrap" id="tr-quiz-questions"></div>
+    <div id="tr-quiz-actions" style="margin-top:24px;display:flex;align-items:center;gap:12px">
+      <span id="tr-quiz-counter" style="font-size:13px;color:var(--color-text-muted)"></span>
+      <button id="tr-quiz-sbmt" class="btn btn-primary" onclick="submitTrQuiz()" style="opacity:0.4;pointer-events:none">Gönder →</button>
+    </div>
+  `;
+  renderTrQuizQuestions();
+}
+
+function renderTrQuizQuestions() {
+  const n   = trActiveLvl;
+  const lvl = TR_LEVELS[n];
+  const el  = document.getElementById('tr-quiz-questions');
+  if (!el) return;
+  el.innerHTML = lvl.quiz.map((q,qi) => `
+    <div style="margin-bottom:28px">
+      <div class="tr-quiz-q">${qi+1}. ${q.q}</div>
+      ${q.opts.map((opt,oi) => `
+        <div class="tr-quiz-opt ${trQuizAnswers[qi]===oi?'selected':''}" onclick="trSelectOpt(${qi},${oi})">
+          <div class="tr-quiz-radio"></div>${opt}
+        </div>`).join('')}
+    </div>
+  `).join('');
+  const answered = Object.keys(trQuizAnswers).length;
+  const counter = document.getElementById('tr-quiz-counter');
+  const sbmt = document.getElementById('tr-quiz-sbmt');
+  if (counter) counter.textContent = `${answered}/${lvl.quiz.length} cevaplandı`;
+  if (sbmt) { sbmt.style.opacity = answered===lvl.quiz.length?'1':'0.4'; sbmt.style.pointerEvents = answered===lvl.quiz.length?'auto':'none'; }
+}
+
+function trSelectOpt(qi, oi) {
+  if (trQuizDone) return;
+  trQuizAnswers[qi] = oi;
+  renderTrQuizQuestions();
+}
+
+async function submitTrQuiz() {
+  const n   = trActiveLvl;
+  const lvl = TR_LEVELS[n];
+  trQuizDone = true;
+  let correct = 0;
+  const el = document.getElementById('tr-quiz-questions');
+  if (el) {
+    el.innerHTML = lvl.quiz.map((q,qi) => {
+      const chosen = trQuizAnswers[qi];
+      if (chosen === q.correct) correct++;
+      return `<div style="margin-bottom:28px">
+        <div class="tr-quiz-q">${qi+1}. ${q.q}</div>
+        ${q.opts.map((opt,oi) => `<div class="tr-quiz-opt ${oi===q.correct?'correct':oi===chosen&&chosen!==q.correct?'wrong':''}">${opt}</div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+  const actions = document.getElementById('tr-quiz-actions');
+  if (actions) actions.innerHTML = `
+    <div style="font-size:14px;color:var(--color-text-secondary)">${correct}/${lvl.quiz.length} doğru</div>
+    <button class="btn btn-primary" onclick="finishTrQuiz()">Gönder ve Onay Bekle ✓</button>
+  `;
+}
+
+async function finishTrQuiz() {
+  const n = trActiveLvl;
+  const p = trProgress[n] || { modulesDone:[], status:'active' };
+  p.quizDone = true; p.status = 'pending';
+  trProgress[n] = p;
+  await upsertTrProgress(n);
+  renderTrSidebar(n);
+  renderTrQuizArea(n);
+  const content = document.getElementById('tr-content-area');
+  content.innerHTML = `
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:40px;margin-bottom:16px">⏳</div>
+      <div style="font-size:18px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px">Quiz Gönderildi</div>
+      <div style="font-size:14px;color:var(--color-text-secondary);line-height:1.6;max-width:360px;margin:0 auto">
+        Admin onayı bekleniyor. Onay sonrası bir sonraki seviye otomatik olarak açılacak.
+      </div>
+    </div>
+  `;
   toast('✅ Quiz gönderildi — admin onayı bekleniyor');
 }
 
-// ---- ADMIN TRAINING ----
+// ---- ADMIN ----
 async function loadTrainingAdmin() {
   const { data } = await sb.from('training_progress').select('*').order('updated_at', { ascending:false });
   const all = data || [];
@@ -7005,57 +7163,52 @@ async function loadTrainingAdmin() {
   const pendingEl = document.getElementById('tr-admin-pending-list');
   const allEl = document.getElementById('tr-admin-all-list');
   if (!pendingEl || !allEl) return;
-  if (pending.length === 0) {
-    pendingEl.innerHTML = '<div style="color:var(--color-text-muted);font-size:13px">Onay bekleyen yok</div>';
-  } else {
-    pendingEl.innerHTML = pending.map(r => trAdminRow(r, true)).join('');
-  }
-  // Group by user
+  pendingEl.innerHTML = pending.length === 0
+    ? '<div style="color:var(--color-text-muted);font-size:13px">Onay bekleyen kullanıcı yok</div>'
+    : pending.map(r => trAdminRow(r)).join('');
   const byUser = {};
   all.forEach(r => { if(!byUser[r.user_id]) byUser[r.user_id]=[]; byUser[r.user_id].push(r); });
-  allEl.innerHTML = Object.entries(byUser).map(([uid, rows]) => {
-    const maxLevel = Math.max(...rows.map(r=>r.level_num));
-    const pendingRow = rows.find(r=>r.status==='pending');
-    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${uid}</div>
-        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Max Level: ${maxLevel} · ${pendingRow?'⏳ Onay Bekliyor':'—'}</div>
+  allEl.innerHTML = Object.keys(byUser).length === 0 ? '<div style="color:var(--color-text-muted);font-size:13px">Henüz kullanıcı yok</div>'
+    : Object.entries(byUser).map(([uid, rows]) => {
+    const maxL = Math.max(...rows.map(r=>r.level_num));
+    const pRow = rows.find(r=>r.status==='pending');
+    const doneL = rows.filter(r=>r.status==='done').length;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--color-bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--color-text-secondary);flex-shrink:0">${uid[0]?.toUpperCase()||'?'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${uid}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Level ${maxL} · ${doneL} seviye tamamlandı${pRow?' · ⏳ Onay bekliyor':''}</div>
       </div>
-      ${pendingRow ? `<button class="btn btn-ghost" onclick="approveTrUser('${uid}',${pendingRow.level_num})" style="font-size:12px">Onayla</button>
-        <button class="btn btn-danger" onclick="rejectTrUser('${uid}',${pendingRow.level_num})" style="font-size:12px">Reddet</button>` : ''}
+      ${pRow ? `<button class="btn btn-primary" style="font-size:12px" onclick="approveTrUser('${uid}',${pRow.level_num})">✓ Onayla</button><button class="btn btn-danger" style="font-size:12px" onclick="rejectTrUser('${uid}',${pRow.level_num})">✕ Reddet</button>` : ''}
     </div>`;
   }).join('');
 }
 
-function trAdminRow(r, showBtns) {
+function trAdminRow(r) {
   const lvl = TR_LEVELS[r.level_num];
-  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+  return `<div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--radius-md);border:1px solid var(--color-amber-light);background:var(--color-amber-light);margin-bottom:8px">
     <div style="flex:1">
-      <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${r.user_id}</div>
-      <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Level ${r.level_num} — ${lvl?.title||''} · ${r.modules_done?.length||0} modül tamamlandı</div>
+      <div style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${r.user_id}</div>
+      <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">Level ${r.level_num} — ${lvl?.title||''} · ${r.modules_done?.length||0} ders tamamlandı</div>
     </div>
-    ${showBtns ? `<button class="btn btn-primary" onclick="approveTrUser('${r.user_id}',${r.level_num})" style="font-size:12px">✓ Onayla</button>
-      <button class="btn btn-danger" onclick="rejectTrUser('${r.user_id}',${r.level_num})" style="font-size:12px">✕ Reddet</button>` : '<span class="tr-badge pending">Bekliyor</span>'}
+    <button class="btn btn-primary" style="font-size:12px" onclick="approveTrUser('${r.user_id}',${r.level_num})">✓ Onayla</button>
+    <button class="btn btn-danger" style="font-size:12px" onclick="rejectTrUser('${r.user_id}',${r.level_num})">✕ Reddet</button>
   </div>`;
 }
 
 async function approveTrUser(userId, levelNum) {
-  // Mark current level as done
   await sb.from('training_progress').update({ status:'done' }).eq('user_id', userId).eq('level_num', levelNum);
-  // Unlock next level if exists
-  const nextLevel = levelNum + 1;
-  if (TR_LEVELS[nextLevel]) {
-    await sb.from('training_progress').upsert({
-      user_id: userId, level_num: nextLevel, modules_done: [], quiz_done: false, status: 'active'
-    }, { onConflict: 'user_id,level_num' });
+  const next = levelNum + 1;
+  if (TR_LEVELS[next]) {
+    await sb.from('training_progress').upsert({ user_id:userId, level_num:next, modules_done:[], quiz_done:false, status:'active' }, { onConflict:'user_id,level_num' });
   }
-  toast(`✅ Level ${levelNum} onaylandı — Level ${nextLevel} açıldı`);
+  toast(`✅ Level ${levelNum} onaylandı${TR_LEVELS[next]?' — Level '+next+' açıldı':' — Eğitim tamamlandı!'}`);
   loadTrainingAdmin();
 }
 
 async function rejectTrUser(userId, levelNum) {
   await sb.from('training_progress').update({ status:'active', quiz_done:false }).eq('user_id', userId).eq('level_num', levelNum);
-  toast(`↩ Level ${levelNum} reddedildi — kullanıcı tekrar quiz yapabilir`);
+  toast(`↩ Reddedildi — ${userId} quiz'i tekrar yapabilir`);
   loadTrainingAdmin();
 }
 // ===== EĞİTİM SİSTEMİ END =====
