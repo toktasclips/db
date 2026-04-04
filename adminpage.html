@@ -4630,7 +4630,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <!-- ===== KART DETAY OVERLAY ===== -->
 <div id="kd-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)" onclick="if(event.target===this)closeKartDetay()">
-  <div id="kd-panel" style="background:#1c1c1c;border:1px solid #2a2a2a;border-radius:16px;width:1000px;max-width:96vw;height:88vh;box-shadow:0 10px 40px rgba(0,0,0,0.5);display:flex;flex-direction:column;overflow:hidden">
+  <div id="kd-panel" style="background:#1c1c1c;border:1px solid #2a2a2a;border-radius:16px;width:1100px;max-width:97vw;height:92vh;box-shadow:0 10px 40px rgba(0,0,0,0.5);display:flex;flex-direction:column;overflow:hidden">
 
     <!-- ── HEADER ── -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px 16px;gap:12px;flex-shrink:0;border-bottom:1px solid #262626">
@@ -4653,7 +4653,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <div style="display:flex;flex:1;overflow:hidden">
 
       <!-- SOL: Properties -->
-      <div style="width:240px;flex-shrink:0;border-right:1px solid #262626;padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
+      <div style="width:210px;flex-shrink:0;border-right:1px solid #262626;padding:16px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
 
         <!-- Tarih -->
         <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.5px;padding:4px 8px 2px">Tarih</div>
@@ -4726,58 +4726,62 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
 
       <!-- SAĞ: İçerik Yapısı -->
-      <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px">
+      <div style="flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:24px">
 
         <!-- Giriş -->
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">1 — Giriş</span>
-            <div style="flex:1;height:1px;background:#262626"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:10px;font-weight:700;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap">1 — Giriş</span>
+            <div style="flex:1;height:1px;background:#252525"></div>
           </div>
-          <textarea id="kd-giris" onblur="saveKartField('giris',this.value)"
+          <textarea id="kd-giris"
+            oninput="autoResizeTA(this)"
+            onfocus="this.style.borderColor='rgba(74,158,255,0.45)';this.style.boxShadow='0 0 0 3px rgba(74,158,255,0.08)'"
+            onblur="saveKartField('giris',this.value);this.style.borderColor='#282828';this.style.boxShadow='none'"
             placeholder="İlk cümle veya dikkat çekici açılış..."
-            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:90px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
-            onfocus="this.style.borderColor='#3a3a3a'"
-            onblur_extra="this.style.borderColor='#262626'"></textarea>
+            style="width:100%;border:1px solid #282828;outline:none;font-size:14.5px;color:#e2e2e0;font-family:inherit;resize:none;min-height:110px;max-height:320px;overflow-y:auto;line-height:1.75;background:#171717;border-radius:10px;padding:14px 16px;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;caret-color:#4a9eff"></textarea>
         </div>
 
         <!-- Gövde -->
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">2 — Gövde</span>
-            <div style="flex:1;height:1px;background:#262626"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:10px;font-weight:700;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap">2 — Gövde</span>
+            <div style="flex:1;height:1px;background:#252525"></div>
           </div>
-          <textarea id="kd-govde" onblur="saveKartField('govde',this.value)"
+          <textarea id="kd-govde"
+            oninput="autoResizeTA(this)"
+            onfocus="this.style.borderColor='rgba(74,158,255,0.45)';this.style.boxShadow='0 0 0 3px rgba(74,158,255,0.08)'"
+            onblur="saveKartField('govde',this.value);this.style.borderColor='#282828';this.style.boxShadow='none'"
             placeholder="Ana içerik, bilgi veya hikaye..."
-            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:120px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
-            onfocus="this.style.borderColor='#3a3a3a'"
-            onblur_extra="this.style.borderColor='#262626'"></textarea>
+            style="width:100%;border:1px solid #282828;outline:none;font-size:14.5px;color:#e2e2e0;font-family:inherit;resize:none;min-height:150px;max-height:400px;overflow-y:auto;line-height:1.75;background:#171717;border-radius:10px;padding:14px 16px;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;caret-color:#4a9eff"></textarea>
         </div>
 
         <!-- Mesaj -->
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">3 — Mesaj</span>
-            <div style="flex:1;height:1px;background:#262626"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:10px;font-weight:700;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap">3 — Mesaj</span>
+            <div style="flex:1;height:1px;background:#252525"></div>
           </div>
-          <textarea id="kd-mesaj" onblur="saveKartField('mesaj',this.value)"
+          <textarea id="kd-mesaj"
+            oninput="autoResizeTA(this)"
+            onfocus="this.style.borderColor='rgba(74,158,255,0.45)';this.style.boxShadow='0 0 0 3px rgba(74,158,255,0.08)'"
+            onblur="saveKartField('mesaj',this.value);this.style.borderColor='#282828';this.style.boxShadow='none'"
             placeholder="Vermek istediğin ana mesaj..."
-            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:90px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
-            onfocus="this.style.borderColor='#3a3a3a'"
-            onblur_extra="this.style.borderColor='#262626'"></textarea>
+            style="width:100%;border:1px solid #282828;outline:none;font-size:14.5px;color:#e2e2e0;font-family:inherit;resize:none;min-height:110px;max-height:320px;overflow-y:auto;line-height:1.75;background:#171717;border-radius:10px;padding:14px 16px;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;caret-color:#4a9eff"></textarea>
         </div>
 
         <!-- CTA -->
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px">4 — CTA</span>
-            <div style="flex:1;height:1px;background:#262626"></div>
+        <div style="padding-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:10px;font-weight:700;color:#4a9eff;text-transform:uppercase;letter-spacing:1px;white-space:nowrap">4 — CTA</span>
+            <div style="flex:1;height:1px;background:#252525"></div>
           </div>
-          <textarea id="kd-cta" onblur="saveKartField('cta',this.value)"
+          <textarea id="kd-cta"
+            oninput="autoResizeTA(this)"
+            onfocus="this.style.borderColor='rgba(74,158,255,0.45)';this.style.boxShadow='0 0 0 3px rgba(74,158,255,0.08)'"
+            onblur="saveKartField('cta',this.value);this.style.borderColor='#282828';this.style.boxShadow='none'"
             placeholder="Harekete geçirici çağrı..."
-            style="width:100%;border:1px solid #262626;outline:none;font-size:14px;color:#dddddd;font-family:inherit;resize:none;min-height:80px;line-height:1.6;background:#181818;border-radius:10px;padding:12px 14px;transition:border-color 0.15s;box-sizing:border-box"
-            onfocus="this.style.borderColor='#3a3a3a'"
-            onblur_extra="this.style.borderColor='#262626'"></textarea>
+            style="width:100%;border:1px solid #282828;outline:none;font-size:14.5px;color:#e2e2e0;font-family:inherit;resize:none;min-height:90px;max-height:280px;overflow-y:auto;line-height:1.75;background:#171717;border-radius:10px;padding:14px 16px;transition:border-color 0.15s,box-shadow 0.15s;box-sizing:border-box;caret-color:#4a9eff"></textarea>
         </div>
 
       </div>
@@ -4946,6 +4950,7 @@ function openKartDetay(id){
   document.getElementById('kd-mesaj').value  = c.mesaj || '';
   document.getElementById('kd-cta').value    = c.cta   || '';
   document.getElementById('kd-overlay').style.display = 'flex';
+  setTimeout(()=>['kd-giris','kd-govde','kd-mesaj','kd-cta'].forEach(id=>{ const el=document.getElementById(id); if(el) autoResizeTA(el); }),50);
   closeKdCal();
   if(c.date){ const p=c.date.split('-'); kdCalYear=+p[0]; kdCalMonth=+p[1]-1; }
   else { const n=new Date(); kdCalYear=n.getFullYear(); kdCalMonth=n.getMonth(); }
@@ -4953,6 +4958,12 @@ function openKartDetay(id){
 function closeKartDetay(){
   document.getElementById('kd-overlay').style.display = 'none';
   closeKdCal();
+}
+function autoResizeTA(el){
+  el.style.height = 'auto';
+  const maxH = parseInt(el.style.maxHeight) || 400;
+  el.style.height = Math.min(el.scrollHeight, maxH) + 'px';
+  el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden';
 }
 async function saveKartField(field, value){
   const c = kanbanCards.find(x => x.id === window._kdId); if(!c) return;
