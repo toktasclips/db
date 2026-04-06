@@ -2486,20 +2486,22 @@ select option { background: #232323; color: #e8e8e6; }
         <input id="c-phone" type="tel" placeholder="+90 5XX XXX XX XX" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit" onkeydown="if(event.key==='Enter')document.getElementById('c-note').focus()" />
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-        <span style="font-size:14px;opacity:0.5;width:20px">🏷️</span>
-        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Durum</span>
-        <select id="c-status" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit;cursor:pointer">
-          <option value="Yeni" style="background:var(--color-bg-tertiary)">Yeni</option>
-          <option value="Aktif" style="background:var(--color-bg-tertiary)">Aktif</option>
-          <option value="Takip" style="background:var(--color-bg-tertiary)">Takip</option>
+        <span style="font-size:14px;opacity:0.5;width:20px">📋</span>
+        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Program</span>
+        <select id="c-offer-id" onchange="calcClientEndDate()" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit;cursor:pointer">
+          <option value="" style="background:#2a2a2a">— Program seç —</option>
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-        <span style="font-size:14px;opacity:0.5;width:20px">📋</span>
-        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Program</span>
-        <select id="c-offer-id" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit;cursor:pointer">
-          <option value="" style="background:#2a2a2a">— Program seç —</option>
-        </select>
+        <span style="font-size:14px;opacity:0.5;width:20px">📅</span>
+        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Başlangıç</span>
+        <input id="c-start-date" type="date" onchange="calcClientEndDate()" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit;cursor:pointer" />
+      </div>
+      <div id="c-end-date-row" style="display:none;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;background:rgba(99,102,241,0.07)">
+        <span style="font-size:14px;opacity:0.5;width:20px">🏁</span>
+        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Bitiş (otomatik)</span>
+        <span id="c-end-date-display" style="font-size:13px;color:#a5b4fc;font-weight:500;flex:1">—</span>
+        <input type="hidden" id="c-end-date" />
       </div>
       <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 12px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
         <span style="font-size:14px;opacity:0.5;width:20px;margin-top:2px">📝</span>
@@ -2615,6 +2617,14 @@ select option { background: #232323; color: #e8e8e6; }
         <input class="form-input" id="dp-social-input" type="url" style="padding:8px 12px;font-size:13px" placeholder="instagram.com/kullanici" />
       </div>
       <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px;border-radius:10px;margin-top:4px" onclick="saveContactInfo()">Kaydet</button>
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Bağlı Program</div>
+      <select id="dp-offer-id" class="form-input form-select" style="font-size:13px;margin-bottom:8px" onchange="dpOfferChanged()">
+        <option value="">— Program seç —</option>
+      </select>
+      <div id="dp-offer-duration" style="display:none;font-size:12px;color:var(--color-text-muted);margin-bottom:8px"></div>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:13px;border-radius:10px" onclick="saveClientOffer()">Programı Kaydet</button>
     </div>
     <div class="panel-section">
       <div class="panel-section-title">Görüşme Hakkı & Program Süresi</div>
@@ -3960,6 +3970,78 @@ function openPanel(id){document.getElementById(id).classList.add('open');}
 function closePanel(id){document.getElementById(id).classList.remove('open');}
 function closeAllPanels(){document.querySelectorAll('.side-panel').forEach(p=>p.classList.remove('open'));}
 
+function offerEndDate(offer, startDate) {
+  if(!offer || !startDate) return '';
+  const d = new Date(startDate);
+  const val = parseInt(offer.duration_value) || 0;
+  if(!val) return '';
+  const unit = offer.duration_unit || 'Ay';
+  if(unit === 'Ay') d.setMonth(d.getMonth() + val);
+  else if(unit === 'Hafta') d.setDate(d.getDate() + val * 7);
+  else if(unit === 'Gün') d.setDate(d.getDate() + val);
+  return d.toISOString().slice(0, 10);
+}
+
+function calcClientEndDate() {
+  const offerId = document.getElementById('c-offer-id').value;
+  const startDate = document.getElementById('c-start-date').value;
+  const row = document.getElementById('c-end-date-row');
+  if(!offerId || !startDate) { row.style.display='none'; return; }
+  const offer = (state.offers||[]).find(o => String(o.id) === String(offerId));
+  if(!offer || !offer.duration_value) { row.style.display='none'; return; }
+  const end = offerEndDate(offer, startDate);
+  if(!end) { row.style.display='none'; return; }
+  document.getElementById('c-end-date').value = end;
+  document.getElementById('c-end-date-display').textContent = new Date(end).toLocaleDateString('tr-TR', {day:'numeric',month:'long',year:'numeric'});
+  row.style.display = 'flex';
+}
+
+function dpOfferChanged() {
+  const offerId = document.getElementById('dp-offer-id').value;
+  const durEl = document.getElementById('dp-offer-duration');
+  if(!offerId) { durEl.style.display='none'; return; }
+  const offer = (state.offers||[]).find(o => String(o.id) === String(offerId));
+  if(offer && offer.duration_value) {
+    durEl.textContent = `Süre: ${offer.duration_value} ${offer.duration_unit||'Ay'}`;
+    durEl.style.display = 'block';
+  } else { durEl.style.display='none'; }
+}
+
+async function saveClientOffer() {
+  const c = state.clients.find(x=>String(x.id)===String(state.currentClientId));
+  if(!c) return;
+  const offerId = document.getElementById('dp-offer-id').value || null;
+  c.offerId = offerId;
+  // Auto-calculate program end from start date
+  const offer = offerId ? (state.offers||[]).find(o=>String(o.id)===String(offerId)) : null;
+  const startDate = c.startDate || new Date().toISOString().slice(0,10);
+  const newEnd = offer ? offerEndDate(offer, startDate) : c.programEnd;
+  if(newEnd) {
+    c.programEnd = newEnd;
+    document.getElementById('dp-end-date').value = newEnd;
+    calcDaysLeft(newEnd);
+    document.getElementById('dp-deadline-tag').innerHTML = deadlineTag(newEnd);
+    document.getElementById('dp-badge').innerHTML = deadlineTag(newEnd);
+  }
+  const {error} = await sb.from('clients').update({
+    offer_id: offerId,
+    program_end: newEnd || c.programEnd || null,
+    start_date: startDate || null
+  }).eq('id', state.currentClientId);
+  if(error) { toast('Hata: '+error.message); return; }
+  renderHealthPage();
+  toast('✅ Program güncellendi!');
+}
+
+function populateDpOfferSelect(currentOfferId) {
+  const el = document.getElementById('dp-offer-id');
+  if(!el) return;
+  const offers = (state.offers||[]).filter(o => o.status !== 'Pasif' && o.status !== 'Taslak');
+  el.innerHTML = '<option value="">— Program seç —</option>' +
+    offers.map(o => `<option value="${o.id}"${String(o.id)===String(currentOfferId||'')?' selected':''}>${escHtml(o.name)}</option>`).join('');
+  dpOfferChanged();
+}
+
 function openClientPanel(id){
   const c=state.clients.find(x=>String(x.id)===String(id));if(!c)return;
   state.currentClientId=c.id;
@@ -3987,6 +4069,7 @@ function openClientPanel(id){
   document.getElementById('dp-health-badge').style.color=healthColor(h);
   document.getElementById('dp-health-slider').value=h;
   renderClientNotes(c);
+  populateDpOfferSelect(c.offerId);
   openPanel('panel-client');
 }
 
@@ -4155,20 +4238,23 @@ document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>
 async function addClient(){
   const name=document.getElementById('c-name').value.trim();if(!name){toast('Ad Soyad zorunlu');return;}
   const offerId = document.getElementById('c-offer-id').value || null;
+  const startDate = document.getElementById('c-start-date').value || null;
+  const programEnd = document.getElementById('c-end-date').value || null;
   const nc={
     _new:true, name,
     type:document.getElementById('c-type').value.trim(),
-    status:document.getElementById('c-status').value,
+    status:'Aktif',
     email:document.getElementById('c-email').value.trim(),
     phone:document.getElementById('c-phone').value.trim(),
-    sessions:0, remainingSessions:0, programEnd:'', startDate:'', program:'', social:'',
+    sessions:0, remainingSessions:0, programEnd:programEnd||'', startDate:startDate||'', program:'', social:'',
     notes:document.getElementById('c-note').value?[document.getElementById('c-note').value]:[],
-    health:5, start:'', offerId
+    health:5, start:startDate||'', offerId
   };
   closeModal('modal-add-client');
-  ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
+  ['c-name','c-email','c-phone','c-note','c-start-date','c-end-date','c-offer-id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('c-end-date-row').style.display='none';
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],offer_id:offerId,user_id:currentUser?.email||null};
+  const row={name:nc.name,type:nc.type,status:'Aktif',email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:programEnd,start_date:startDate,program:null,health:5,notes:[],offer_id:offerId,user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
