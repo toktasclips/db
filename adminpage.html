@@ -1463,12 +1463,17 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="card">
         <div class="card-head">
           <span class="card-title">Müşteri Listesi</span>
-          <select id="hs-sort" onchange="setHsSort(this.value)" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-secondary);font-size:11px;font-family:inherit;padding:4px 24px 4px 8px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9a97' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center">
-            <option value="health_desc">Sağlık Skoru (Yüksekten Düşüğe)</option>
-            <option value="health_asc">Sağlık Skoru (Düşükten Yükseğe)</option>
-            <option value="days_asc">Kalan Gün (Azdan Çoğa)</option>
-            <option value="days_desc">Kalan Gün (Çoktan Aza)</option>
-          </select>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="hs-offer-filter" onchange="setHsOfferFilter(this.value)" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-secondary);font-size:11px;font-family:inherit;padding:4px 8px;outline:none;cursor:pointer">
+              <option value="">Tüm Programlar</option>
+            </select>
+            <select id="hs-sort" onchange="setHsSort(this.value)" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-secondary);font-size:11px;font-family:inherit;padding:4px 24px 4px 8px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9a97' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center">
+              <option value="health_desc">Sağlık Skoru (Yüksekten Düşüğe)</option>
+              <option value="health_asc">Sağlık Skoru (Düşükten Yükseğe)</option>
+              <option value="days_asc">Kalan Gün (Azdan Çoğa)</option>
+              <option value="days_desc">Kalan Gün (Çoktan Aza)</option>
+            </select>
+          </div>
         </div>
         <div class="card-body"><div id="hs-client-list"></div></div>
       </div>
@@ -2489,6 +2494,13 @@ select option { background: #232323; color: #e8e8e6; }
           <option value="Takip" style="background:var(--color-bg-tertiary)">Takip</option>
         </select>
       </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+        <span style="font-size:14px;opacity:0.5;width:20px">📋</span>
+        <span style="font-size:13px;color:#666;width:110px;flex-shrink:0">Program</span>
+        <select id="c-offer-id" style="background:none;border:none;outline:none;font-size:13px;color:#ccc;flex:1;font-family:inherit;cursor:pointer">
+          <option value="" style="background:#2a2a2a">— Program seç —</option>
+        </select>
+      </div>
       <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 12px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
         <span style="font-size:14px;opacity:0.5;width:20px;margin-top:2px">📝</span>
         <span style="font-size:13px;color:#666;width:110px;flex-shrink:0;padding-top:2px">Not</span>
@@ -2979,7 +2991,8 @@ async function loadFromSupabase(){
         remainingSessions:c.remaining_sessions||0,
         programEnd:c.program_end||'', startDate:c.start_date||'',
         program:c.program||'', health:c.health||5,
-        notes:c.notes||[], start:c.start_date||'', social:c.social||''
+        notes:c.notes||[], start:c.start_date||'', social:c.social||'',
+        offerId:c.offer_id||null
       }));
 
     const myLead = l => !l.user_id || l.user_id === '' || l.user_id === email;
@@ -3013,7 +3026,7 @@ async function loadFromSupabase(){
     if(offers.data?.length) state.offers = offers.data.map(o=>({
       id:o.id, name:o.name, price:o.price||0,
       duration_value:o.duration_value||null, duration_unit:o.duration_unit||'Ay',
-      desc:o.description||''
+      desc:o.description||'', status:o.status||'Aktif'
     }));
 
     // teklifler dizisini de doldur (lead panelinde teklif seçimi için)
@@ -3036,6 +3049,7 @@ async function saveClient(c){
     program_end:c.programEnd&&c.programEnd!==''?c.programEnd:null,
     start_date:c.startDate&&c.startDate!==''?c.startDate:null,
     program:c.program||null, health:c.health||5, notes:c.notes||[],
+    offer_id:c.offerId||null,
     user_id: currentUser?.role==='admin' ? (c.user_id||currentUser.email) : currentUser?.email||null
   };
   if(!c.id || c._new){
@@ -3317,12 +3331,36 @@ function sessionsTag(n){
 }
 
 
-/* ---- Müşteri Listesi Sort ---- */
+/* ---- Müşteri Listesi Sort & Filter ---- */
 let hsSort = 'health_desc';
+let hsOfferFilter = '';
 
 function setHsSort(type) {
   hsSort = type;
   renderHealthPage();
+}
+
+function setHsOfferFilter(val) {
+  hsOfferFilter = val;
+  renderHealthPage();
+}
+
+function populateOfferDropdowns() {
+  const offers = (state.offers || []).filter(o => o.status !== 'Pasif' && o.status !== 'Taslak');
+  // Health page filter
+  const filterEl = document.getElementById('hs-offer-filter');
+  if(filterEl) {
+    const cur = filterEl.value;
+    filterEl.innerHTML = '<option value="">Tüm Programlar</option>' +
+      offers.map(o => `<option value="${o.id}"${String(o.id)===cur?' selected':''}>${escHtml(o.name)}</option>`).join('');
+  }
+  // Add-client modal dropdown
+  const addEl = document.getElementById('c-offer-id');
+  if(addEl) {
+    const cur2 = addEl.value;
+    addEl.innerHTML = '<option value="" style="background:#2a2a2a">— Program seç —</option>' +
+      offers.map(o => `<option value="${o.id}" style="background:#2a2a2a"${String(o.id)===cur2?' selected':''}>${escHtml(o.name)}</option>`).join('');
+  }
 }
 
 function parseRemainingDays(client) {
@@ -3349,7 +3387,13 @@ function sortClients(list, type) {
 
 function renderHealthPage(){
   const el=document.getElementById('hs-client-list');if(!el)return;
-  const clients=state.clients;
+  populateOfferDropdowns();
+  const allClients=state.clients;
+  // Apply offer filter
+  const clients = hsOfferFilter
+    ? allClients.filter(c => String(c.offerId) === String(hsOfferFilter))
+    : allClients;
+
   const critical=clients.filter(c=>(c.health||0)<4).length;
   const risk=clients.filter(c=>(c.health||0)>=4&&(c.health||0)<7).length;
   const good=clients.filter(c=>(c.health||0)>=7).length;
@@ -3366,6 +3410,8 @@ function renderHealthPage(){
   if(avgValEl){avgValEl.textContent=avg+'/10';avgValEl.style.color=healthColor(avg);}
   if(avgBarEl) avgBarEl.style.width=(avg/10*100)+'%';
 
+  if(!clients.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--color-text-muted);font-size:13px">Bu programa ait müşteri yok</div>';return;}
+
   el.innerHTML = sortClients([...clients], hsSort).map((c,i)=>{
     const h=c.health||0;
     const days=c.programEnd?Math.ceil((new Date(c.programEnd)-new Date())/(1000*60*60*24)):null;
@@ -3373,11 +3419,14 @@ function renderHealthPage(){
       :days<0?`<span style="font-size:11px;font-weight:600;color:#ff3b30">Süre doldu</span>`
       :days<=7?`<span style="font-size:11px;font-weight:600;color:#ff9500">⏰ ${days} gün</span>`
       :`<span style="font-size:11px;font-weight:600;color:#34c759">📅 ${days} gün</span>`;
+    const offer = c.offerId ? (state.offers||[]).find(o=>String(o.id)===String(c.offerId)) : null;
+    const offerBadge = offer ? `<span style="display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(99,102,241,0.15);color:#a5b4fc;font-weight:500;margin-left:6px">${escHtml(offer.name)}</span>` : '';
+    const subLine = [escHtml(c.type||''), daysStr].filter(Boolean).join(' · ') || '—';
     return `<div class="hs-client-row" style="animation:fadeIn 0.18s ease both;animation-delay:${i*0.03}s" onclick="openClientPanel(${c.id})">
-      <div class="avatar ${avc(state.clients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
+      <div class="avatar ${avc(allClients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
-        <div style="font-size:14px;font-weight:500">${escHtml(c.name)}</div>
-        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${escHtml(c.type||'') + (c.type && daysStr ? ' · ' : '') + (daysStr||'—')}</div>
+        <div style="font-size:14px;font-weight:500">${escHtml(c.name)}${offerBadge}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);margin-top:2px">${subLine}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:18px;font-weight:700;color:${healthColor(h)}">${h}</div>
@@ -4105,6 +4154,7 @@ document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>
 
 async function addClient(){
   const name=document.getElementById('c-name').value.trim();if(!name){toast('Ad Soyad zorunlu');return;}
+  const offerId = document.getElementById('c-offer-id').value || null;
   const nc={
     _new:true, name,
     type:document.getElementById('c-type').value.trim(),
@@ -4113,12 +4163,12 @@ async function addClient(){
     phone:document.getElementById('c-phone').value.trim(),
     sessions:0, remainingSessions:0, programEnd:'', startDate:'', program:'', social:'',
     notes:document.getElementById('c-note').value?[document.getElementById('c-note').value]:[],
-    health:5, start:''
+    health:5, start:'', offerId
   };
   closeModal('modal-add-client');
   ['c-name','c-email','c-phone','c-note'].forEach(id=>document.getElementById(id).value='');
   // Supabase'e kaydet, gerçek id al
-  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],user_id:currentUser?.email||null};
+  const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[],offer_id:offerId,user_id:currentUser?.email||null};
   const r=await sb.from('clients').insert(row).select().single();
   if(r.error){toast('Hata: '+r.error.message);return;}
   nc.id = +r.data.id; nc._new=false;
