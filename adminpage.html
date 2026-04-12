@@ -1322,6 +1322,78 @@ select option { background: #232323; color: #e8e8e6; }
   .tr-sidebar { max-height: 240px; }
 }
 
+/* ===== CLASSROOM SYSTEM ===== */
+.cls-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:4px}
+@media(max-width:960px){.cls-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.cls-grid{grid-template-columns:1fr}}
+.cls-card{background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:border-color 0.15s,transform 0.15s}
+.cls-card:hover{border-color:var(--color-border-strong);transform:translateY(-2px)}
+.cls-card.locked{opacity:.5;cursor:default;pointer-events:none}
+.cls-card-cover{height:160px;background:var(--color-bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;overflow:hidden}
+.cls-card-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.cls-card-body{padding:16px}
+.cls-card-title{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px}
+.cls-card-desc{font-size:12px;color:var(--color-text-muted);line-height:1.5;margin-bottom:12px;min-height:32px}
+.cls-pbar-track{height:4px;background:var(--color-bg-tertiary);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.cls-pbar-fill{height:100%;background:var(--color-accent);border-radius:2px;transition:width .4s}
+.cls-pbar-label{font-size:11px;color:var(--color-text-muted)}
+/* Learning overlay */
+.cls-learn{display:none;position:fixed;inset:0;z-index:200;background:var(--color-bg);flex-direction:column}
+.cls-learn.open{display:flex}
+.cls-learn-header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--color-border);background:var(--color-bg);flex-shrink:0}
+.cls-learn-progress{flex:1}
+.cls-learn-pbar{height:3px;background:var(--color-bg-tertiary);border-radius:2px;margin-top:4px}
+.cls-learn-pbar-fill{height:100%;background:var(--color-accent);border-radius:2px;transition:width .3s}
+.cls-learn-body{display:flex;flex:1;overflow:hidden}
+.cls-sidebar{width:300px;flex-shrink:0;background:var(--color-bg-secondary);border-right:1px solid var(--color-border);overflow-y:auto;padding:12px 0}
+.cls-mod-header{padding:10px 16px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--color-text-muted)}
+.cls-lesson-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;border-left:2px solid transparent;transition:background .1s}
+.cls-lesson-item:hover{background:var(--color-surface-hover)}
+.cls-lesson-item.active{background:var(--color-accent-light);border-left-color:var(--color-accent)}
+.cls-lesson-item.done .cls-lesson-check{background:var(--color-green);color:#fff;border-color:transparent}
+.cls-lesson-check{width:18px;height:18px;border-radius:50%;background:var(--color-bg-tertiary);border:1px solid var(--color-border-strong);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.cls-lesson-name{font-size:13px;color:var(--color-text-secondary);flex:1;line-height:1.4}
+.cls-lesson-item.active .cls-lesson-name{color:var(--color-text-primary);font-weight:500}
+.cls-content{flex:1;overflow-y:auto;padding:32px 40px}
+.cls-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius-xl);background:#000;margin-bottom:28px}
+.cls-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.cls-lesson-title{font-size:22px;font-weight:700;color:var(--color-text-primary);margin-bottom:6px}
+.cls-lesson-desc{font-size:14px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:24px;white-space:pre-wrap}
+.cls-resource-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:var(--radius);margin-bottom:6px;font-size:13px;color:var(--color-text-secondary);text-decoration:none;transition:border-color .15s}
+.cls-resource-item:hover{border-color:var(--color-accent);color:var(--color-accent)}
+.cls-done-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.cls-done-btn.undone{background:var(--color-accent);color:#fff}
+.cls-done-btn.done{background:var(--color-green-light);color:var(--color-green-text);border:1px solid rgba(76,175,129,.2)}
+/* Admin builder */
+.cls-builder{display:flex;gap:0;height:calc(100vh - 130px)}
+.cls-tree{width:280px;flex-shrink:0;background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow-y:auto;padding:10px;margin-right:16px}
+.cls-tree-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--color-text-secondary);transition:background .1s;user-select:none}
+.cls-tree-item:hover{background:var(--color-surface-hover);color:var(--color-text-primary)}
+.cls-tree-item.active{background:var(--color-accent-light);color:var(--color-accent-text)}
+.cls-tree-l1{padding-left:14px}
+.cls-tree-l2{padding-left:28px}
+.cls-tree-l3{padding-left:42px}
+.cls-edit-panel{flex:1;background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow-y:auto;padding:28px}
+.cls-edit-title{font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--color-divider)}
+.cls-tag-draft{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--color-amber-light);color:var(--color-amber)}
+.cls-tag-live{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--color-green-light);color:var(--color-green-text)}
+.cls-tag-locked{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--color-bg-tertiary);color:var(--color-text-muted)}
+/* Access table */
+.cls-access-table{width:100%;border-collapse:collapse}
+.cls-access-table th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--color-text-muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--color-border)}
+.cls-access-table td{padding:10px 12px;border-bottom:1px solid var(--color-divider);font-size:13px;vertical-align:middle}
+.cls-access-table tr:hover td{background:var(--color-surface-hover)}
+.cls-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:background .2s}
+.cls-toggle.on{background:var(--color-green)}
+.cls-toggle.off{background:var(--color-bg-tertiary);border:1px solid var(--color-border-strong)}
+@media(max-width:700px){
+  .cls-learn-body{flex-direction:column}
+  .cls-sidebar{width:100%;height:200px;border-right:none;border-bottom:1px solid var(--color-border)}
+  .cls-content{padding:20px}
+  .cls-builder{flex-direction:column;height:auto}
+  .cls-tree{width:100%;margin-right:0;margin-bottom:12px}
+}
+
 </style>
 <body>
 
@@ -1378,10 +1450,11 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
     <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
     <div class="nav-item" onclick="go('etkinlikler',this)" style="display:none"><span style="width:20px;text-align:center">📅</span> Etkinlikler</div>
-    <div class="nav-item" onclick="go('egitim',this)" style="display:none"><span style="width:20px;text-align:center">🎓</span> Eğitim</div>
+    <div class="nav-item" onclick="go('classroom',this)"><span style="width:20px;text-align:center">🎓</span> Classroom</div>
     <div class="nav-item" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-lbl admin-only">Yönetim</div>
-    <div class="nav-item admin-only" onclick="go('egitim-admin',this)" style="display:none"><span style="width:20px;text-align:center">🏫</span> Eğitim Yönetimi</div>
+    <div class="nav-item admin-only" onclick="go('cls-admin',this)"><span style="width:20px;text-align:center">🏫</span> Eğitim Builder</div>
+    <div class="nav-item admin-only" onclick="go('cls-access',this)"><span style="width:20px;text-align:center">🔐</span> Eğitim Erişimi</div>
     <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
@@ -1779,30 +1852,46 @@ select option { background: #232323; color: #e8e8e6; }
     </div>
 
     <!-- ===== KULLANICILAR ===== -->
-    <!-- ===== EĞİTİM (USER) ===== -->
-    <div class="page" id="page-egitim">
+    <!-- ===== CLASSROOM (USER) ===== -->
+    <div class="page" id="page-classroom">
       <div class="page-head">
-        <div>
-          <div class="page-title">İş Geliştirme Eğitimi</div>
-          <div class="page-sub">Seviyeleri tamamla, yeteneklerini geliştir</div>
-        </div>
+        <div><div class="page-title">Classroom</div><div class="page-sub">Eğitimlerim ve ilerleme durumum</div></div>
       </div>
-      <div id="tr-grid" class="tr-grid"></div>
+      <div id="cls-grid" class="cls-grid"></div>
     </div>
 
-    <!-- ===== EĞİTİM YÖNETİMİ (ADMIN) ===== -->
-    <div class="page admin-only" id="page-egitim-admin">
+    <!-- ===== EĞİTİM BUILDER (ADMIN) ===== -->
+    <div class="page admin-only" id="page-cls-admin">
       <div class="page-head">
-        <div><div class="page-title">Eğitim Yönetimi</div><div class="page-sub">Kullanıcı ilerlemelerini yönet</div></div>
+        <div><div class="page-title">Eğitim Builder</div><div class="page-sub">Program · Seviye · Modül · Ders yönetimi</div></div>
+        <button class="btn btn-primary" onclick="openClsAddProgram()">+ Yeni Program</button>
+      </div>
+      <div class="cls-builder">
+        <div class="cls-tree" id="cls-tree-panel">
+          <div style="font-size:12px;color:var(--color-text-muted);padding:16px;text-align:center">Yükleniyor...</div>
+        </div>
+        <div class="cls-edit-panel" id="cls-edit-panel">
+          <div style="text-align:center;padding:60px 0;color:var(--color-text-muted);font-size:14px">← Soldan bir öğe seç</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EĞİTİM ERİŞİMİ (ADMIN) ===== -->
+    <div class="page admin-only" id="page-cls-access">
+      <div class="page-head">
+        <div><div class="page-title">Eğitim Erişimi</div><div class="page-sub">Kullanıcılara seviye erişimi ver, ilerlemeleri izle</div></div>
       </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">⏳ Onay Bekleyenler</span></div>
-        <div class="card-body"><div id="tr-admin-pending-list"></div></div>
+        <div class="card-body" style="padding:0"><div id="cls-access-table"></div></div>
       </div>
-      <div class="card" style="margin-top:16px">
-        <div class="card-head"><span class="card-title">Tüm Kullanıcılar</span></div>
-        <div class="card-body"><div id="tr-admin-all-list"></div></div>
-      </div>
+    </div>
+
+    <!-- ===== EĞİTİM (ESKI - HIDDEN) ===== -->
+    <div class="page" id="page-egitim" style="display:none!important">
+      <div id="tr-grid" class="tr-grid"></div>
+    </div>
+    <div class="page admin-only" id="page-egitim-admin" style="display:none!important">
+      <div id="tr-admin-pending-list"></div><div id="tr-admin-all-list"></div>
     </div>
 
     <!-- ===== ETKİNLİKLER ===== -->
@@ -2789,6 +2878,24 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
+<!-- ===== CLASSROOM LEARN OVERLAY ===== -->
+<div class="cls-learn" id="cls-learn-overlay">
+  <div class="cls-learn-header">
+    <button onclick="closeCls()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:22px;line-height:1;padding:0;flex-shrink:0" title="Geri dön">←</button>
+    <div class="cls-learn-progress">
+      <div style="font-size:13px;font-weight:600;color:var(--color-text-primary)" id="cls-learn-level-title">—</div>
+      <div class="cls-learn-pbar"><div class="cls-learn-pbar-fill" id="cls-learn-pbar-fill" style="width:0%"></div></div>
+    </div>
+    <span style="font-size:12px;color:var(--color-text-muted);flex-shrink:0" id="cls-learn-progress-text">0%</span>
+  </div>
+  <div class="cls-learn-body">
+    <div class="cls-sidebar" id="cls-sidebar-panel"></div>
+    <div class="cls-content" id="cls-content-panel">
+      <div style="text-align:center;padding:80px 0;color:var(--color-text-muted);font-size:14px">Bir ders seç</div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== EĞİTİM CLASSROOM ===== -->
 <div class="tr-classroom" id="tr-classroom">
   <!-- Header -->
@@ -3291,6 +3398,9 @@ function go(id,el){
   if(id==='etkinlikler') setTimeout(loadEvents, 50);
   if(id==='egitim') setTimeout(loadTraining, 50);
   if(id==='egitim-admin') setTimeout(loadTrainingAdmin, 50);
+  if(id==='classroom') setTimeout(loadClassroom, 50);
+  if(id==='cls-admin') setTimeout(loadClsAdmin, 50);
+  if(id==='cls-access') setTimeout(loadClsAccess, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
   render();
 }
@@ -7348,6 +7458,511 @@ async function rejectTrUser(userId, levelNum) {
   loadTrainingAdmin();
 }
 // ===== EĞİTİM SİSTEMİ END =====
+
+// ===== CLASSROOM SYSTEM =====
+let clsData = { programs:[], levels:[], modules:[], lessons:[], resources:[], userAccess:[], userProgress:[], allUsers:[] };
+let clsActiveLessonId = null;
+let clsActiveLevelId = null;
+let clsAdminSelected = { type:null, id:null };
+
+function getVimeoEmbed(url) {
+  if(!url) return '';
+  const m = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+  return m ? `https://player.vimeo.com/video/${m[1]}?title=0&byline=0&portrait=0&badge=0` : '';
+}
+
+async function loadClassroom() {
+  const userId = currentUser?.id || currentUser?.email || '';
+  try {
+    const [p,l,m,les,r,acc,prog] = await Promise.all([
+      sb.from('cls_programs').select('*').order('sort_order'),
+      sb.from('cls_levels').select('*').order('sort_order'),
+      sb.from('cls_modules').select('*').order('sort_order'),
+      sb.from('cls_lessons').select('*').order('sort_order'),
+      sb.from('cls_lesson_resources').select('*'),
+      sb.from('cls_user_level_access').select('*').eq('user_id', userId),
+      sb.from('cls_lesson_progress').select('*').eq('user_id', userId)
+    ]);
+    clsData.programs = p.data||[]; clsData.levels = l.data||[]; clsData.modules = m.data||[];
+    clsData.lessons = les.data||[]; clsData.resources = r.data||[];
+    clsData.userAccess = acc.data||[]; clsData.userProgress = prog.data||[];
+  } catch(e){ console.warn('loadClassroom:', e.message); }
+  renderClsGrid();
+}
+
+async function loadClsAdmin() {
+  try {
+    const [p,l,m,les,r] = await Promise.all([
+      sb.from('cls_programs').select('*').order('sort_order'),
+      sb.from('cls_levels').select('*').order('sort_order'),
+      sb.from('cls_modules').select('*').order('sort_order'),
+      sb.from('cls_lessons').select('*').order('sort_order'),
+      sb.from('cls_lesson_resources').select('*')
+    ]);
+    clsData.programs = p.data||[]; clsData.levels = l.data||[]; clsData.modules = m.data||[];
+    clsData.lessons = les.data||[]; clsData.resources = r.data||[];
+  } catch(e){ console.warn('loadClsAdmin:', e.message); }
+  renderClsAdminTree();
+}
+
+async function loadClsAccess() {
+  try {
+    const [u,l,acc,prog] = await Promise.all([
+      sb.from('users').select('*').order('name'),
+      sb.from('cls_levels').select('*').order('sort_order'),
+      sb.from('cls_user_level_access').select('*'),
+      sb.from('cls_lesson_progress').select('*')
+    ]);
+    clsData.allUsers = u.data||[]; clsData.levels = l.data||[];
+    clsData.userAccess = acc.data||[]; clsData.userProgress = prog.data||[];
+  } catch(e){ console.warn('loadClsAccess:', e.message); }
+  renderClsAccessTable();
+}
+
+function clsLevelProgress(levelId, userId) {
+  userId = userId || currentUser?.id || currentUser?.email || '';
+  const mods = clsData.modules.filter(m => m.level_id === levelId);
+  const lessons = clsData.lessons.filter(l => mods.some(m => m.id === l.module_id) && l.is_published !== false);
+  if(!lessons.length) return 0;
+  const done = lessons.filter(l => clsData.userProgress.some(p => p.lesson_id === l.id && p.user_id === userId && p.is_completed));
+  return Math.round(done.length / lessons.length * 100);
+}
+
+function clsIsAccessible(levelId) {
+  if(currentUser?.role === 'admin') return true;
+  const userId = currentUser?.id || currentUser?.email || '';
+  const level = clsData.levels.find(l => l.id === levelId);
+  if(!level) return false;
+  if(!level.is_locked_by_default) return true;
+  return clsData.userAccess.some(a => a.level_id === levelId && a.user_id === userId && a.is_unlocked);
+}
+
+function clsLessonDone(lessonId, userId) {
+  userId = userId || currentUser?.id || currentUser?.email || '';
+  return clsData.userProgress.some(p => p.lesson_id === lessonId && p.user_id === userId && p.is_completed);
+}
+
+function renderClsGrid() {
+  const el = document.getElementById('cls-grid'); if(!el) return;
+  const isAdmin = currentUser?.role === 'admin';
+  const userId = currentUser?.id || currentUser?.email || '';
+  const levels = clsData.levels.filter(l => l.is_published || isAdmin).sort((a,b) => (a.sort_order||0)-(b.sort_order||0));
+  if(!levels.length) {
+    el.innerHTML = `<div style="grid-column:1/-1;padding:64px 0;text-align:center;color:var(--color-text-muted);font-size:14px">${isAdmin ? 'Henüz program yok. <a onclick="go(\'cls-admin\',null)" style="color:var(--color-accent);cursor:pointer">Eğitim Builder\'a git →</a>' : 'Henüz açık eğitim yok.'}</div>`;
+    return;
+  }
+  el.innerHTML = levels.map(level => {
+    const accessible = clsIsAccessible(level.id);
+    const prog = clsLevelProgress(level.id, userId);
+    const program = clsData.programs.find(p => p.id === level.program_id);
+    const icon = level.icon || '📚';
+    const coverBg = level.cover_image ? `background-image:url('${escHtml(level.cover_image)}');background-size:cover;background-position:center` : `background:${level.cover_color||'#1e2332'}`;
+    return `<div class="cls-card${accessible?'':' locked'}" onclick="${accessible?`openClsLearn('${level.id}')`:''}" style="position:relative">
+      <div class="cls-card-cover" style="${coverBg}">
+        ${!level.cover_image ? `<span>${icon}</span>` : ''}
+        ${!accessible ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:28px">🔒</div>` : ''}
+        ${prog===100 ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(76,175,129,.9);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">✓ Tamamlandı</div>` : (prog>0?`<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">${prog}%</div>`:'') }
+        ${!level.is_published && isAdmin ? `<div style="position:absolute;top:8px;left:8px;background:rgba(224,165,83,.9);color:#1a1a1a;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px">TASLAK</div>` : ''}
+      </div>
+      <div class="cls-card-body">
+        ${program ? `<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);margin-bottom:4px">${escHtml(program.title)}</div>` : ''}
+        <div class="cls-card-title">${escHtml(level.title)}</div>
+        <div class="cls-card-desc">${escHtml(level.description||'')}</div>
+        ${accessible ? `<div class="cls-pbar-track"><div class="cls-pbar-fill" style="width:${prog}%"></div></div><div class="cls-pbar-label">${prog}% tamamlandı</div>` : `<div class="cls-pbar-label">🔒 Kilitli</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openClsLearn(levelId) {
+  clsActiveLevelId = levelId; clsActiveLessonId = null;
+  const level = clsData.levels.find(l => l.id === levelId); if(!level) return;
+  document.getElementById('cls-learn-level-title').textContent = level.title;
+  updateClsProgress();
+  renderClsSidebar();
+  // Auto-select first incomplete lesson
+  const allLessons = clsData.modules
+    .filter(m => m.level_id === levelId).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
+    .flatMap(m => clsData.lessons.filter(l => l.module_id === m.id && l.is_published!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)));
+  const first = allLessons.find(l => !clsLessonDone(l.id)) || allLessons[0];
+  if(first) openClsLesson(first.id);
+  document.getElementById('cls-learn-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCls() {
+  document.getElementById('cls-learn-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  clsActiveLevelId = null; clsActiveLessonId = null;
+}
+
+function updateClsProgress() {
+  if(!clsActiveLevelId) return;
+  const userId = currentUser?.id || currentUser?.email || '';
+  const prog = clsLevelProgress(clsActiveLevelId, userId);
+  const fill = document.getElementById('cls-learn-pbar-fill');
+  const txt = document.getElementById('cls-learn-progress-text');
+  if(fill) fill.style.width = prog + '%';
+  if(txt) txt.textContent = prog + '%';
+}
+
+function renderClsSidebar() {
+  const panel = document.getElementById('cls-sidebar-panel'); if(!panel) return;
+  if(!clsActiveLevelId) return;
+  const mods = clsData.modules.filter(m => m.level_id === clsActiveLevelId && m.is_published !== false)
+    .sort((a,b) => (a.sort_order||0)-(b.sort_order||0));
+  panel.innerHTML = mods.map(mod => {
+    const lessons = clsData.lessons.filter(l => l.module_id === mod.id && l.is_published !== false)
+      .sort((a,b) => (a.sort_order||0)-(b.sort_order||0));
+    const doneCount = lessons.filter(l => clsLessonDone(l.id)).length;
+    return `<div class="cls-mod-header">${escHtml(mod.title)} <span style="font-weight:400;text-transform:none;letter-spacing:0">${doneCount}/${lessons.length}</span></div>
+      ${lessons.map(l => {
+        const done = clsLessonDone(l.id);
+        const active = l.id === clsActiveLessonId;
+        return `<div class="cls-lesson-item${active?' active':''}${done?' done':''}" onclick="openClsLesson('${l.id}')">
+          <div class="cls-lesson-check">${done?'✓':''}</div>
+          <div class="cls-lesson-name">${escHtml(l.title)}${l.duration_text?`<span style="display:block;font-size:10px;color:var(--color-text-muted)">${escHtml(l.duration_text)}</span>`:''}</div>
+        </div>`;
+      }).join('')}`;
+  }).join('');
+}
+
+function openClsLesson(lessonId) {
+  clsActiveLessonId = lessonId;
+  const lesson = clsData.lessons.find(l => l.id === lessonId); if(!lesson) return;
+  renderClsSidebar();
+  const res = clsData.resources.filter(r => r.lesson_id === lessonId);
+  const panel = document.getElementById('cls-content-panel'); if(!panel) return;
+  const done = clsLessonDone(lessonId);
+  const embed = getVimeoEmbed(lesson.vimeo_url || '');
+  const prev = clsAdjacentLesson(lessonId, -1);
+  const next = clsAdjacentLesson(lessonId, 1);
+  panel.innerHTML = `
+    ${embed ? `<div class="cls-video-wrap"><iframe src="${escHtml(embed)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>` : ''}
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div>
+        <div class="cls-lesson-title">${escHtml(lesson.title)}</div>
+        ${lesson.duration_text ? `<div style="font-size:12px;color:var(--color-text-muted);margin-top:3px">⏱ ${escHtml(lesson.duration_text)}</div>` : ''}
+      </div>
+      <button class="cls-done-btn ${done?'done':'undone'}" onclick="toggleClsLessonDone('${lessonId}')">
+        ${done ? '✓ Tamamlandı' : 'Tamamlandı İşaretle'}
+      </button>
+    </div>
+    ${lesson.description ? `<div class="cls-lesson-desc">${escHtml(lesson.description)}</div>` : ''}
+    ${res.length ? `<div style="margin-bottom:24px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);margin-bottom:10px">Kaynaklar</div>${res.map(r=>`<a href="${escHtml(r.url||'#')}" target="_blank" class="cls-resource-item"><span>${r.resource_type==='pdf'?'📄':'🔗'}</span><span>${escHtml(r.title)}</span></a>`).join('')}</div>` : ''}
+    <div style="display:flex;gap:10px;padding-top:8px;border-top:1px solid var(--color-divider)">
+      ${prev ? `<button class="btn btn-ghost" onclick="openClsLesson('${prev}')">← Önceki</button>` : ''}
+      ${next ? `<button class="btn btn-primary" style="margin-left:auto" onclick="openClsLesson('${next}')">Sonraki →</button>` : '<span style="margin-left:auto;font-size:13px;color:var(--color-green-text);font-weight:600">🎉 Seviye tamamlandı!</span>'}
+    </div>`;
+}
+
+function clsAdjacentLesson(lessonId, dir) {
+  if(!clsActiveLevelId) return null;
+  const all = clsData.modules.filter(m => m.level_id === clsActiveLevelId).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
+    .flatMap(m => clsData.lessons.filter(l => l.module_id === m.id && l.is_published !== false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)));
+  const idx = all.findIndex(l => l.id === lessonId);
+  if(idx < 0) return null;
+  const n = all[idx + dir];
+  return n ? n.id : null;
+}
+
+async function toggleClsLessonDone(lessonId) {
+  const userId = currentUser?.id || currentUser?.email || '';
+  const done = clsLessonDone(lessonId);
+  if(done) {
+    await sb.from('cls_lesson_progress').delete().eq('lesson_id', lessonId).eq('user_id', userId);
+    clsData.userProgress = clsData.userProgress.filter(p => !(p.lesson_id===lessonId && p.user_id===userId));
+  } else {
+    const {data,error} = await sb.from('cls_lesson_progress').upsert(
+      {user_id:userId, lesson_id:lessonId, is_completed:true, completed_at:new Date().toISOString()},
+      {onConflict:'user_id,lesson_id'}
+    ).select().single();
+    if(!error && data) {
+      clsData.userProgress = clsData.userProgress.filter(p => !(p.lesson_id===lessonId && p.user_id===userId));
+      clsData.userProgress.push(data);
+    }
+  }
+  openClsLesson(lessonId);
+  updateClsProgress();
+  renderClsGrid();
+  toast(done ? 'Tamamlanmadı olarak işaretlendi' : '✅ Ders tamamlandı!');
+}
+
+// --- Admin Builder ---
+function renderClsAdminTree() {
+  const panel = document.getElementById('cls-tree-panel'); if(!panel) return;
+  if(!clsData.programs.length) {
+    panel.innerHTML = `<div style="text-align:center;padding:24px 8px;color:var(--color-text-muted);font-size:13px">Henüz program yok.<br><br><button class="btn btn-primary" style="font-size:12px;width:100%" onclick="openClsAddProgram()">+ Program Ekle</button></div>`;
+    return;
+  }
+  let h = '';
+  clsData.programs.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).forEach(prog => {
+    const pa = clsAdminSelected.type==='program' && clsAdminSelected.id===prog.id;
+    h += `<div class="cls-tree-item${pa?' active':''}" onclick="selectClsItem('program','${prog.id}')">
+      <span>📚</span><span style="flex:1;font-weight:500">${escHtml(prog.title)}</span><span style="font-size:10px">${prog.is_published?'🟢':'⚪'}</span></div>`;
+    clsData.levels.filter(l=>l.program_id===prog.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).forEach(level => {
+      const la = clsAdminSelected.type==='level' && clsAdminSelected.id===level.id;
+      h += `<div class="cls-tree-l1"><div class="cls-tree-item${la?' active':''}" onclick="selectClsItem('level','${level.id}')">
+        <span>📂</span><span style="flex:1">${escHtml(level.title)}</span><span style="font-size:10px">${level.is_published?'🟢':'⚪'}</span></div>`;
+      clsData.modules.filter(m=>m.level_id===level.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).forEach(mod => {
+        const ma = clsAdminSelected.type==='module' && clsAdminSelected.id===mod.id;
+        h += `<div class="cls-tree-l2"><div class="cls-tree-item${ma?' active':''}" onclick="selectClsItem('module','${mod.id}')">
+          <span>📋</span><span style="flex:1">${escHtml(mod.title)}</span></div>`;
+        clsData.lessons.filter(l=>l.module_id===mod.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).forEach(les => {
+          const lea = clsAdminSelected.type==='lesson' && clsAdminSelected.id===les.id;
+          h += `<div class="cls-tree-l3"><div class="cls-tree-item${lea?' active':''}" onclick="selectClsItem('lesson','${les.id}')">
+            <span style="font-size:11px">▶</span><span style="flex:1;font-size:12px">${escHtml(les.title)}</span><span style="font-size:10px">${les.is_published?'🟢':'⚪'}</span></div></div>`;
+        });
+        h += `</div>`;
+      });
+      h += `</div>`;
+    });
+  });
+  h += `<div style="padding:8px;margin-top:8px"><button class="btn btn-ghost" style="width:100%;font-size:12px;justify-content:center" onclick="openClsAddProgram()">+ Program Ekle</button></div>`;
+  panel.innerHTML = h;
+}
+
+function selectClsItem(type, id) {
+  clsAdminSelected = {type, id};
+  renderClsAdminTree();
+  renderClsEditPanel();
+}
+
+function renderClsEditPanel() {
+  const panel = document.getElementById('cls-edit-panel'); if(!panel) return;
+  const {type, id} = clsAdminSelected;
+  if(type === 'program') {
+    const p = clsData.programs.find(x=>x.id===id); if(!p) return;
+    panel.innerHTML = `<div class="cls-edit-title">📚 Program Düzenle</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px"><span class="${p.is_published?'cls-tag-live':'cls-tag-draft'}">${p.is_published?'🟢 Yayında':'⚪ Taslak'}</span></div>
+      <div class="form-group"><label class="form-label">Program Adı</label><input class="form-input" id="ep-title" value="${escHtml(p.title)}" /></div>
+      <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input form-textarea" id="ep-desc" rows="3">${escHtml(p.description||'')}</textarea></div>
+      <div class="form-group"><label class="form-label">Kapak Görseli URL</label><input class="form-input" id="ep-cover" value="${escHtml(p.cover_image||'')}" placeholder="https://..." /></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">
+        <button class="btn btn-primary" onclick="saveClsProgram('${id}')">Kaydet</button>
+        <button class="btn btn-ghost" onclick="toggleClsPublish('cls_programs','${id}',${!p.is_published},'programs')">${p.is_published?'Taslağa Al':'Yayınla'}</button>
+        <button class="btn btn-ghost" onclick="openClsAddLevel('${id}')">+ Seviye Ekle</button>
+        <button class="btn btn-danger" onclick="deleteClsItem('cls_programs','${id}','programs')">Sil</button>
+      </div>`;
+  } else if(type === 'level') {
+    const l = clsData.levels.find(x=>x.id===id); if(!l) return;
+    panel.innerHTML = `<div class="cls-edit-title">📂 Seviye Düzenle</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <span class="${l.is_published?'cls-tag-live':'cls-tag-draft'}">${l.is_published?'🟢 Yayında':'⚪ Taslak'}</span>
+        <span class="cls-tag-locked">${l.is_locked_by_default?'🔒 Kilitli':'🔓 Açık'}</span>
+      </div>
+      <div class="two-form">
+        <div class="form-group"><label class="form-label">Başlık</label><input class="form-input" id="el-title" value="${escHtml(l.title)}" /></div>
+        <div class="form-group"><label class="form-label">Seviye No</label><input class="form-input" type="number" id="el-num" value="${l.level_number||0}" min="0" /></div>
+      </div>
+      <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input form-textarea" id="el-desc" rows="3">${escHtml(l.description||'')}</textarea></div>
+      <div class="two-form">
+        <div class="form-group"><label class="form-label">Kapak Görseli URL</label><input class="form-input" id="el-cover" value="${escHtml(l.cover_image||'')}" placeholder="https://..." /></div>
+        <div class="form-group"><label class="form-label">Kapak Rengi</label><input class="form-input" id="el-color" value="${escHtml(l.cover_color||'')}" placeholder="#1e2332" /></div>
+      </div>
+      <div class="two-form">
+        <div class="form-group"><label class="form-label">İkon (emoji)</label><input class="form-input" id="el-icon" value="${escHtml(l.icon||'')}" placeholder="📚" /></div>
+        <div class="form-group"><label class="form-label">Sıra</label><input class="form-input" type="number" id="el-sort" value="${l.sort_order||0}" min="0" /></div>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="el-locked" ${l.is_locked_by_default?'checked':''} style="width:16px;height:16px;cursor:pointer" />
+        <label for="el-locked" class="form-label" style="margin:0;cursor:pointer">Varsayılan olarak kilitli (admin erişim ver)</label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">
+        <button class="btn btn-primary" onclick="saveClsLevel('${id}')">Kaydet</button>
+        <button class="btn btn-ghost" onclick="toggleClsPublish('cls_levels','${id}',${!l.is_published},'levels')">${l.is_published?'Taslağa Al':'Yayınla'}</button>
+        <button class="btn btn-ghost" onclick="openClsAddModule('${id}')">+ Modül Ekle</button>
+        <button class="btn btn-danger" onclick="deleteClsItem('cls_levels','${id}','levels')">Sil</button>
+      </div>`;
+  } else if(type === 'module') {
+    const m = clsData.modules.find(x=>x.id===id); if(!m) return;
+    panel.innerHTML = `<div class="cls-edit-title">📋 Modül Düzenle</div>
+      <div class="form-group"><label class="form-label">Modül Adı</label><input class="form-input" id="em-title" value="${escHtml(m.title)}" /></div>
+      <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input form-textarea" id="em-desc" rows="3">${escHtml(m.description||'')}</textarea></div>
+      <div class="form-group"><label class="form-label">Sıra</label><input class="form-input" type="number" id="em-sort" value="${m.sort_order||0}" min="0" /></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)"><input type="checkbox" id="em-required" ${m.is_required?'checked':''} style="width:14px;height:14px" /> Zorunlu modül</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)"><input type="checkbox" id="em-seq" ${m.sequential?'checked':''} style="width:14px;height:14px" /> Sıralı tamamlama</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)"><input type="checkbox" id="em-pub" ${m.is_published!==false?'checked':''} style="width:14px;height:14px" /> Yayında</label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn btn-primary" onclick="saveClsModule('${id}')">Kaydet</button>
+        <button class="btn btn-ghost" onclick="openClsAddLesson('${id}')">+ Ders Ekle</button>
+        <button class="btn btn-danger" onclick="deleteClsItem('cls_modules','${id}','modules')">Sil</button>
+      </div>`;
+  } else if(type === 'lesson') {
+    const l = clsData.lessons.find(x=>x.id===id); if(!l) return;
+    const res = clsData.resources.filter(r => r.lesson_id === id);
+    const embed = getVimeoEmbed(l.vimeo_url||'');
+    panel.innerHTML = `<div class="cls-edit-title">▶ Ders Düzenle</div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <span class="${l.is_published?'cls-tag-live':'cls-tag-draft'}">${l.is_published?'🟢 Yayında':'⚪ Taslak'}</span>
+        ${l.is_required?'<span class="cls-tag-locked" style="background:rgba(74,158,255,.1);color:var(--color-accent)">Zorunlu</span>':''}
+      </div>
+      <div class="form-group"><label class="form-label">Ders Başlığı</label><input class="form-input" id="eles-title" value="${escHtml(l.title)}" /></div>
+      <div class="form-group"><label class="form-label">Vimeo URL</label>
+        <input class="form-input" id="eles-vimeo" value="${escHtml(l.vimeo_url||'')}" placeholder="https://vimeo.com/123456789" oninput="previewVimeo(this.value)" />
+      </div>
+      ${embed?`<div style="margin-bottom:12px;border-radius:8px;overflow:hidden"><div class="cls-video-wrap"><iframe id="cls-vimeo-preview" src="${escHtml(embed)}" allow="fullscreen"></iframe></div></div>`:`<div id="cls-vimeo-preview" style="display:none"></div>`}
+      <div class="two-form">
+        <div class="form-group"><label class="form-label">Süre (örn: "12 dk")</label><input class="form-input" id="eles-dur" value="${escHtml(l.duration_text||'')}" placeholder="12 dk" /></div>
+        <div class="form-group"><label class="form-label">Sıra</label><input class="form-input" type="number" id="eles-sort" value="${l.sort_order||0}" min="0" /></div>
+      </div>
+      <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-input form-textarea" id="eles-desc" rows="5" style="min-height:100px">${escHtml(l.description||'')}</textarea></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)"><input type="checkbox" id="eles-required" ${l.is_required?'checked':''} style="width:14px;height:14px" /> Zorunlu</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)"><input type="checkbox" id="eles-preview" ${l.is_preview?'checked':''} style="width:14px;height:14px" /> Önizleme</label>
+      </div>
+      <div style="border-top:1px solid var(--color-divider);padding-top:16px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--color-text-muted);margin-bottom:10px">Kaynaklar</div>
+        <div id="cls-res-list">${res.map(r=>`<div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+          <input class="form-input" value="${escHtml(r.title)}" placeholder="Başlık" style="flex:1;font-size:12px" onchange="updateClsRes('${r.id}','title',this.value)" />
+          <input class="form-input" value="${escHtml(r.url||'')}" placeholder="URL" style="flex:2;font-size:12px" onchange="updateClsRes('${r.id}','url',this.value)" />
+          <select class="form-input form-select" style="width:70px;font-size:12px" onchange="updateClsRes('${r.id}','resource_type',this.value)">
+            <option value="link"${r.resource_type==='link'?' selected':''}>Link</option>
+            <option value="pdf"${r.resource_type==='pdf'?' selected':''}>PDF</option>
+          </select>
+          <button style="background:none;border:none;color:var(--color-red);cursor:pointer;font-size:18px;padding:0;line-height:1" onclick="deleteClsRes('${r.id}','${id}')">×</button>
+        </div>`).join('')}</div>
+        <button class="btn btn-ghost" style="font-size:12px" onclick="addClsRes('${id}')">+ Kaynak Ekle</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveClsLesson('${id}')">Kaydet</button>
+        <button class="btn btn-ghost" onclick="toggleClsPublish('cls_lessons','${id}',${!l.is_published},'lessons')">${l.is_published?'Taslağa Al':'Yayınla'}</button>
+        <button class="btn btn-danger" onclick="deleteClsItem('cls_lessons','${id}','lessons')">Sil</button>
+      </div>`;
+  }
+}
+
+function previewVimeo(url) {
+  const embed = getVimeoEmbed(url);
+  const el = document.getElementById('cls-vimeo-preview');
+  if(!el) return;
+  if(embed) { el.innerHTML = `<div class="cls-video-wrap" style="margin-bottom:12px;border-radius:8px;overflow:hidden"><iframe src="${escHtml(embed)}" allow="fullscreen"></iframe></div>`; el.style.display='block'; }
+  else { el.style.display='none'; }
+}
+
+async function openClsAddProgram() {
+  const title = prompt('Program adı:'); if(!title) return;
+  const {data,error} = await sb.from('cls_programs').insert({title, description:'', is_published:false, sort_order:clsData.programs.length}).select().single();
+  if(error){toast('Hata: '+error.message);return;}
+  clsData.programs.push(data); clsAdminSelected={type:'program',id:data.id};
+  renderClsAdminTree(); renderClsEditPanel(); toast('✅ Program oluşturuldu!');
+}
+async function openClsAddLevel(programId) {
+  const title = prompt('Seviye adı:'); if(!title) return;
+  const {data,error} = await sb.from('cls_levels').insert({program_id:programId,title,description:'',level_number:clsData.levels.filter(l=>l.program_id===programId).length,is_locked_by_default:true,is_published:false,sort_order:clsData.levels.filter(l=>l.program_id===programId).length}).select().single();
+  if(error){toast('Hata: '+error.message);return;}
+  clsData.levels.push(data); clsAdminSelected={type:'level',id:data.id};
+  renderClsAdminTree(); renderClsEditPanel(); toast('✅ Seviye oluşturuldu!');
+}
+async function openClsAddModule(levelId) {
+  const title = prompt('Modül adı:'); if(!title) return;
+  const {data,error} = await sb.from('cls_modules').insert({level_id:levelId,title,description:'',is_required:true,is_published:true,sequential:false,sort_order:clsData.modules.filter(m=>m.level_id===levelId).length}).select().single();
+  if(error){toast('Hata: '+error.message);return;}
+  clsData.modules.push(data); clsAdminSelected={type:'module',id:data.id};
+  renderClsAdminTree(); renderClsEditPanel(); toast('✅ Modül oluşturuldu!');
+}
+async function openClsAddLesson(moduleId) {
+  const title = prompt('Ders adı:'); if(!title) return;
+  const {data,error} = await sb.from('cls_lessons').insert({module_id:moduleId,title,description:'',vimeo_url:'',duration_text:'',is_required:true,is_preview:false,is_published:false,sort_order:clsData.lessons.filter(l=>l.module_id===moduleId).length}).select().single();
+  if(error){toast('Hata: '+error.message);return;}
+  clsData.lessons.push(data); clsAdminSelected={type:'lesson',id:data.id};
+  renderClsAdminTree(); renderClsEditPanel(); toast('✅ Ders oluşturuldu!');
+}
+
+async function saveClsProgram(id) {
+  const d={title:document.getElementById('ep-title').value.trim(),description:document.getElementById('ep-desc').value.trim(),cover_image:document.getElementById('ep-cover').value.trim()||null,updated_at:new Date().toISOString()};
+  const {error}=await sb.from('cls_programs').update(d).eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  const i=clsData.programs.findIndex(x=>x.id===id); if(i>=0) clsData.programs[i]={...clsData.programs[i],...d};
+  toast('✅ Kaydedildi!'); renderClsAdminTree();
+}
+async function saveClsLevel(id) {
+  const d={title:document.getElementById('el-title').value.trim(),description:document.getElementById('el-desc').value.trim(),level_number:parseInt(document.getElementById('el-num').value)||0,cover_image:document.getElementById('el-cover').value.trim()||null,cover_color:document.getElementById('el-color').value.trim()||null,icon:document.getElementById('el-icon').value.trim()||null,is_locked_by_default:document.getElementById('el-locked').checked,sort_order:parseInt(document.getElementById('el-sort').value)||0,updated_at:new Date().toISOString()};
+  const {error}=await sb.from('cls_levels').update(d).eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  const i=clsData.levels.findIndex(x=>x.id===id); if(i>=0) clsData.levels[i]={...clsData.levels[i],...d};
+  toast('✅ Kaydedildi!'); renderClsAdminTree();
+}
+async function saveClsModule(id) {
+  const d={title:document.getElementById('em-title').value.trim(),description:document.getElementById('em-desc').value.trim(),is_required:document.getElementById('em-required').checked,sequential:document.getElementById('em-seq').checked,is_published:document.getElementById('em-pub').checked,sort_order:parseInt(document.getElementById('em-sort').value)||0,updated_at:new Date().toISOString()};
+  const {error}=await sb.from('cls_modules').update(d).eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  const i=clsData.modules.findIndex(x=>x.id===id); if(i>=0) clsData.modules[i]={...clsData.modules[i],...d};
+  toast('✅ Kaydedildi!'); renderClsAdminTree();
+}
+async function saveClsLesson(id) {
+  const d={title:document.getElementById('eles-title').value.trim(),vimeo_url:document.getElementById('eles-vimeo').value.trim()||null,duration_text:document.getElementById('eles-dur').value.trim()||null,description:document.getElementById('eles-desc').value.trim(),is_required:document.getElementById('eles-required').checked,is_preview:document.getElementById('eles-preview').checked,sort_order:parseInt(document.getElementById('eles-sort').value)||0,updated_at:new Date().toISOString()};
+  const {error}=await sb.from('cls_lessons').update(d).eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  const i=clsData.lessons.findIndex(x=>x.id===id); if(i>=0) clsData.lessons[i]={...clsData.lessons[i],...d};
+  toast('✅ Kaydedildi!'); renderClsAdminTree();
+}
+
+async function toggleClsPublish(table, id, publish, arr) {
+  const {error}=await sb.from(table).update({is_published:publish}).eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  const item = clsData[arr]?.find(x=>x.id===id); if(item) item.is_published=publish;
+  toast(publish?'🟢 Yayınlandı!':'⚪ Taslağa alındı'); renderClsAdminTree(); renderClsEditPanel();
+}
+
+async function deleteClsItem(table, id, arr) {
+  if(!confirm('Bu öğeyi silmek istiyor musun?')) return;
+  const {error}=await sb.from(table).delete().eq('id',id); if(error){toast('Hata: '+error.message);return;}
+  if(clsData[arr]) clsData[arr]=clsData[arr].filter(x=>x.id!==id);
+  clsAdminSelected={type:null,id:null};
+  renderClsAdminTree();
+  document.getElementById('cls-edit-panel').innerHTML='<div style="text-align:center;padding:60px 0;color:var(--color-text-muted);font-size:14px">← Soldan bir öğe seç</div>';
+  toast('Silindi');
+}
+
+async function addClsRes(lessonId) {
+  const {data,error}=await sb.from('cls_lesson_resources').insert({lesson_id:lessonId,title:'Yeni Kaynak',resource_type:'link',url:''}).select().single();
+  if(error){toast('Hata: '+error.message);return;}
+  clsData.resources.push(data); renderClsEditPanel();
+}
+async function updateClsRes(id, field, value) {
+  await sb.from('cls_lesson_resources').update({[field]:value}).eq('id',id);
+  const r=clsData.resources.find(x=>x.id===id); if(r) r[field]=value;
+}
+async function deleteClsRes(id, lessonId) {
+  await sb.from('cls_lesson_resources').delete().eq('id',id);
+  clsData.resources=clsData.resources.filter(r=>r.id!==id);
+  renderClsEditPanel();
+}
+
+// --- Access Table ---
+function renderClsAccessTable() {
+  const el = document.getElementById('cls-access-table'); if(!el) return;
+  const users = clsData.allUsers;
+  const levels = clsData.levels.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  if(!users.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--color-text-muted)">Kullanıcı bulunamadı</div>';return;}
+  const totalLessons = clsData.lessons.filter(l=>l.is_published!==false).length;
+  el.innerHTML = `<div style="overflow-x:auto"><table class="cls-access-table">
+    <thead><tr><th>Kullanıcı</th>${levels.map(l=>`<th style="text-align:center">${escHtml(l.title)}</th>`).join('')}<th>İlerleme</th></tr></thead>
+    <tbody>${users.map(u => {
+      const uid = u.id || u.email;
+      const done = new Set(clsData.userProgress.filter(p=>p.user_id===uid && p.is_completed).map(p=>p.lesson_id)).size;
+      const pct = totalLessons ? Math.round(done/totalLessons*100) : 0;
+      return `<tr>
+        <td><div style="font-weight:500">${escHtml(u.name||u.email)}</div><div style="font-size:11px;color:var(--color-text-muted)">${escHtml(u.email)}</div></td>
+        ${levels.map(level=>{
+          const acc=clsData.userAccess.find(a=>a.user_id===uid && a.level_id===level.id);
+          const on=acc?.is_unlocked;
+          return `<td style="text-align:center"><button class="cls-toggle ${on?'on':'off'}" onclick="toggleClsAccess('${uid}','${level.id}',${!on})" title="${on?'Kilitle':'Aç'}"></button></td>`;
+        }).join('')}
+        <td><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:3px">${done}/${totalLessons} · ${pct}%</div><div style="height:4px;background:var(--color-bg-tertiary);border-radius:2px;width:100px"><div style="height:100%;width:${pct}%;background:var(--color-accent);border-radius:2px"></div></div></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+async function toggleClsAccess(userId, levelId, unlock) {
+  const {error}=await sb.from('cls_user_level_access').upsert(
+    {user_id:userId,level_id:levelId,is_unlocked:unlock,unlocked_at:unlock?new Date().toISOString():null,unlocked_by:currentUser?.email||null},
+    {onConflict:'user_id,level_id'}
+  ); if(error){toast('Hata: '+error.message);return;}
+  const e=clsData.userAccess.find(a=>a.user_id===userId && a.level_id===levelId);
+  if(e) e.is_unlocked=unlock; else clsData.userAccess.push({user_id:userId,level_id:levelId,is_unlocked:unlock});
+  renderClsAccessTable();
+  toast(unlock?'🔓 Seviye açıldı':'🔒 Seviye kilitlendi');
+}
+// ===== CLASSROOM SYSTEM END =====
 
 </script>
 
