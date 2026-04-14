@@ -1374,6 +1374,145 @@ select option { background: #232323; color: #e8e8e6; }
   .badge-hero-revenue { font-size: 26px; letter-spacing: -1px; }
 }
 
+/* ============================================
+   SATIŞ TİCKER — Dashboard Aktivite Akışı
+   ============================================ */
+#sales-ticker-wrap {
+  position: relative;
+  margin-bottom: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  height: 50px;
+  display: flex;
+  align-items: stretch;
+}
+#sales-ticker-wrap::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 72px;
+  background: linear-gradient(270deg, var(--color-surface) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+.sales-ticker-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 16px;
+  border-right: 1px solid var(--color-border);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  background: var(--color-surface);
+  position: relative;
+  z-index: 3;
+}
+.sales-ticker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-green);
+  box-shadow: 0 0 6px rgba(76,175,129,0.55);
+  animation: stDotPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes stDotPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+.sales-ticker-track {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.sales-ticker-inner {
+  display: flex;
+  align-items: center;
+  will-change: transform;
+  animation: stScroll 32s linear infinite;
+  padding-left: 16px;
+}
+.sales-ticker-inner:hover { animation-play-state: paused; }
+@keyframes stScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.sales-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px 6px 7px;
+  margin: 0 5px;
+  border-radius: 20px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+.sales-chip:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+.sales-chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.sales-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.sales-chip-sep {
+  font-size: 10px;
+  color: var(--color-text-disabled);
+  margin: 0 1px;
+}
+.sales-chip-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.sales-chip-amount {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-green-text);
+}
+.sales-chip-bar {
+  width: 1px;
+  height: 12px;
+  background: var(--color-border);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+.sales-ticker-empty {
+  padding: 0 20px;
+  font-size: 12px;
+  color: var(--color-text-disabled);
+  font-style: italic;
+  white-space: nowrap;
+}
+@media (max-width: 768px) {
+  #sales-ticker-wrap { height: 44px; }
+  .sales-ticker-badge { padding: 0 11px; font-size: 9px; }
+}
+
 </style>
 <body>
 
@@ -1457,6 +1596,20 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
         <button class="btn btn-primary" onclick="openModal('modal-quick')">+ Hızlı Ekle</button>
       </div>
+
+      <!-- Satış Ticker -->
+      <div id="sales-ticker-wrap">
+        <div class="sales-ticker-badge">
+          <div class="sales-ticker-dot"></div>
+          Bugün aktif
+        </div>
+        <div class="sales-ticker-track">
+          <div class="sales-ticker-inner" id="sales-ticker-inner">
+            <div class="sales-ticker-empty">Yükleniyor...</div>
+          </div>
+        </div>
+      </div>
+
       <div class="two-col">
         <div class="card" style="margin-bottom:0">
           <div class="card-head">
@@ -3168,6 +3321,7 @@ function go(id,el){
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
+  if(id==='dashboard')  setTimeout(loadSalesTicker, 80);
   render();
 }
 
@@ -4408,7 +4562,7 @@ function showApp(){
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
-  loadFromSupabase().then(() => render());
+  loadFromSupabase().then(() => { render(); loadSalesTicker(); });
 }
 
 function doLogout(){
@@ -6416,6 +6570,91 @@ NOTE: Since this app uses anon key with custom auth (users table),
 RLS enforcement is at application level (eq filter by currentUser.email).
 The policies above are for reference / production hardening.
 */
+
+/* ============================================
+   SATIŞ TİCKER — Loader & Renderer
+   ============================================ */
+const _ST_COLORS = [
+  { bg:'rgba(74,158,255,0.18)',  c:'#4a9eff' },
+  { bg:'rgba(76,175,129,0.18)',  c:'#4caf81' },
+  { bg:'rgba(180,127,255,0.18)', c:'#b87fff' },
+  { bg:'rgba(201,144,90,0.18)',  c:'#c9905a' },
+  { bg:'rgba(224,165,83,0.18)',  c:'#e0a553' },
+  { bg:'rgba(229,115,115,0.18)', c:'#e57373' },
+];
+function _stColor(uid) {
+  let h = 0;
+  for (let i = 0; i < uid.length; i++) h = ((h << 5) - h) + uid.charCodeAt(i);
+  return _ST_COLORS[Math.abs(h) % _ST_COLORS.length];
+}
+
+async function loadSalesTicker() {
+  const inner = document.getElementById('sales-ticker-inner');
+  if (!inner) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Fetch today's entries for ALL users (no user_id filter)
+  const { data, error } = await sb
+    .from('daily_entries')
+    .select('user_id, alinan')
+    .eq('entry_date', today);
+
+  if (error || !data) { _renderTickerItems(inner, []); return; }
+
+  // Group by user_id, sum alinan — only include users with alinan > 0
+  const map = new Map();
+  for (const row of data) {
+    if (!row.user_id) continue;
+    const prev = map.get(row.user_id) || 0;
+    map.set(row.user_id, prev + (parseFloat(row.alinan) || 0));
+  }
+
+  // Keep users with total > 0
+  const items = [...map.entries()]
+    .filter(([, total]) => total > 0)
+    .map(([userId, total]) => {
+      const found = (typeof users !== 'undefined' && Array.isArray(users))
+        ? users.find(x => x.email === userId)
+        : null;
+      const name     = found?.name || userId.split('@')[0];
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      return { userId, name, initials, total };
+    });
+
+  _renderTickerItems(inner, items);
+}
+
+function _renderTickerItems(inner, items) {
+  if (!items.length) {
+    inner.style.animation = 'none';
+    inner.innerHTML = '<div class="sales-ticker-empty">Bugün henüz satış bildirimi yok</div>';
+    return;
+  }
+
+  function chip(item) {
+    const col = _stColor(item.userId);
+    const amt = item.total > 0
+      ? `<span class="sales-chip-sep">·</span><span class="sales-chip-amount">₺${Math.round(item.total).toLocaleString('tr-TR')}</span>`
+      : '';
+    return `<div class="sales-chip">` +
+      `<div class="sales-chip-avatar" style="background:${col.bg};color:${col.c}">${item.initials}</div>` +
+      `<span class="sales-chip-name">${item.name}</span>` +
+      `<span class="sales-chip-sep">·</span>` +
+      `<span class="sales-chip-label">bugün satış yaptı</span>` +
+      amt +
+      `</div>`;
+  }
+
+  const sep = '<div class="sales-chip-bar"></div>';
+  const single = items.map(chip).join(sep);
+  // Duplicate for seamless infinite loop
+  inner.innerHTML = single + sep + single + sep;
+
+  // Animation speed: proportional to items count
+  const dur = Math.max(18, items.length * 5);
+  inner.style.animation = `stScroll ${dur}s linear infinite`;
+}
 
 function extractHandle(social) {
   if(!social) return '';
