@@ -1561,20 +1561,6 @@ select option { background: #232323; color: #e8e8e6; }
 
     <!-- ===== DASHBOARD ===== -->
     <div class="page" id="page-dashboard">
-
-      <!-- Live Sales Ticker -->
-      <div id="live-ticker">
-        <div class="lt-label">
-          <div class="lt-dot"></div>
-          Son Satışlar
-        </div>
-        <div class="lt-track">
-          <div class="lt-inner" id="lt-inner">
-            <div class="lt-empty">Yükleniyor…</div>
-          </div>
-        </div>
-      </div>
-
       <div class="page-head">
         <div>
           <div class="page-title">Hoş geldin 👋</div>
@@ -1679,6 +1665,20 @@ select option { background: #232323; color: #e8e8e6; }
 
     <!-- ===== GÜNLÜK GİRİŞ ===== -->
     <div class="page active" id="page-daily">
+
+      <!-- Live Sales Ticker -->
+      <div id="live-ticker">
+        <div class="lt-label">
+          <div class="lt-dot"></div>
+          Son Satışlar
+        </div>
+        <div class="lt-track">
+          <div class="lt-inner" id="lt-inner">
+            <div class="lt-empty">Yükleniyor…</div>
+          </div>
+        </div>
+      </div>
+
       <div class="page-head">
         <div>
           <div class="page-title" id="daily-welcome-msg">Hoş geldin! ☀️</div>
@@ -3294,7 +3294,7 @@ function go(id,el){
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
-  if(id==='dashboard')  setTimeout(loadSalesTicker, 80);
+  if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
 
