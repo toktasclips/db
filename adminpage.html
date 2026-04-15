@@ -3512,9 +3512,8 @@ async function loadFromSupabase(){
       anlasma:d.anlasma||0, yorum:d.yorum||'', win:d.win||''
     }));
 
-    // password field intentionally omitted — never loaded into frontend state
     if(usersData.data?.length) users = usersData.data.map(u=>({
-      id:u.id, name:u.name, email:u.email
+      id:u.id, name:u.name, email:u.email, password:u.password
     }));
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
@@ -4960,8 +4959,8 @@ function toast(msg){
 
 // ===== INIT =====
 // ===== AUTH =====
-// Auth: users tablosundan email+password kontrolü (geçici — Supabase Auth migration için hazır)
-// Supabase Auth entegrasyonu tüm kullanıcılar hazır olduğunda aktif edilecek.
+const ADMIN_EMAIL = 'admin@mentorflow.com';
+const ADMIN_PASS = '123456';
 
 let users = [];
 let currentUser = null;
@@ -4970,33 +4969,27 @@ function saveUsers(){} // Supabase handles this
 
 async function doLogin(){
   const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const pass  = document.getElementById('login-password').value;
+  const pass = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
 
-  // users tablosundan kontrol (role dahil)
-  const { data: found } = await sb.from('users').select('*').eq('email', email).eq('password', pass);
+  // Admin hard-coded check
+  if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
+    currentUser = {email, name:'Admin', role:'admin'};
+    showApp();
+    return;
+  }
+
+  // Supabase users tablosundan kontrol (role dahil)
+  const {data:found, error} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
   if(found && found.length > 0){
     const u = found[0];
-    currentUser = { email: u.email, name: u.name, role: u.role || 'client', id: u.id };
+    currentUser = {email: u.email, name: u.name, role: u.role||'client', id: u.id};
     showApp();
     return;
   }
 
   errEl.style.display = 'block';
   setTimeout(() => errEl.style.display = 'none', 3000);
-}
-
-// --- Internal: Supabase Auth ile giriş sonrası profil çözümle (gelecek kullanım) ---
-async function _resolveAndShowApp(authUser){
-  const email = authUser.email;
-  const { data: profile } = await sb.from('users').select('name,role').eq('email', email).maybeSingle();
-  currentUser = {
-    email,
-    name : profile?.name || email.split('@')[0],
-    role : profile?.role || 'client',
-    id   : authUser.id,
-  };
-  showApp();
 }
 
 function showApp(){
@@ -5007,7 +5000,7 @@ function showApp(){
   if(nameEl) nameEl.textContent = currentUser.name;
   if(roleEl) roleEl.textContent = currentUser.role === 'admin' ? 'Admin' : 'Üye';
 
-  // Admin check uses role from profile table — not any frontend secret
+  // Admin değilse Yönetim menüsünü gizle
   const isAdmin = currentUser.role === 'admin';
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = isAdmin ? '' : 'none';
@@ -5023,9 +5016,7 @@ function showApp(){
   loadFromSupabase().then(() => { render(); loadSalesTicker(); loadIgDailyKPIs(); });
 }
 
-// --- LOGOUT: signs out from Supabase Auth session ---
 function doLogout(){
-  sb.auth.signOut();   // invalidate Supabase session token
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
@@ -5035,54 +5026,33 @@ function doLogout(){
   document.getElementById('login-password').value = '';
 }
 
-// --- ADD USER: creates Supabase Auth account + profile row (no password stored) ---
-// NOTE: signUp() is used because a service-role Edge Function is not yet wired up.
-// In production, user creation should go through an Edge Function with the service role key.
 async function addUser(){
-  const name     = document.getElementById('u-name').value.trim();
-  const email    = document.getElementById('u-email').value.trim().toLowerCase();
+  const name = document.getElementById('u-name').value.trim();
+  const email = document.getElementById('u-email').value.trim().toLowerCase();
   const password = document.getElementById('u-password').value;
   if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
   if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
 
-  // Supabase Auth'ta hesap var mı kontrol et
-  const { data: existing } = await sb.from('users').select('id').eq('email', email);
+  // Supabase'de zaten var mı kontrol et
+  const {data:existing} = await sb.from('users').select('id').eq('email',email);
   if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
 
-  // Save admin session before signUp (signUp may switch the active session)
-  const { data: { session: adminSession } } = await sb.auth.getSession();
-
-  // Create Supabase Auth account for the new user
-  const { data: authData, error: authErr } = await sb.auth.signUp({ email, password });
-  if(authErr){ toast('Hata: ' + authErr.message); return; }
-
-  // Restore admin session immediately
-  if(adminSession){
-    await sb.auth.setSession({
-      access_token : adminSession.access_token,
-      refresh_token: adminSession.refresh_token,
-    });
-  }
-
-  // 1. Profile row in users table — password is NOT stored here
-  const { data, error } = await sb.from('users').insert({ name, email, role: 'client' }).select().single();
-  if(error){ toast('Hata: ' + error.message); return; }
-  if(!users) users = [];
-  users.push({ id: data.id, name, email }); // no password in state
+  // 1. Users tablosuna ekle (role: client)
+  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
+  if(error){ toast('Hata: '+error.message); return; }
+  if(!users) users=[];
+  users.push({id:data.id,name,email,password});
 
   // 2. Clients tablosuna da ekle
-  const row = { name, type:'', status:'Yeni', email, phone:'', social:null, sessions:0,
-    remaining_sessions:0, program_end:null, start_date:null, program:null, health:5, notes:[] };
-  const { data: cd, error: ce } = await sb.from('clients').insert(row).select().single();
-  if(!ce && cd){
-    state.clients.push({ id:+cd.id, _new:false, name, type:'', status:'Yeni', email, phone:'',
-      social:'', sessions:0, remainingSessions:0, programEnd:'', startDate:'',
-      program:'', health:5, notes:[], start:'' });
+  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
+  const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
+  if(!ce&&cd){
+    state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
   }
 
   closeModal('modal-add-user');
   ['u-name','u-email','u-password'].forEach(id => document.getElementById(id).value = '');
-  toast('✅ ' + name + ' eklendi!');
+  toast('✅ '+name+' eklendi!');
   renderUsers(); renderHealthPage(); renderStats();
 }
 
@@ -5297,7 +5267,7 @@ function renderUsers(){
     </div>`).join('');
 }
 
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded',function(){
   initCal();
   initIvCal();
   renderUsers();
