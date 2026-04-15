@@ -1529,6 +1529,132 @@ select option { background: #232323; color: #e8e8e6; }
   .as-card-icon { width: 32px; height: 32px; border-radius: 8px; }
 }
 
+/* ============================================================
+   INSTAGRAM ENTEGRASYONU — styles
+   ============================================================ */
+
+/* ── Connection card ─────────────────────────────────────── */
+.ig-connect-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  transition: border-color 0.2s;
+}
+.ig-connect-card.connected { border-color: rgba(193,100,200,0.25); }
+.ig-brand { display: flex; align-items: center; gap: 14px; }
+.ig-brand-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, #f58529 0%, #dd2a7b 45%, #8134af 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(221,42,123,0.3);
+}
+.ig-brand-name { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.ig-brand-sub  { font-size: 12px; color: var(--color-text-muted); }
+.ig-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
+}
+.ig-status.connected    { background: rgba(193,100,200,0.12); border: 1px solid rgba(193,100,200,0.28); color: #c864c8; }
+.ig-status.disconnected { background: rgba(255,255,255,0.04); border: 1px solid var(--color-border); color: var(--color-text-muted); }
+.ig-status.expired      { background: rgba(229,115,115,0.1);  border: 1px solid rgba(229,115,115,0.28); color: #e57373; }
+.ig-status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.ig-connect-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ig-last-sync { font-size: 11px; color: var(--color-text-disabled); margin-top: 5px; }
+
+/* ── Account info detail row ─────────────────────────────── */
+.ig-account-detail {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 14px 20px; margin-bottom: 16px;
+  background: rgba(193,100,200,0.05); border: 1px solid rgba(193,100,200,0.15);
+  border-radius: var(--radius-xl);
+}
+.ig-account-stat { text-align: center; min-width: 60px; }
+.ig-account-stat-val { font-size: 18px; font-weight: 700; color: var(--color-text-primary); letter-spacing: -0.5px; }
+.ig-account-stat-lbl { font-size: 10.5px; font-weight: 500; color: var(--color-text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+.ig-account-divider  { width: 1px; height: 32px; background: var(--color-border); flex-shrink: 0; }
+
+/* ── KPI strip on daily page ─────────────────────────────── */
+#ig-kpi-section { margin-bottom: 16px; display: none; }
+.ig-kpi-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ig-kpi-title  { font-size: 12px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.ig-kpi-badge  {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(193,100,200,0.1); border: 1px solid rgba(193,100,200,0.2);
+  border-radius: 5px; padding: 2px 7px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.7px; color: #c864c8; text-transform: uppercase;
+}
+.ig-kpi-strip  { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.ig-kpi-tile   {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl); padding: 14px 16px;
+  cursor: default; transition: border-color 0.15s;
+}
+.ig-kpi-tile:hover { border-color: var(--color-border-strong); }
+.ig-kpi-label  { font-size: 10px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.ig-kpi-value  { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: var(--color-text-primary); }
+.ig-kpi-change { font-size: 11px; margin-top: 2px; }
+.ig-kpi-change.up   { color: var(--color-green-text); }
+.ig-kpi-change.down { color: #e57373; }
+.ig-kpi-change.flat { color: var(--color-text-muted); }
+
+/* ── Media grid ──────────────────────────────────────────── */
+.ig-media-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 4px; }
+.ig-media-card  {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s; cursor: default;
+}
+.ig-media-card:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-sm); }
+.ig-media-thumb {
+  width: 100%; aspect-ratio: 1; background: var(--color-bg-tertiary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--color-text-disabled);
+  overflow: hidden; position: relative;
+}
+.ig-media-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ig-media-type-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(0,0,0,0.65); color: #fff;
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.3px;
+}
+.ig-media-body { padding: 10px 12px; }
+.ig-media-caption { font-size: 11.5px; color: var(--color-text-secondary); line-height: 1.45; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ig-media-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.ig-media-stat  { font-size: 11px; color: var(--color-text-muted); display: flex; align-items: center; gap: 3px; }
+.ig-media-stat span { color: var(--color-text-secondary); font-weight: 600; }
+.ig-perf-bar {
+  height: 3px; background: var(--color-border); border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.ig-perf-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #8134af, #dd2a7b, #f58529); transition: width 0.4s; }
+
+/* ── Empty / error states ────────────────────────────────── */
+.ig-empty-box {
+  text-align: center; padding: 44px 24px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+.ig-empty-icon  { font-size: 30px; margin-bottom: 12px; }
+.ig-empty-title { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
+.ig-empty-sub   { font-size: 12.5px; color: var(--color-text-muted); max-width: 320px; margin: 0 auto 18px; line-height: 1.5; }
+.ig-section-head { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; margin-top: 20px; }
+.ig-info-box {
+  background: rgba(193,100,200,0.06); border: 1px solid rgba(193,100,200,0.15);
+  border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px;
+  font-size: 12px; color: var(--color-text-secondary); line-height: 1.65;
+}
+.ig-info-box strong { color: var(--color-text-primary); }
+
+@media (max-width: 768px) {
+  .ig-kpi-strip  { grid-template-columns: 1fr 1fr; }
+  .ig-media-grid { grid-template-columns: repeat(2, 1fr); }
+  .ig-connect-card { flex-direction: column; align-items: flex-start; }
+}
+
 </style>
 <body>
 
@@ -1589,6 +1715,8 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
     <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
     <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
+    <div class="nav-lbl">Entegrasyon</div>
+    <div class="nav-item" onclick="go('instagram',this)"><span style="width:20px;text-align:center">📸</span> Instagram</div>
     <div class="sidebar-footer">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <div class="avatar av-blue" style="width:34px;height:34px;font-size:12px">DB</div>
@@ -1734,6 +1862,36 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="page-title" id="daily-welcome-msg">Hoş geldin! ☀️</div>
           <div class="page-sub" id="daily-welcome-sub">Bugün harika şeyler olacak, hadi başlayalım.</div>
           <div id="daily-quote" style="margin-top:8px;font-size:14px;font-weight:600;background:linear-gradient(90deg,#3b1f0a,#7b4a1e,#c47c3a,#e8b97a,#f5deb3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.2px"></div>
+        </div>
+      </div>
+
+      <!-- Instagram KPI strip (görünür sadece hesap bağlıysa) -->
+      <div id="ig-kpi-section">
+        <div class="ig-kpi-header">
+          <span class="ig-kpi-title">Instagram</span>
+          <span class="ig-kpi-badge">Otomatik</span>
+        </div>
+        <div class="ig-kpi-strip">
+          <div class="ig-kpi-tile">
+            <div class="ig-kpi-label">Takipçi</div>
+            <div class="ig-kpi-value" id="ig-kpi-followers">—</div>
+            <div class="ig-kpi-change flat" id="ig-kpi-followers-chg"></div>
+          </div>
+          <div class="ig-kpi-tile">
+            <div class="ig-kpi-label">7 Gün Artış</div>
+            <div class="ig-kpi-value" id="ig-kpi-7d-growth">—</div>
+            <div class="ig-kpi-change flat" id="ig-kpi-7d-chg"></div>
+          </div>
+          <div class="ig-kpi-tile">
+            <div class="ig-kpi-label">30G Erişim</div>
+            <div class="ig-kpi-value" id="ig-kpi-reach">—</div>
+            <div class="ig-kpi-change flat" id="ig-kpi-reach-chg"></div>
+          </div>
+          <div class="ig-kpi-tile">
+            <div class="ig-kpi-label">Ort. Etkileşim</div>
+            <div class="ig-kpi-value" id="ig-kpi-eng">—</div>
+            <div class="ig-kpi-change flat" id="ig-kpi-eng-chg">Son 10 içerik</div>
+          </div>
         </div>
       </div>
 
@@ -2596,6 +2754,55 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
+    <!-- ===== INSTAGRAM ENTEGRASYONUí ===== -->
+    <div class="page" id="page-instagram">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Instagram Entegrasyonu</div>
+          <div class="page-sub">Kendi hesabını bağla — takipçi, erişim ve içerik verileri otomatik senkronize olsun</div>
+        </div>
+      </div>
+
+      <!-- Bağlantı kartı -->
+      <div id="ig-connection-card">
+        <!-- loadInstagramPage() tarafından doldurulur -->
+        <div class="ig-empty-box">
+          <div class="ig-empty-icon">📸</div>
+          <div class="ig-empty-title">Yükleniyor…</div>
+        </div>
+      </div>
+
+      <!-- Bağlı hesap detay istatistikleri -->
+      <div id="ig-account-detail-section" style="display:none">
+        <div id="ig-account-detail"></div>
+      </div>
+
+      <!-- Son senkronizasyon bilgisi + manual sync -->
+      <div id="ig-sync-controls" style="display:none; margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="ig-section-head" style="margin-top:0">İçerik Verileri</div>
+            <div id="ig-sync-status" style="font-size:12px;color:var(--color-text-muted)"></div>
+          </div>
+          <button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:6px 14px">
+            ↻ Senkronize Et
+          </button>
+        </div>
+      </div>
+
+      <!-- Media grid -->
+      <div id="ig-media-section" style="display:none">
+        <div class="ig-media-grid" id="ig-media-grid"></div>
+      </div>
+
+      <!-- Kurulum bilgi kutusu -->
+      <div class="ig-info-box" id="ig-setup-info">
+        <strong>Kurulum gereksinimleri:</strong><br>
+        Instagram hesabınız <strong>Business</strong> veya <strong>Creator</strong> türünde olmalı ve bir <strong>Facebook Sayfasına bağlı</strong> olmalıdır.<br>
+        Bağlamak için Supabase Dashboard'da <code>META_APP_ID</code>, <code>META_APP_SECRET</code> ve <code>TOKEN_ENCRYPTION_KEY</code> environment variable'larını tanımlayın.
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -3037,6 +3244,14 @@ const SUPABASE_URL = 'https://krljaqrhyszeleiwwkmd.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtybGphcXJoeXN6ZWxlaXd3a21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NTY0MjksImV4cCI6MjA4OTMzMjQyOX0.rilLVl17MjmlSO2mWzRVFXpjhRXZTh30SVWMDw5UUlE';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ── Instagram / Meta Entegrasyon Sabitleri ────────────────────────────
+// META_APP_ID: Meta Developer Console'dan alın (App Settings → Basic → App ID)
+// Bu değer public'tir (client_id), frontend'de tutulması güvenlidir.
+// App Secret ASLA buraya yazılmaz — Supabase Edge Function secret olarak tanımlanır.
+const META_APP_ID   = '';   // ← Meta App ID'nizi buraya girin
+const IG_OAUTH_FN   = `${SUPABASE_URL}/functions/v1/instagram-oauth`;
+const IG_SYNC_FN    = `${SUPABASE_URL}/functions/v1/instagram-sync`;
+
 // ===== SUPABASE LOAD / SAVE =====
 async function loadFromSupabase(){
   try {
@@ -3344,6 +3559,7 @@ function go(id,el){
   if(id==='musteriler') setTimeout(loadMusteriler, 50);
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
+  if(id==='instagram') setTimeout(loadInstagramPage, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -4585,7 +4801,7 @@ function showApp(){
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
-  loadFromSupabase().then(() => { render(); loadSalesTicker(); });
+  loadFromSupabase().then(() => { render(); loadSalesTicker(); loadIgDailyKPIs(); });
 }
 
 function doLogout(){
@@ -6718,6 +6934,409 @@ function openInstagramEkle() {
       socialEl.placeholder = 'instagram.com/kullanici veya @kullanici — yapıştır';
     }
   }, 120);
+}
+
+/* ============================================================
+   INSTAGRAM ENTEGRASYONU — Frontend Logic
+   ============================================================
+
+   GÜVENLİK MODELİ:
+   ─────────────────
+   • Meta API çağrıları YALNIZCA Supabase Edge Functions üzerinden yapılır.
+   • Access token frontend'e hiç gelmez; DB'de pgcrypto ile şifreli.
+   • Frontend sadece snapshot + media tablolarını okur (anon key).
+   • encrypted_access_token kolonu anon key için REVOKE edilmiştir.
+   • OAuth state parametresi 15 dakika TTL ile CSRF koruması sağlar.
+   ============================================================ */
+
+// ── State ─────────────────────────────────────────────────────────────
+let igConn       = null;   // connection metadata (token excluded)
+let igSnapshots  = [];     // account daily snapshots
+let igMedia      = [];     // media performance records
+
+// ── OAuth — popup akışı ───────────────────────────────────────────────
+function connectInstagram() {
+  if (!META_APP_ID) {
+    toast('⚠️ META_APP_ID ayarlanmamış. Kod içindeki sabiti güncelleyin.');
+    return;
+  }
+
+  // State: encoded user identity + timestamp (CSRF protection)
+  const state = encodeURIComponent(btoa(JSON.stringify({
+    uid: currentUser.email,
+    ts:  Date.now(),
+  })));
+
+  const scopes = [
+    'pages_show_list',
+    'pages_read_engagement',
+    'instagram_basic',
+    'instagram_manage_insights',
+  ].join(',');
+
+  const oauthUrl =
+    `https://www.facebook.com/v20.0/dialog/oauth` +
+    `?client_id=${META_APP_ID}` +
+    `&redirect_uri=${encodeURIComponent(IG_OAUTH_FN)}` +
+    `&scope=${scopes}` +
+    `&state=${state}` +
+    `&response_type=code`;
+
+  const popup = window.open(oauthUrl, 'ig-oauth',
+    'width=640,height=720,scrollbars=yes,resizable=yes');
+
+  // Listen for postMessage from Edge Function callback page
+  const handler = (e) => {
+    if (e.data?.type === 'IG_OAUTH_SUCCESS') {
+      window.removeEventListener('message', handler);
+      popup?.close();
+      toast('✓ Instagram hesabı bağlandı!');
+      // Trigger initial sync then reload page data
+      syncInstagramSilent().then(() => loadInstagramPage());
+    } else if (e.data?.type === 'IG_OAUTH_ERROR') {
+      window.removeEventListener('message', handler);
+      popup?.close();
+      toast('⚠️ Bağlantı başarısız: ' + (e.data.payload || 'Bilinmeyen hata'));
+    }
+  };
+  window.addEventListener('message', handler);
+}
+
+// ── Disconnect ────────────────────────────────────────────────────────
+async function disconnectInstagram() {
+  if (!confirm('Instagram bağlantısını kaldırmak istediğinize emin misiniz?')) return;
+  await sb.from('instagram_connections')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('user_id', currentUser.email);
+  igConn = null;
+  igSnapshots = [];
+  igMedia = [];
+  document.getElementById('ig-kpi-section').style.display = 'none';
+  toast('Instagram bağlantısı kaldırıldı.');
+  loadInstagramPage();
+}
+
+// ── Manual sync (with UI feedback) ───────────────────────────────────
+async function syncInstagram() {
+  const btn = document.getElementById('ig-sync-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ Senkronize ediliyor…'; }
+
+  const result = await _callSyncFn();
+
+  if (btn) { btn.disabled = false; btn.textContent = '↻ Senkronize Et'; }
+
+  if (result.success) {
+    toast(`✓ Senkronize edildi — ${result.followers?.toLocaleString('tr-TR') ?? '?'} takipçi`);
+    await loadInstagramPage();
+    await loadIgDailyKPIs();
+  } else if (result.error === 'token_expired') {
+    toast('⚠️ Bağlantı süresi dolmuş. Lütfen yeniden bağlayın.');
+    loadInstagramPage();
+  } else {
+    toast('⚠️ Senkronizasyon başarısız. Lütfen tekrar deneyin.');
+  }
+}
+
+// Silent sync (no UI feedback, used after OAuth)
+async function syncInstagramSilent() {
+  await _callSyncFn();
+}
+
+async function _callSyncFn() {
+  try {
+    const res = await fetch(IG_SYNC_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.email }),
+    });
+    return await res.json();
+  } catch {
+    return { error: 'network_error' };
+  }
+}
+
+// ── Load page data ────────────────────────────────────────────────────
+async function loadInstagramPage() {
+  const card = document.getElementById('ig-connection-card');
+  if (!card) return;
+
+  // Fetch connection metadata (anon key — encrypted_access_token column excluded by DB policy)
+  const { data: conn } = await sb
+    .from('instagram_connections')
+    .select('instagram_user_id,instagram_username,instagram_account_name,token_expires_at,is_active,last_synced_at,sync_error')
+    .eq('user_id', currentUser.email)
+    .maybeSingle();
+
+  igConn = conn;
+
+  // Render connection card
+  _renderIgConnectionCard(card, conn);
+
+  if (!conn?.is_active) {
+    document.getElementById('ig-account-detail-section').style.display = 'none';
+    document.getElementById('ig-sync-controls').style.display = 'none';
+    document.getElementById('ig-media-section').style.display = 'none';
+    return;
+  }
+
+  // Fetch latest snapshot for account stats
+  const { data: latestSnap } = await sb
+    .from('instagram_account_snapshots')
+    .select('*')
+    .eq('user_id', currentUser.email)
+    .order('snapshot_date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (latestSnap) {
+    _renderIgAccountDetail(latestSnap);
+    document.getElementById('ig-account-detail-section').style.display = '';
+  }
+
+  // Sync controls
+  const syncCtrl = document.getElementById('ig-sync-controls');
+  const syncStatus = document.getElementById('ig-sync-status');
+  if (syncCtrl) syncCtrl.style.display = '';
+  if (syncStatus && conn.last_synced_at) {
+    const d = new Date(conn.last_synced_at);
+    syncStatus.textContent = `Son sync: ${d.toLocaleString('tr-TR')}`;
+  }
+
+  // Fetch media (last 20 by published_at)
+  const { data: media } = await sb
+    .from('instagram_media')
+    .select('*')
+    .eq('user_id', currentUser.email)
+    .order('published_at', { ascending: false })
+    .limit(20);
+
+  igMedia = media ?? [];
+  _renderIgMediaGrid();
+}
+
+function _renderIgConnectionCard(card, conn) {
+  if (!conn || !conn.is_active) {
+    // ── Not connected ──
+    card.innerHTML = `
+      <div class="ig-connect-card">
+        <div class="ig-brand">
+          <div class="ig-brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ig-brand-name">
+              Instagram
+              <span class="ig-status disconnected"><span class="ig-status-dot"></span>Bağlı değil</span>
+            </div>
+            <div class="ig-brand-sub">Instagram Business veya Creator hesabını bağla</div>
+          </div>
+        </div>
+        <div class="ig-connect-actions">
+          <button class="btn btn-primary" onclick="connectInstagram()" style="font-size:13px;padding:8px 18px">
+            + Instagram Bağla
+          </button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ── Token expired ──
+  const expired = conn.token_expires_at && new Date(conn.token_expires_at) < new Date();
+  const statusHtml = expired
+    ? `<span class="ig-status expired"><span class="ig-status-dot"></span>Yenileme gerekiyor</span>`
+    : `<span class="ig-status connected"><span class="ig-status-dot"></span>Bağlı</span>`;
+
+  const username = conn.instagram_username ? `@${escHtml(conn.instagram_username)}` : '—';
+  const name     = conn.instagram_account_name ? escHtml(conn.instagram_account_name) : '';
+  const lastSync = conn.last_synced_at
+    ? new Date(conn.last_synced_at).toLocaleString('tr-TR')
+    : 'Henüz senkronize edilmedi';
+
+  card.innerHTML = `
+    <div class="ig-connect-card connected">
+      <div class="ig-brand">
+        <div class="ig-brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="ig-brand-name">
+            ${username}
+            ${statusHtml}
+          </div>
+          <div class="ig-brand-sub">${name}</div>
+          <div class="ig-last-sync">Son sync: ${lastSync}</div>
+        </div>
+      </div>
+      <div class="ig-connect-actions">
+        ${expired
+          ? `<button class="btn btn-primary" onclick="connectInstagram()" style="font-size:12px;padding:7px 16px">↺ Yeniden Bağla</button>`
+          : `<button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:7px 14px">↻ Senkronize Et</button>`}
+        <button class="btn btn-ghost" onclick="disconnectInstagram()" style="font-size:12px;padding:7px 14px;color:var(--color-text-muted)">Bağlantıyı Kaldır</button>
+      </div>
+    </div>`;
+}
+
+function _renderIgAccountDetail(snap) {
+  const detail = document.getElementById('ig-account-detail');
+  if (!detail) return;
+  const fmt = (n) => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n?.toLocaleString('tr-TR') ?? '—';
+
+  detail.innerHTML = `
+    <div class="ig-account-detail">
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.follower_count)}</div>
+        <div class="ig-account-stat-lbl">Takipçi</div>
+      </div>
+      <div class="ig-account-divider"></div>
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.follows_count)}</div>
+        <div class="ig-account-stat-lbl">Takip</div>
+      </div>
+      <div class="ig-account-divider"></div>
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.media_count)}</div>
+        <div class="ig-account-stat-lbl">İçerik</div>
+      </div>
+      <div class="ig-account-divider"></div>
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.reach)}</div>
+        <div class="ig-account-stat-lbl">Günlük Erişim</div>
+      </div>
+      <div class="ig-account-divider"></div>
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.impressions)}</div>
+        <div class="ig-account-stat-lbl">Gösterim</div>
+      </div>
+      <div class="ig-account-divider"></div>
+      <div class="ig-account-stat">
+        <div class="ig-account-stat-val">${fmt(snap.profile_views)}</div>
+        <div class="ig-account-stat-lbl">Profil Görüntüleme</div>
+      </div>
+    </div>`;
+}
+
+function _renderIgMediaGrid() {
+  const grid = document.getElementById('ig-media-grid');
+  const section = document.getElementById('ig-media-section');
+  if (!grid || !section) return;
+
+  if (!igMedia.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+
+  const typeLabel = { IMAGE: 'Fotoğraf', VIDEO: 'Video', CAROUSEL_ALBUM: 'Albüm', REELS: 'Reels' };
+  const maxPerf = Math.max(...igMedia.map(m => m.performance_score ?? 0), 1);
+  const fmt = (n) => n >= 1000 ? (n/1000).toFixed(1)+'K' : n?.toLocaleString('tr-TR') ?? '0';
+
+  grid.innerHTML = igMedia.map(m => {
+    const thumb = m.thumbnail_url || m.media_url;
+    const thumbHtml = thumb
+      ? `<img src="${escHtml(thumb)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='📷'">`
+      : '📷';
+    const perf = Math.min(100, ((m.performance_score ?? 0) / maxPerf) * 100);
+    const caption = m.caption ? escHtml(m.caption.slice(0, 80)) : '<em style="opacity:.5">Açıklama yok</em>';
+    const date = m.published_at ? new Date(m.published_at).toLocaleDateString('tr-TR') : '';
+
+    return `<div class="ig-media-card">
+      <div class="ig-media-thumb">
+        ${thumbHtml}
+        <span class="ig-media-type-badge">${typeLabel[m.media_type] ?? m.media_type ?? '—'}</span>
+      </div>
+      <div class="ig-media-body">
+        <div class="ig-media-caption">${caption}</div>
+        <div class="ig-media-stats">
+          <div class="ig-media-stat">❤️ <span>${fmt(m.like_count)}</span></div>
+          <div class="ig-media-stat">💬 <span>${fmt(m.comments_count)}</span></div>
+          ${m.views > 0 ? `<div class="ig-media-stat">👁 <span>${fmt(m.views)}</span></div>` : ''}
+          ${m.saves > 0 ? `<div class="ig-media-stat">🔖 <span>${fmt(m.saves)}</span></div>` : ''}
+        </div>
+        <div class="ig-media-stats" style="margin-top:4px">
+          <div class="ig-media-stat" style="color:var(--color-text-muted);font-size:10px">${date}</div>
+          <div class="ig-media-stat" style="margin-left:auto">%<span>${(m.engagement_rate ?? 0).toFixed(2)}</span></div>
+        </div>
+        <div class="ig-perf-bar"><div class="ig-perf-fill" style="width:${perf.toFixed(1)}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Daily KPI strip on the daily page ────────────────────────────────
+async function loadIgDailyKPIs() {
+  const section = document.getElementById('ig-kpi-section');
+  if (!section) return;
+
+  // Check if connection exists and is active
+  const { data: conn } = await sb
+    .from('instagram_connections')
+    .select('is_active,instagram_username')
+    .eq('user_id', currentUser.email)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (!conn) { section.style.display = 'none'; return; }
+
+  // Fetch last 31 days of snapshots
+  const since30 = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+  const { data: snaps } = await sb
+    .from('instagram_account_snapshots')
+    .select('snapshot_date,follower_count,reach,impressions,profile_views')
+    .eq('user_id', currentUser.email)
+    .gte('snapshot_date', since30)
+    .order('snapshot_date', { ascending: false });
+
+  if (!snaps?.length) { section.style.display = 'none'; return; }
+
+  const latest = snaps[0];
+  const yesterday = snaps[1] ?? null;
+  const week7ago  = snaps.find(s => {
+    const d = new Date(s.snapshot_date);
+    return d <= new Date(Date.now() - 7 * 86400000);
+  });
+
+  const followers = latest.follower_count ?? 0;
+  const chgDay    = yesterday ? followers - (yesterday.follower_count ?? 0) : null;
+  const chg7d     = week7ago  ? followers - (week7ago.follower_count   ?? 0) : null;
+  const reach30d  = snaps.reduce((a, s) => a + (s.reach ?? 0), 0);
+
+  // Fetch last 10 media for avg engagement rate
+  const { data: media10 } = await sb
+    .from('instagram_media')
+    .select('engagement_rate')
+    .eq('user_id', currentUser.email)
+    .order('published_at', { ascending: false })
+    .limit(10);
+  const avgEng = media10?.length
+    ? (media10.reduce((a, m) => a + (m.engagement_rate ?? 0), 0) / media10.length).toFixed(2)
+    : null;
+
+  // ── Render ──
+  const fmtN = (n) => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n?.toLocaleString('tr-TR') ?? '—';
+  const fmtChg = (v, el) => {
+    if (!el || v === null) return;
+    el.textContent = v > 0 ? `+${v.toLocaleString('tr-TR')}` : v.toLocaleString('tr-TR');
+    el.className = 'ig-kpi-change ' + (v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
+  };
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  set('ig-kpi-followers',    fmtN(followers));
+  set('ig-kpi-7d-growth',    chg7d !== null ? fmtN(chg7d) : '—');
+  set('ig-kpi-reach',        fmtN(reach30d));
+  set('ig-kpi-eng',          avgEng !== null ? `%${avgEng}` : '—');
+
+  fmtChg(chgDay, document.getElementById('ig-kpi-followers-chg'));
+  if (chg7d !== null) {
+    const el = document.getElementById('ig-kpi-7d-chg');
+    if (el) { el.textContent = 'son 7 gün'; el.className = 'ig-kpi-change flat'; }
+  }
+
+  section.style.display = '';
 }
 
 </script>
