@@ -6971,7 +6971,9 @@ function connectInstagram() {
     'pages_show_list',
     'pages_read_engagement',
     'instagram_basic',
-    'instagram_manage_insights',
+    // 'instagram_manage_insights' — requires Meta App Review (Advanced Access).
+    // Enable in Meta Developer Console → Add Products → Instagram → Permissions
+    // only after your app has been approved for Advanced Access.
   ].join(',');
 
   const oauthUrl =
