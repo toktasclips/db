@@ -4960,34 +4960,33 @@ function toast(msg){
 
 // ===== INIT =====
 // ===== AUTH =====
-// NOTE: Hardcoded ADMIN_EMAIL / ADMIN_PASS and plaintext password DB queries
-// have been removed. Authentication now uses Supabase Auth exclusively.
-// Role (admin/client) is stored in the `users` profile table — NOT in the frontend.
+// Auth: users tablosundan email+password kontrolü (geçici — Supabase Auth migration için hazır)
+// Supabase Auth entegrasyonu tüm kullanıcılar hazır olduğunda aktif edilecek.
 
 let users = [];
 let currentUser = null;
 
 function saveUsers(){} // Supabase handles this
 
-// --- LOGIN: uses Supabase Auth (signInWithPassword) ---
-// No credentials are compared or stored in this file.
 async function doLogin(){
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass  = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
 
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if(error || !data?.user){
-    errEl.style.display = 'block';
-    setTimeout(() => errEl.style.display = 'none', 3000);
+  // users tablosundan kontrol (role dahil)
+  const { data: found } = await sb.from('users').select('*').eq('email', email).eq('password', pass);
+  if(found && found.length > 0){
+    const u = found[0];
+    currentUser = { email: u.email, name: u.name, role: u.role || 'client', id: u.id };
+    showApp();
     return;
   }
 
-  // Role is fetched from the users profile table — not hardcoded in frontend
-  await _resolveAndShowApp(data.user);
+  errEl.style.display = 'block';
+  setTimeout(() => errEl.style.display = 'none', 3000);
 }
 
-// --- Internal: fetch profile then show app ---
+// --- Internal: Supabase Auth ile giriş sonrası profil çözümle (gelecek kullanım) ---
 async function _resolveAndShowApp(authUser){
   const email = authUser.email;
   const { data: profile } = await sb.from('users').select('name,role').eq('email', email).maybeSingle();
@@ -5298,21 +5297,13 @@ function renderUsers(){
     </div>`).join('');
 }
 
-document.addEventListener('DOMContentLoaded', async function(){
+document.addEventListener('DOMContentLoaded', function(){
   initCal();
   initIvCal();
-
-  // Check for a persisted Supabase Auth session (page refresh / returning user)
-  const { data: { session } } = await sb.auth.getSession();
-  if(session?.user){
-    // Session exists — resolve profile and show app without requiring re-login
-    await _resolveAndShowApp(session.user);
-    return;
-  }
-
-  // No active session — show login screen, pre-load non-sensitive UI
   renderUsers();
-  loadFromSupabase().then(() => { setTimeout(() => buildChart(data6ay), 200); });
+  loadFromSupabase().then(()=>{
+    setTimeout(()=>buildChart(data6ay),200);
+  });
   loadKanban();
 });
 </script>
