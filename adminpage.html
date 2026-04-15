@@ -3504,10 +3504,12 @@ async function loadFromSupabase(){
     const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
     const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
-    const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
+    const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
       cq, lq, gq, mq, dq,
       sb.from('offers').select('*').order('created_at'),
-      sb.from('users').select('*').order('created_at')
+      sb.from('users').select('*').order('created_at'),
+      // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
+      !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
     ]);
 
     if(clients.data?.length) state.clients = clients.data.map(c=>({
@@ -3518,6 +3520,19 @@ async function loadFromSupabase(){
       program:c.program||'', health:c.health||5,
       notes:c.notes||[], start:c.start_date||'', social:c.social||''
     }));
+
+    // Non-admin: kendi müşteri kaydı (admin tarafından oluşturulmuş, email eşleşmesi ile)
+    if(ownClientRes?.data) {
+      const oc = ownClientRes.data;
+      state.ownClient = {
+        id:oc.id, name:oc.name, type:oc.type, status:oc.status,
+        email:oc.email||'', phone:oc.phone||'', sessions:oc.sessions||0,
+        remainingSessions:oc.remaining_sessions||0,
+        programEnd:oc.program_end||'', startDate:oc.start_date||'',
+        program:oc.program||'', health:oc.health||5,
+        notes:oc.notes||[], start:oc.start_date||'', social:oc.social||''
+      };
+    }
 
     if(leads.data?.length) state.leads = leads.data.map(l=>({
       id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
@@ -3721,6 +3736,7 @@ const state = {
   milestones:[],
   daily:[],
   offers:[],
+  ownClient:null,
   currentClientId:null,
   currentMsId:null,
   currentLeadId:null,
@@ -3832,7 +3848,9 @@ function remainingDaysColor(days){
 // ── Access control ────────────────────────────────────────────
 function getUserClient(){
   if(!currentUser) return null;
-  return state.clients.find(c=>c.email===currentUser.email)||null;
+  if(currentUser.role==='admin') return null;
+  // Non-admin: admin tarafından oluşturulan kayıt, email eşleşmesiyle yüklenir
+  return state.ownClient || null;
 }
 
 function isUserExpired(){
@@ -5107,7 +5125,7 @@ function showApp(){
 
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
-  state.milestones=[]; state.daily=[]; state.offers=[];
+  state.milestones=[]; state.daily=[]; state.offers=[]; state.ownClient=null;
 
   render();
   setTimeout(() => buildChart(data6ay), 100);
@@ -5124,7 +5142,7 @@ function showApp(){
 function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
-  state.milestones=[]; state.daily=[]; state.offers=[];
+  state.milestones=[]; state.daily=[]; state.offers=[]; state.ownClient=null;
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('block-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
