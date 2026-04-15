@@ -197,6 +197,19 @@ body {
 /* SVG icon helper */
 .ni { width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; }
 
+/* User program card */
+.upc { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-xl); padding:20px 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.upc-kalan { flex-shrink:0; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-lg); padding:14px 20px; min-width:90px; }
+.upc-kalan-num { font-size:26px; font-weight:700; line-height:1; color:var(--color-text-primary); }
+.upc-kalan-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--color-text-muted); margin-top:4px; }
+.upc-info { flex:1; min-width:180px; }
+.upc-program { font-size:15px; font-weight:600; color:var(--color-text-primary); margin-bottom:4px; }
+.upc-dates { font-size:12px; color:var(--color-text-muted); }
+.upc-badge { display:inline-block; font-size:10.5px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.upc-badge-active  { background:rgba(76,175,129,0.12); color:#4caf81; }
+.upc-badge-warning { background:rgba(224,165,83,0.12); color:#e0a553; }
+.upc-badge-expired { background:rgba(229,115,115,0.12); color:#e57373; }
+
 /* ============================================
    MAIN CONTENT
    ============================================ */
@@ -1827,6 +1840,18 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
+<!-- ===== BLOCK SCREEN (program expired) ===== -->
+<div id="block-screen" style="display:none;position:fixed;inset:0;background:#111111;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(229,115,115,0.5)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:24px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <div style="font-size:24px;font-weight:700;color:#e8e8e6;letter-spacing:-0.5px;margin-bottom:12px">Süre Doldu</div>
+  <div style="font-size:15px;color:rgba(255,255,255,0.4);max-width:380px;line-height:1.6;margin-bottom:32px">Program süreniz sona erdi. Sisteme tekrar erişmek için kaydınızı yenilemeniz gerekiyor.</div>
+  <a href="mailto:destek@dijitalbarista.com" style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#e8e8e6'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)'">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6 5 6-5"/><rect x="1" y="3" width="14" height="10" rx="2"/></svg>
+    Destek ile iletişime geç
+  </a>
+  <button onclick="doLogout()" style="margin-top:16px;background:transparent;border:none;font-size:12px;color:rgba(255,255,255,0.2);cursor:pointer;font-family:inherit">Çıkış Yap</button>
+</div>
+
 <div class="app" id="app-root" style="display:none">
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -2044,6 +2069,9 @@ select option { background: #232323; color: #e8e8e6; }
           <div id="daily-quote" style="margin-top:8px;font-size:14px;font-weight:600;background:linear-gradient(90deg,#3b1f0a,#7b4a1e,#c47c3a,#e8b97a,#f5deb3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.2px"></div>
         </div>
       </div>
+
+      <!-- Program durumu kartı — sadece üye (non-admin) kullanıcılara gösterilir -->
+      <div id="user-program-card" style="display:none;margin-bottom:20px"></div>
 
       <!-- Instagram KPI strip (görünür sadece hesap bağlıysa) -->
       <div id="ig-kpi-section">
@@ -3759,6 +3787,7 @@ function showDailyWelcome(){
 }
 
 function go(id,el){
+  if(!checkAccess()) return; // block expired users on every navigation
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -3780,11 +3809,83 @@ function go(id,el){
 function healthColor(s){return s>=7?'var(--color-green)':s>=4?'var(--color-amber)':'#ff3b30';}
 function healthLabel(s){return s>=7?'Sağlıklı':s>=4?'Risk Altında':'Kritik';}
 
+// ── Remaining days — single source of truth ───────────────────
+function remainingDays(endDateStr){
+  if(!endDateStr||endDateStr==='—'||endDateStr==='') return null;
+  const end=new Date(endDateStr+(endDateStr.includes('T')?'':'T00:00:00'));
+  const today=new Date(); today.setHours(0,0,0,0);
+  return Math.floor((end-today)/(1000*60*60*24));
+}
+function remainingDaysLabel(days){
+  if(days===null) return '—';
+  if(days>0) return `${days} gün`;
+  if(days===0) return 'Bugün bitiyor';
+  return 'Süresi doldu';
+}
+function remainingDaysColor(days){
+  if(days===null) return 'var(--color-text-muted)';
+  if(days>14) return 'var(--color-green)';
+  if(days>0)  return 'var(--color-amber)';
+  return 'var(--color-red)';
+}
+
+// ── Access control ────────────────────────────────────────────
+function getUserClient(){
+  if(!currentUser) return null;
+  return state.clients.find(c=>c.email===currentUser.email)||null;
+}
+
+function isUserExpired(){
+  if(!currentUser||currentUser.role==='admin') return false;
+  const c=getUserClient();
+  if(!c||!c.programEnd) return false;
+  const d=remainingDays(c.programEnd);
+  return d!==null&&d<0;
+}
+
+function checkAccess(){
+  if(isUserExpired()){ showBlockScreen(); return false; }
+  return true;
+}
+
+function showBlockScreen(){
+  document.getElementById('app-root').style.display='none';
+  document.getElementById('block-screen').style.display='flex';
+}
+
+// ── User program card ─────────────────────────────────────────
+function renderUserProgramCard(){
+  const card=document.getElementById('user-program-card');
+  if(!card) return;
+  if(!currentUser||currentUser.role==='admin'){ card.style.display='none'; return; }
+  const c=getUserClient();
+  if(!c){ card.style.display='none'; return; }
+  const days=remainingDays(c.programEnd);
+  const dcolor=remainingDaysColor(days);
+  const dlabel=remainingDaysLabel(days);
+  const badgeCls=days===null?'upc-badge-active':days<0?'upc-badge-expired':days<=7?'upc-badge-warning':'upc-badge-active';
+  const badgeTxt=days===null?'Aktif':days<0?'Süresi Doldu':days<=7?'Bitiyor':'Aktif';
+  const fmtD=s=>s?new Date(s+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'—';
+  card.style.display='block';
+  card.innerHTML=`<div class="upc">
+    <div class="upc-kalan">
+      <div class="upc-kalan-num" style="color:${dcolor}">${days===null?'—':days<0?'0':days}</div>
+      <div class="upc-kalan-lbl">Kalan Gün</div>
+    </div>
+    <div class="upc-info">
+      <div class="upc-program">${c.program||'Dijital Barista Programı'}</div>
+      <div class="upc-dates" style="margin-bottom:8px">${fmtD(c.startDate)} — ${fmtD(c.programEnd)}</div>
+      <span class="upc-badge ${badgeCls}">${badgeTxt}</span>
+    </div>
+  </div>`;
+}
+
 function render(){
   renderStats(); renderDashClients(); renderDashMilestones(); renderDashGoals();
   renderDailyClients();
   renderPipeline(); renderGoals(); renderMilestones(); renderReports();
   renderHealthPage(); renderDijitalBarista(); renderUsers(); setDates();
+  renderUserProgramCard();
 }
 
 function renderDashGoals(){
@@ -3873,11 +3974,9 @@ function renderHealthPage(){
 
   el.innerHTML = sortClients([...clients], hsSort).map((c,i)=>{
     const h=c.health||0;
-    const days=c.programEnd?Math.ceil((new Date(c.programEnd)-new Date())/(1000*60*60*24)):null;
-    const daysStr=days===null?''
-      :days<0?`<span style="font-size:11px;font-weight:600;color:#ff3b30">Süre doldu</span>`
-      :days<=7?`<span style="font-size:11px;font-weight:600;color:#ff9500">⏰ ${days} gün</span>`
-      :`<span style="font-size:11px;font-weight:600;color:#34c759">📅 ${days} gün</span>`;
+    const days=remainingDays(c.programEnd);
+    const dcolor=remainingDaysColor(days);
+    const daysStr=days===null?'':`<span style="font-size:11px;font-weight:600;color:${dcolor}">${remainingDaysLabel(days)}</span>`;
     return `<div class="hs-client-row" style="animation:fadeIn 0.18s ease both;animation-delay:${i*0.03}s" onclick="openClientPanel(${c.id})">
       <div class="avatar ${avc(state.clients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
@@ -5013,7 +5112,13 @@ function showApp(){
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
-  loadFromSupabase().then(() => { render(); loadSalesTicker(); loadIgDailyKPIs(); });
+  loadFromSupabase().then(() => {
+    render();
+    loadSalesTicker();
+    loadIgDailyKPIs();
+    renderUserProgramCard();
+    checkAccess(); // enforce expiry after client data is loaded
+  });
 }
 
 function doLogout(){
@@ -5021,6 +5126,7 @@ function doLogout(){
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[];
   document.getElementById('app-root').style.display = 'none';
+  document.getElementById('block-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
