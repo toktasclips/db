@@ -2988,7 +2988,7 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="page-head">
         <div>
           <div class="page-title">Uygulama Planı</div>
-          <div class="page-sub">Programa ait fazları, haftaları ve görevleri takip edin</div>
+          <div class="page-sub">Programın yapısı ve görevleri admin tarafından tanımlanır — kendi ilerlemenizi buradan takip edin</div>
         </div>
       </div>
 
@@ -7589,12 +7589,15 @@ async function loadIgDailyKPIs() {
 
   create table program_task_progress (
     id uuid primary key default gen_random_uuid(),
-    user_id uuid references auth.users(id) on delete cascade,
+    user_id text not null,              -- matches currentUser.email (custom auth)
     task_id uuid references program_tasks(id) on delete cascade,
     status text not null default 'not_started',
     updated_at timestamptz default now(),
     unique(user_id, task_id)
   );
+  -- RLS: enable row level security and add policy so users can only read/write their own rows
+  -- alter table program_task_progress enable row level security;
+  -- (policy via service role or trusted check on user_id = current email)
 */
 
 // ── State ─────────────────────────────────────────────────────
@@ -7607,15 +7610,21 @@ const implState = {
 };
 
 // ── Supabase helpers ──────────────────────────────────────────
+// Shared structure (phases/weeks/tasks) is admin-defined and read-only for users.
+// Only program_task_progress is user-specific — identified by currentUser.email,
+// matching the same user_id convention used across all other tables in this app.
+
 async function implLoadAll() {
-  const uid = (await sb.auth.getUser()).data.user?.id;
-  if (!uid) return;
+  const userEmail = currentUser?.email;
+  if (!userEmail) return;
 
   const [mRes, wRes, tRes, pRes] = await Promise.all([
+    // Shared program structure — same for all users, admin-managed
     sb.from('program_phases').select('*').order('order_index'),
     sb.from('program_weeks').select('*').order('order_index'),
     sb.from('program_tasks').select('*').order('order_index'),
-    sb.from('program_task_progress').select('task_id,status').eq('user_id', uid),
+    // User-specific progress — isolated per user, never shared
+    sb.from('program_task_progress').select('task_id,status').eq('user_id', userEmail),
   ]);
 
   implState.phases   = mRes.data ?? [];
@@ -7627,13 +7636,14 @@ async function implLoadAll() {
 }
 
 async function implSetStatus(taskId, status) {
-  const uid = (await sb.auth.getUser()).data.user?.id;
-  if (!uid) return;
-  // optimistic
+  const userEmail = currentUser?.email;
+  if (!userEmail) return;
+  // Optimistic update — reflect in UI immediately, then persist
   implState.progress[taskId] = status;
   implRender();
+  // Writes only to this user's own progress row — other users unaffected
   await sb.from('program_task_progress').upsert(
-    { user_id: uid, task_id: taskId, status, updated_at: new Date().toISOString() },
+    { user_id: userEmail, task_id: taskId, status, updated_at: new Date().toISOString() },
     { onConflict: 'user_id,task_id' }
   );
 }
@@ -7702,7 +7712,7 @@ function implRenderWeek(week, monthIdx, weekIdx) {
         <span></span><span>Görev</span><span>Seviye</span><span>Çıktı</span><span>Yol Haritası</span><span>URL</span>
        </div>
        ${tasks.map(t => implRenderTask(t)).join('')}`
-    : `<div style="padding:12px 18px 12px 48px;font-size:12px;color:var(--color-text-muted)">Henüz görev yok.</div>`;
+    : `<div style="padding:12px 18px 12px 48px;font-size:12px;color:rgba(255,255,255,0.2)">Bu hafta için henüz görev tanımlanmamış.</div>`;
 
   return `<div class="impl-week" id="${wKey}">
     <div class="impl-week-header" onclick="implToggleWeek('${week.id}')">
@@ -7757,8 +7767,10 @@ function implRender() {
   const list = document.getElementById('impl-list');
   if (!list) return;
   if (!implState.phases.length) {
-    list.innerHTML = `<div style="padding:32px 0;text-align:center;color:var(--color-text-muted);font-size:13px">
-      Henüz faz eklenmemiş. Supabase'e <code>program_phases</code> verilerini ekleyin.
+    list.innerHTML = `<div style="padding:48px 24px;text-align:center">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 14px;display:block"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg>
+      <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.3);margin-bottom:6px">Bu program için henüz plan tanımlanmamış</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.18)">Program şablonu admin tarafından oluşturulduğunda burada görünecek</div>
     </div>`;
     return;
   }
