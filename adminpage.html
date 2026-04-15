@@ -1678,30 +1678,30 @@ select option { background: #232323; color: #e8e8e6; }
 .impl-loading { display:flex; align-items:center; gap:10px; padding:32px; color:var(--color-text-muted); font-size:13px; }
 
 /* Month row */
-.impl-month {
+.impl-phase {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   margin-bottom: 10px;
   overflow: hidden;
 }
-.impl-month-header {
+.impl-phase-header {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 18px;
   cursor: pointer;
   user-select: none;
   transition: background 0.12s;
 }
-.impl-month-header:hover { background: rgba(255,255,255,0.03); }
-.impl-month-chevron { width:16px; height:16px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
-.impl-month-chevron.open { transform: rotate(90deg); }
-.impl-month-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); flex:1; }
-.impl-month-meta { display:flex; align-items:center; gap:16px; }
-.impl-month-prog-text { font-size: 12px; color: var(--color-text-muted); white-space:nowrap; }
-.impl-month-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
-.impl-month-bar-fill { height:100%; background: var(--color-green); border-radius:999px; transition:width 0.4s; }
-.impl-month-body { display:none; border-top: 1px solid var(--color-divider); }
-.impl-month-body.open { display:block; }
+.impl-phase-header:hover { background: rgba(255,255,255,0.03); }
+.impl-phase-chevron { width:16px; height:16px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
+.impl-phase-chevron.open { transform: rotate(90deg); }
+.impl-phase-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); flex:1; }
+.impl-phase-meta { display:flex; align-items:center; gap:16px; }
+.impl-phase-prog-text { font-size: 12px; color: var(--color-text-muted); white-space:nowrap; }
+.impl-phase-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
+.impl-phase-bar-fill { height:100%; background: var(--color-green); border-radius:999px; transition:width 0.4s; }
+.impl-phase-body { display:none; border-top: 1px solid var(--color-divider); }
+.impl-phase-body.open { display:block; }
 
 /* Week row */
 .impl-week { border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -1895,8 +1895,8 @@ select option { background: #232323; color: #e8e8e6; }
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M9 11.5h5M11.5 9v5"/></svg>
       Kullanıcılar
     </div>
-    <div class="nav-lbl">Entegrasyon</div>
-    <div class="nav-item" onclick="go('instagram',this)">
+    <div class="nav-lbl" style="display:none">Entegrasyon</div>
+    <div class="nav-item" onclick="go('instagram',this)" style="display:none">
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="3"/><circle cx="8" cy="8" r="2.5"/><circle cx="11.5" cy="4.5" r=".5" fill="currentColor" stroke="none"/></svg>
       Instagram
     </div>
@@ -2994,7 +2994,7 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="page-head">
         <div>
           <div class="page-title">Uygulama Planı</div>
-          <div class="page-sub">Aylık ve haftalık görevlerinizi takip edin</div>
+          <div class="page-sub">Programa ait fazları, haftaları ve görevleri takip edin</div>
         </div>
       </div>
 
@@ -7567,22 +7567,25 @@ async function loadIgDailyKPIs() {
 /*
   Required Supabase tables (run once in SQL editor):
 
-  create table implementation_months (
+  create table program_phases (
     id uuid primary key default gen_random_uuid(),
     title text not null,
     order_index int not null default 0
   );
+  -- Example rows:
+  -- insert into program_phases (title, order_index) values
+  --   ('Temel Kurulum', 1), ('Trafik ve İçerik', 2), ('Satış ve Optimizasyon', 3);
 
-  create table implementation_weeks (
+  create table program_weeks (
     id uuid primary key default gen_random_uuid(),
-    month_id uuid references implementation_months(id) on delete cascade,
+    phase_id uuid references program_phases(id) on delete cascade,
     title text not null,
     order_index int not null default 0
   );
 
-  create table implementation_tasks (
+  create table program_tasks (
     id uuid primary key default gen_random_uuid(),
-    week_id uuid references implementation_weeks(id) on delete cascade,
+    week_id uuid references program_weeks(id) on delete cascade,
     title text not null,
     level text,
     outcome text,
@@ -7591,10 +7594,10 @@ async function loadIgDailyKPIs() {
     order_index int not null default 0
   );
 
-  create table implementation_task_progress (
+  create table program_task_progress (
     id uuid primary key default gen_random_uuid(),
     user_id uuid references auth.users(id) on delete cascade,
-    task_id uuid references implementation_tasks(id) on delete cascade,
+    task_id uuid references program_tasks(id) on delete cascade,
     status text not null default 'not_started',
     updated_at timestamptz default now(),
     unique(user_id, task_id)
@@ -7603,8 +7606,8 @@ async function loadIgDailyKPIs() {
 
 // ── State ─────────────────────────────────────────────────────
 const implState = {
-  months: [],    // [{id, title, order_index}]
-  weeks: [],     // [{id, month_id, title, order_index}]
+  phases: [],    // [{id, title, order_index}]
+  weeks: [],     // [{id, phase_id, title, order_index}]
   tasks: [],     // [{id, week_id, title, level, outcome, roadmap, url, order_index}]
   progress: {},  // { task_id: status }
   loaded: false,
@@ -7616,13 +7619,13 @@ async function implLoadAll() {
   if (!uid) return;
 
   const [mRes, wRes, tRes, pRes] = await Promise.all([
-    sb.from('implementation_months').select('*').order('order_index'),
-    sb.from('implementation_weeks').select('*').order('order_index'),
-    sb.from('implementation_tasks').select('*').order('order_index'),
-    sb.from('implementation_task_progress').select('task_id,status').eq('user_id', uid),
+    sb.from('program_phases').select('*').order('order_index'),
+    sb.from('program_weeks').select('*').order('order_index'),
+    sb.from('program_tasks').select('*').order('order_index'),
+    sb.from('program_task_progress').select('task_id,status').eq('user_id', uid),
   ]);
 
-  implState.months   = mRes.data ?? [];
+  implState.phases   = mRes.data ?? [];
   implState.weeks    = wRes.data ?? [];
   implState.tasks    = tRes.data ?? [];
   implState.progress = {};
@@ -7636,7 +7639,7 @@ async function implSetStatus(taskId, status) {
   // optimistic
   implState.progress[taskId] = status;
   implRender();
-  await sb.from('implementation_task_progress').upsert(
+  await sb.from('program_task_progress').upsert(
     { user_id: uid, task_id: taskId, status, updated_at: new Date().toISOString() },
     { onConflict: 'user_id,task_id' }
   );
@@ -7718,25 +7721,27 @@ function implRenderWeek(week, monthIdx, weekIdx) {
   </div>`;
 }
 
-function implRenderMonth(month, idx) {
-  const weeks = implState.weeks.filter(w => w.month_id === month.id);
+function implRenderPhase(phase, idx) {
+  const weeks = implState.weeks.filter(w => w.phase_id === phase.id);
   const allTaskIds = implState.tasks
     .filter(t => weeks.some(w => w.id === t.week_id))
     .map(t => t.id);
   const { done, total, pct } = implCalcProgress(allTaskIds);
-  const bodyId = `impl-mb-${month.id}`;
+  const bodyId = `impl-mb-${phase.id}`;
+  const phaseNum = idx + 1;
+  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--color-brand);opacity:0.8;margin-right:2px">FAZ ${phaseNum}</span>`;
 
-  return `<div class="impl-month">
-    <div class="impl-month-header" onclick="implToggleMonth('${month.id}')">
-      <svg class="impl-month-chevron" id="impl-mc-${month.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
-      <span class="impl-month-title">${month.title}</span>
-      <div class="impl-month-meta">
-        <span class="impl-month-prog-text">${done}/${total}</span>
-        <div class="impl-month-bar-wrap"><div class="impl-month-bar-fill" style="width:${pct}%"></div></div>
-        <span class="impl-month-prog-text">${pct}%</span>
+  return `<div class="impl-phase">
+    <div class="impl-phase-header" onclick="implTogglePhase('${phase.id}')">
+      <svg class="impl-phase-chevron" id="impl-mc-${phase.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      <span class="impl-phase-title">${phaseLabel} ${phase.title}</span>
+      <div class="impl-phase-meta">
+        <span class="impl-phase-prog-text">${done}/${total}</span>
+        <div class="impl-phase-bar-wrap"><div class="impl-phase-bar-fill" style="width:${pct}%"></div></div>
+        <span class="impl-phase-prog-text">${pct}%</span>
       </div>
     </div>
-    <div class="impl-month-body" id="${bodyId}">
+    <div class="impl-phase-body" id="${bodyId}">
       ${weeks.map((w, wi) => implRenderWeek(w, idx, wi)).join('')}
     </div>
   </div>`;
@@ -7758,19 +7763,19 @@ function implRender() {
   implRenderOverall();
   const list = document.getElementById('impl-list');
   if (!list) return;
-  if (!implState.months.length) {
+  if (!implState.phases.length) {
     list.innerHTML = `<div style="padding:32px 0;text-align:center;color:var(--color-text-muted);font-size:13px">
-      Henüz içerik eklenmemiş. Supabase'e <code>implementation_months</code> verilerini ekleyin.
+      Henüz faz eklenmemiş. Supabase'e <code>program_phases</code> verilerini ekleyin.
     </div>`;
     return;
   }
-  list.innerHTML = implState.months.map((m, i) => implRenderMonth(m, i)).join('');
+  list.innerHTML = implState.phases.map((p, i) => implRenderPhase(p, i)).join('');
 }
 
 // ── Toggle handlers ───────────────────────────────────────────
-function implToggleMonth(monthId) {
-  const body = document.getElementById(`impl-mb-${monthId}`);
-  const chev = document.getElementById(`impl-mc-${monthId}`);
+function implTogglePhase(phaseId) {
+  const body = document.getElementById(`impl-mb-${phaseId}`);
+  const chev = document.getElementById(`impl-mc-${phaseId}`);
   if (!body) return;
   const open = body.classList.toggle('open');
   if (chev) chev.classList.toggle('open', open);
