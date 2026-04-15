@@ -125,62 +125,77 @@ body {
    SIDEBAR
    ============================================ */
 .sidebar {
-  width: 240px;
-  background: var(--color-bg);
-  border-right: 1px solid var(--color-border);
-  padding: 8px 0;
+  width: 232px;
+  background: #111111;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 6px 0 0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 
 .logo {
-  padding: 12px 14px 16px;
-  font-size: var(--text-md);
+  padding: 14px 16px 12px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.2px;
+  color: #e8e8e6;
+  letter-spacing: -0.3px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 6px;
 }
-.logo span { color: var(--color-brand); }
+.logo span { color: #c9905a; }
+.logo-icon-wrap {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(201,144,90,0.12);
+  border-radius: 6px;
+  font-size: 13px;
+}
 
 .nav-lbl {
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--color-text-muted);
-  letter-spacing: 0.4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  padding: 12px 14px 4px;
+  padding: 10px 16px 3px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  gap: 9px;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: var(--text-base);
+  font-size: 13px;
   font-weight: 400;
-  color: var(--color-text-secondary);
-  transition: background 0.1s, color 0.1s;
+  color: rgba(255,255,255,0.45);
+  transition: background 0.12s, color 0.12s;
   user-select: none;
-  margin: 1px 4px;
+  margin: 1px 6px;
 }
-.nav-item:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+.nav-item svg { flex-shrink: 0; opacity: 0.7; transition: opacity 0.12s; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); }
+.nav-item:hover svg { opacity: 1; }
 .nav-item.active {
-  background: var(--color-surface-hover);
-  color: var(--color-text-primary);
+  background: rgba(201,144,90,0.10);
+  color: #d4a264;
   font-weight: 500;
 }
+.nav-item.active svg { opacity: 1; color: #d4a264; }
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 12px 14px;
-  border-top: 1px solid var(--color-divider);
+  padding: 10px 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
+
+/* SVG icon helper */
+.ni { width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; }
 
 /* ============================================
    MAIN CONTENT
@@ -1642,6 +1657,125 @@ select option { background: #232323; color: #e8e8e6; }
 .ig-empty-title { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
 .ig-empty-sub   { font-size: 12.5px; color: var(--color-text-muted); max-width: 320px; margin: 0 auto 18px; line-height: 1.5; }
 .ig-section-head { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; margin-top: 20px; }
+
+/* ============================================
+   IMPLEMENTATION CHECKLIST
+   ============================================ */
+.impl-progress-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.impl-progress-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 14px; }
+.impl-progress-label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+.impl-progress-sub { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
+.impl-progress-pct { font-size: 28px; font-weight: 700; color: var(--color-text-primary); line-height:1; }
+.impl-progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow:hidden; }
+.impl-progress-bar-fill { height:100%; background: var(--color-green); border-radius: 999px; transition: width 0.5s ease; }
+
+.impl-loading { display:flex; align-items:center; gap:10px; padding:32px; color:var(--color-text-muted); font-size:13px; }
+
+/* Month row */
+.impl-month {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.impl-month-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.impl-month-header:hover { background: rgba(255,255,255,0.03); }
+.impl-month-chevron { width:16px; height:16px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
+.impl-month-chevron.open { transform: rotate(90deg); }
+.impl-month-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); flex:1; }
+.impl-month-meta { display:flex; align-items:center; gap:16px; }
+.impl-month-prog-text { font-size: 12px; color: var(--color-text-muted); white-space:nowrap; }
+.impl-month-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
+.impl-month-bar-fill { height:100%; background: var(--color-green); border-radius:999px; transition:width 0.4s; }
+.impl-month-body { display:none; border-top: 1px solid var(--color-divider); }
+.impl-month-body.open { display:block; }
+
+/* Week row */
+.impl-week { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.impl-week:last-child { border-bottom: none; }
+.impl-week-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px 10px 36px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.impl-week-header:hover { background: rgba(255,255,255,0.02); }
+.impl-week-chevron { width:14px; height:14px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
+.impl-week-chevron.open { transform: rotate(90deg); }
+.impl-week-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); flex:1; }
+.impl-week-count { font-size: 11px; color: var(--color-text-muted); }
+.impl-week-body { display:none; }
+.impl-week-body.open { display:block; }
+
+/* Task row */
+.impl-task {
+  display: grid;
+  grid-template-columns: 32px 1fr 90px 110px 90px 120px;
+  gap: 0;
+  align-items: center;
+  padding: 9px 18px 9px 48px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s;
+}
+.impl-task:hover { background: rgba(255,255,255,0.02); }
+
+.impl-task-status {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.impl-task-status.not_started { border: 2px solid rgba(255,255,255,0.18); }
+.impl-task-status.not_started:hover { border-color: rgba(255,255,255,0.4); }
+.impl-task-status.in_progress { border: 2px solid #e0a553; background: rgba(224,165,83,0.12); }
+.impl-task-status.in_progress::after { content:''; width:7px; height:7px; border-radius:50%; background:#e0a553; }
+.impl-task-status.done { border: 2px solid #4caf81; background: rgba(76,175,129,0.12); }
+.impl-task-status.done::after { content:''; font-family:inherit; }
+.impl-task-status.done svg { display:block; }
+
+.impl-task-name { font-size: 13px; color: var(--color-text-primary); padding-right: 12px; line-height: 1.4; }
+.impl-task-name.done-text { color: var(--color-text-muted); text-decoration: line-through; }
+
+.impl-badge { display:inline-block; font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space:nowrap; }
+.impl-badge-level  { background: rgba(74,158,255,0.12); color: #4a9eff; }
+.impl-badge-outcome{ background: rgba(76,175,129,0.12); color: #4caf81; }
+.impl-badge-roadmap{ background: rgba(180,142,173,0.12); color: #b48ead; }
+
+.impl-task-url a {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--color-text-muted);
+  text-decoration: none; overflow:hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+  max-width: 110px;
+}
+.impl-task-url a:hover { color: var(--color-accent); }
+
+/* task header row labels */
+.impl-tasks-header {
+  display: grid;
+  grid-template-columns: 32px 1fr 90px 110px 90px 120px;
+  gap: 0;
+  padding: 7px 18px 7px 48px;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.impl-tasks-header span { font-size: 10px; font-weight: 600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; }
 .ig-info-box {
   background: rgba(193,100,200,0.06); border: 1px solid rgba(193,100,200,0.15);
   border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px;
@@ -1698,34 +1832,86 @@ select option { background: #232323; color: #e8e8e6; }
   <aside class="sidebar">
     <div class="logo"><div class="logo-icon-wrap">☕</div>Dijital <span>Barista</span></div>
     <div class="nav-lbl">Program</div>
-    <div class="nav-item" onclick="go('barista',this)"><span style="width:20px;text-align:center">☕</span> Dijital Barista</div>
+    <div class="nav-item" onclick="go('barista',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg>
+      Dijital Barista
+    </div>
     <div class="nav-lbl">Genel</div>
-    <div class="nav-item" onclick="go('dashboard',this)" style="display:none"><span style="width:20px;text-align:center">⊞</span> Panel</div>
-    <div class="nav-item active" onclick="go('daily',this)"><span style="width:20px;text-align:center">▣</span> Günlük Giriş</div>
-    <div class="nav-item" onclick="go('health',this)"><span style="width:20px;text-align:center">❤️</span> Müşteri Sağlığı</div>
-    <div class="nav-item" onclick="go('leads',this)"><span style="width:20px;text-align:center">◇</span> Potansiyel</div>
+    <div class="nav-item" onclick="go('dashboard',this)" style="display:none">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h4V2H2v6zm0 6h4v-4H2v4zm6 0h4V8h-4v6zm0-14v4h4V2h-4z"/></svg>
+      Panel
+    </div>
+    <div class="nav-item active" onclick="go('daily',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
+      Günlük Giriş
+    </div>
+    <div class="nav-item" onclick="go('health',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S2 9.5 2 5.5A3 3 0 0 1 8 4a3 3 0 0 1 6 1.5c0 4-6 8-6 8z"/></svg>
+      Müşteri Sağlığı
+    </div>
+    <div class="nav-item" onclick="go('leads',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5"/></svg>
+      Potansiyel
+    </div>
     <div class="nav-lbl">Takip</div>
-    <div class="nav-item" onclick="go('goals',this)"><span style="width:20px;text-align:center">◉</span> Hedefler</div>
-    <div class="nav-item" onclick="go('reports',this)"><span style="width:20px;text-align:center">≋</span> Raporlar</div>
-    <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
-    <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
-    <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
+    <div class="nav-item" onclick="go('goals',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/></svg>
+      Hedefler
+    </div>
+    <div class="nav-item" onclick="go('reports',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V9M6 13V6M9 13V8M12 13V4"/></svg>
+      Raporlar
+    </div>
+    <div class="nav-item" onclick="go('kazanimlar',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.5 3.5H13l-2.75 2 1 3.5L8 9l-3.25 2 1-3.5L3 5.5h3.5z"/></svg>
+      Kazanımlar
+    </div>
+    <div class="nav-item" onclick="go('icerik-yonetimi',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M6 8l2 2 4-4"/></svg>
+      İçerik Yönetimi
+    </div>
+    <div class="nav-item" onclick="go('competitors',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l2.5 2.5"/></svg>
+      Rakip Takibi
+    </div>
+    <div class="nav-item" onclick="go('implementation',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3"/><path d="M3 4.5h10" stroke-width="1"/></svg>
+      Uygulama Planı
+    </div>
     <div class="nav-lbl admin-only">Yönetim</div>
-    <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
-    <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
-    <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
+    <div class="nav-item admin-only" onclick="go('musteriler',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2"/><circle cx="10.5" cy="5" r="2"/><path d="M1 13c0-2.5 2-3.5 4.5-3.5S7.5 12 7.5 12M8.5 10c.7-.4 1.4-.5 2-.5 2.5 0 4.5 1 4.5 3.5"/></svg>
+      Müşteriler & MRR
+    </div>
+    <div class="nav-item admin-only" onclick="go('teklifler',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 6h4M6 9h4M6 12h2"/></svg>
+      Teklifler
+    </div>
+    <div class="nav-item admin-only" onclick="go('client-reports',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V9M6 13V6M9 13V8M12 13V4"/><path d="M2 14h12" stroke-width="1"/></svg>
+      Müşteri Raporları
+    </div>
+    <div class="nav-item admin-only" onclick="go('users',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M9 11.5h5M11.5 9v5"/></svg>
+      Kullanıcılar
+    </div>
     <div class="nav-lbl">Entegrasyon</div>
-    <div class="nav-item" onclick="go('instagram',this)"><span style="width:20px;text-align:center">📸</span> Instagram</div>
+    <div class="nav-item" onclick="go('instagram',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="3"/><circle cx="8" cy="8" r="2.5"/><circle cx="11.5" cy="4.5" r=".5" fill="currentColor" stroke="none"/></svg>
+      Instagram
+    </div>
     <div class="sidebar-footer">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div class="avatar av-blue" style="width:34px;height:34px;font-size:12px">DB</div>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)" id="sidebar-username">Dijital Barista</div>
-          <div style="font-size:11px;color:var(--color-text-muted)" id="sidebar-role">Koç & Mentor</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="avatar av-blue" style="width:32px;height:32px;font-size:11px;flex-shrink:0">DB</div>
+        <div style="min-width:0">
+          <div style="font-size:12.5px;font-weight:500;color:#e8e8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebar-username">Dijital Barista</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3)" id="sidebar-role">Koç & Mentor</div>
         </div>
       </div>
-      <button onclick="doLogout()" style="width:100%;padding:8px;background:transparent;border:1px solid var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);cursor:pointer;font-family:inherit;transition:all 0.12s" onmouseover="this.style.background='var(--color-surface-hover)';this.style.color='var(--color-text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--color-text-muted)'">↩ Çıkış Yap</button>
+      <button onclick="doLogout()" style="width:100%;padding:7px 10px;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:12px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:inherit;transition:all 0.12s;display:flex;align-items:center;gap:6px;justify-content:center" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.3)'">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3l4 5-4 5M15 8H6"/><path d="M6 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4"/></svg>
+        Çıkış Yap
+      </button>
     </div>
   </aside>
 
@@ -2803,6 +2989,38 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
+    <!-- ===== UYGULAMA PLANI (Implementation Checklist) ===== -->
+    <div class="page" id="page-implementation">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Uygulama Planı</div>
+          <div class="page-sub">Aylık ve haftalık görevlerinizi takip edin</div>
+        </div>
+      </div>
+
+      <!-- Overall progress card -->
+      <div class="impl-progress-card" id="impl-progress-card">
+        <div class="impl-progress-top">
+          <div>
+            <div class="impl-progress-label">Genel İlerleme</div>
+            <div class="impl-progress-sub" id="impl-progress-sub">Yükleniyor…</div>
+          </div>
+          <div class="impl-progress-pct" id="impl-progress-pct">—</div>
+        </div>
+        <div class="impl-progress-bar-wrap">
+          <div class="impl-progress-bar-fill" id="impl-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div id="impl-list">
+        <div class="impl-loading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Veriler yükleniyor…
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -3560,6 +3778,7 @@ function go(id,el){
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
   if(id==='instagram') setTimeout(loadInstagramPage, 50);
+  if(id==='implementation') setTimeout(loadImplementationPage, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -7341,6 +7560,250 @@ async function loadIgDailyKPIs() {
   section.style.display = '';
 }
 
+
+// ============================================================
+//  IMPLEMENTATION CHECKLIST
+// ============================================================
+/*
+  Required Supabase tables (run once in SQL editor):
+
+  create table implementation_months (
+    id uuid primary key default gen_random_uuid(),
+    title text not null,
+    order_index int not null default 0
+  );
+
+  create table implementation_weeks (
+    id uuid primary key default gen_random_uuid(),
+    month_id uuid references implementation_months(id) on delete cascade,
+    title text not null,
+    order_index int not null default 0
+  );
+
+  create table implementation_tasks (
+    id uuid primary key default gen_random_uuid(),
+    week_id uuid references implementation_weeks(id) on delete cascade,
+    title text not null,
+    level text,
+    outcome text,
+    roadmap text,
+    url text,
+    order_index int not null default 0
+  );
+
+  create table implementation_task_progress (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id) on delete cascade,
+    task_id uuid references implementation_tasks(id) on delete cascade,
+    status text not null default 'not_started',
+    updated_at timestamptz default now(),
+    unique(user_id, task_id)
+  );
+*/
+
+// ── State ─────────────────────────────────────────────────────
+const implState = {
+  months: [],    // [{id, title, order_index}]
+  weeks: [],     // [{id, month_id, title, order_index}]
+  tasks: [],     // [{id, week_id, title, level, outcome, roadmap, url, order_index}]
+  progress: {},  // { task_id: status }
+  loaded: false,
+};
+
+// ── Supabase helpers ──────────────────────────────────────────
+async function implLoadAll() {
+  const uid = (await sb.auth.getUser()).data.user?.id;
+  if (!uid) return;
+
+  const [mRes, wRes, tRes, pRes] = await Promise.all([
+    sb.from('implementation_months').select('*').order('order_index'),
+    sb.from('implementation_weeks').select('*').order('order_index'),
+    sb.from('implementation_tasks').select('*').order('order_index'),
+    sb.from('implementation_task_progress').select('task_id,status').eq('user_id', uid),
+  ]);
+
+  implState.months   = mRes.data ?? [];
+  implState.weeks    = wRes.data ?? [];
+  implState.tasks    = tRes.data ?? [];
+  implState.progress = {};
+  for (const r of (pRes.data ?? [])) implState.progress[r.task_id] = r.status;
+  implState.loaded   = true;
+}
+
+async function implSetStatus(taskId, status) {
+  const uid = (await sb.auth.getUser()).data.user?.id;
+  if (!uid) return;
+  // optimistic
+  implState.progress[taskId] = status;
+  implRender();
+  await sb.from('implementation_task_progress').upsert(
+    { user_id: uid, task_id: taskId, status, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,task_id' }
+  );
+}
+
+// ── Progress calc ─────────────────────────────────────────────
+function implTaskStatus(taskId) {
+  return implState.progress[taskId] ?? 'not_started';
+}
+
+function implCalcProgress(taskIds) {
+  if (!taskIds.length) return { done: 0, total: 0, pct: 0 };
+  const done = taskIds.filter(id => implTaskStatus(id) === 'done').length;
+  return { done, total: taskIds.length, pct: Math.round(done / taskIds.length * 100) };
+}
+
+// ── Render ────────────────────────────────────────────────────
+function implStatusIcon(status) {
+  if (status === 'done') {
+    return `<div class="impl-task-status done" title="Tamamlandı">
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#4caf81" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
+    </div>`;
+  }
+  if (status === 'in_progress') {
+    return `<div class="impl-task-status in_progress" title="Devam ediyor"></div>`;
+  }
+  return `<div class="impl-task-status not_started" title="Başlanmadı"></div>`;
+}
+
+function implNextStatus(s) {
+  return s === 'not_started' ? 'in_progress' : s === 'in_progress' ? 'done' : 'not_started';
+}
+
+function implBadge(val, cls) {
+  if (!val) return '';
+  return `<span class="impl-badge ${cls}">${val}</span>`;
+}
+
+function implRenderTask(task) {
+  const status = implTaskStatus(task.id);
+  const isDone = status === 'done';
+  const urlHtml = task.url
+    ? `<div class="impl-task-url"><a href="${task.url}" target="_blank" rel="noopener">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 2h5v5M8 8l6-6"/></svg>
+        ${task.url.replace(/^https?:\/\//, '').slice(0, 22)}…
+       </a></div>`
+    : '<div></div>';
+  return `<div class="impl-task">
+    <div onclick="implCycleStatus('${task.id}')" style="display:flex;align-items:center">${implStatusIcon(status)}</div>
+    <div class="impl-task-name${isDone ? ' done-text' : ''}">${task.title}</div>
+    <div>${implBadge(task.level, 'impl-badge-level')}</div>
+    <div>${implBadge(task.outcome, 'impl-badge-outcome')}</div>
+    <div>${implBadge(task.roadmap, 'impl-badge-roadmap')}</div>
+    ${urlHtml}
+  </div>`;
+}
+
+function implRenderWeek(week, monthIdx, weekIdx) {
+  const tasks = implState.tasks.filter(t => t.week_id === week.id);
+  const taskIds = tasks.map(t => t.id);
+  const { done, total } = implCalcProgress(taskIds);
+  const wKey = `impl-w-${week.id}`;
+  const bodyId = `impl-wb-${week.id}`;
+
+  const tasksHtml = tasks.length
+    ? `<div class="impl-tasks-header">
+        <span></span><span>Görev</span><span>Seviye</span><span>Çıktı</span><span>Yol Haritası</span><span>URL</span>
+       </div>
+       ${tasks.map(t => implRenderTask(t)).join('')}`
+    : `<div style="padding:12px 18px 12px 48px;font-size:12px;color:var(--color-text-muted)">Henüz görev yok.</div>`;
+
+  return `<div class="impl-week" id="${wKey}">
+    <div class="impl-week-header" onclick="implToggleWeek('${week.id}')">
+      <svg class="impl-week-chevron" id="impl-wc-${week.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      <span class="impl-week-title">${week.title}</span>
+      <span class="impl-week-count">${done}/${total} tamamlandı</span>
+    </div>
+    <div class="impl-week-body" id="${bodyId}">${tasksHtml}</div>
+  </div>`;
+}
+
+function implRenderMonth(month, idx) {
+  const weeks = implState.weeks.filter(w => w.month_id === month.id);
+  const allTaskIds = implState.tasks
+    .filter(t => weeks.some(w => w.id === t.week_id))
+    .map(t => t.id);
+  const { done, total, pct } = implCalcProgress(allTaskIds);
+  const bodyId = `impl-mb-${month.id}`;
+
+  return `<div class="impl-month">
+    <div class="impl-month-header" onclick="implToggleMonth('${month.id}')">
+      <svg class="impl-month-chevron" id="impl-mc-${month.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      <span class="impl-month-title">${month.title}</span>
+      <div class="impl-month-meta">
+        <span class="impl-month-prog-text">${done}/${total}</span>
+        <div class="impl-month-bar-wrap"><div class="impl-month-bar-fill" style="width:${pct}%"></div></div>
+        <span class="impl-month-prog-text">${pct}%</span>
+      </div>
+    </div>
+    <div class="impl-month-body" id="${bodyId}">
+      ${weeks.map((w, wi) => implRenderWeek(w, idx, wi)).join('')}
+    </div>
+  </div>`;
+}
+
+function implRenderOverall() {
+  const allIds = implState.tasks.map(t => t.id);
+  const { done, total, pct } = implCalcProgress(allIds);
+  const bar = document.getElementById('impl-progress-bar');
+  const sub = document.getElementById('impl-progress-sub');
+  const pctEl = document.getElementById('impl-progress-pct');
+  if (bar)   bar.style.width = pct + '%';
+  if (sub)   sub.textContent = `${done} / ${total} görev tamamlandı`;
+  if (pctEl) pctEl.textContent = `%${pct}`;
+  if (bar) bar.style.background = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-amber)' : 'var(--color-accent)';
+}
+
+function implRender() {
+  implRenderOverall();
+  const list = document.getElementById('impl-list');
+  if (!list) return;
+  if (!implState.months.length) {
+    list.innerHTML = `<div style="padding:32px 0;text-align:center;color:var(--color-text-muted);font-size:13px">
+      Henüz içerik eklenmemiş. Supabase'e <code>implementation_months</code> verilerini ekleyin.
+    </div>`;
+    return;
+  }
+  list.innerHTML = implState.months.map((m, i) => implRenderMonth(m, i)).join('');
+}
+
+// ── Toggle handlers ───────────────────────────────────────────
+function implToggleMonth(monthId) {
+  const body = document.getElementById(`impl-mb-${monthId}`);
+  const chev = document.getElementById(`impl-mc-${monthId}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+function implToggleWeek(weekId) {
+  const body = document.getElementById(`impl-wb-${weekId}`);
+  const chev = document.getElementById(`impl-wc-${weekId}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+function implCycleStatus(taskId) {
+  const current = implTaskStatus(taskId);
+  const next = implNextStatus(current);
+  implSetStatus(taskId, next);
+}
+
+// ── Entry point ───────────────────────────────────────────────
+async function loadImplementationPage() {
+  const list = document.getElementById('impl-list');
+  if (list) list.innerHTML = `<div class="impl-loading">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    Veriler yükleniyor…
+  </div>`;
+  try {
+    await implLoadAll();
+    implRender();
+  } catch(e) {
+    if (list) list.innerHTML = `<div style="padding:24px;color:var(--color-red);font-size:13px">Yüklenemedi: ${e.message}</div>`;
+  }
+}
 </script>
 
 </body>
