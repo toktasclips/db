@@ -7567,7 +7567,10 @@ async function loadIgDailyKPIs() {
   );
   -- Example rows:
   -- insert into program_phases (title, order_index) values
-  --   ('Temel Kurulum', 1), ('Trafik ve İçerik', 2), ('Satış ve Optimizasyon', 3);
+  --   ('Oryantasyon, Vizyon ve Model', 1),
+  --   ('Genel Kurulumlar', 2),
+  --   ('İçerik Ekosistemi', 3),
+  --   ('Satış ve Rakamlar', 4);
 
   create table program_weeks (
     id uuid primary key default gen_random_uuid(),
@@ -7732,12 +7735,12 @@ function implRenderPhase(phase, idx) {
   const { done, total, pct } = implCalcProgress(allTaskIds);
   const bodyId = `impl-mb-${phase.id}`;
   const phaseNum = idx + 1;
-  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--color-brand);opacity:0.8;margin-right:2px">FAZ ${phaseNum}</span>`;
+  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--color-brand);opacity:0.75;flex-shrink:0">Faz ${phaseNum}</span><span style="color:rgba(255,255,255,0.2);margin:0 6px;font-size:11px">·</span>`;
 
   return `<div class="impl-phase">
     <div class="impl-phase-header" onclick="implTogglePhase('${phase.id}')">
       <svg class="impl-phase-chevron" id="impl-mc-${phase.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
-      <span class="impl-phase-title">${phaseLabel} ${phase.title}</span>
+      <span class="impl-phase-title">${phaseLabel}${phase.title}</span>
       <div class="impl-phase-meta">
         <span class="impl-phase-prog-text">${done}/${total}</span>
         <div class="impl-phase-bar-wrap"><div class="impl-phase-bar-fill" style="width:${pct}%"></div></div>
