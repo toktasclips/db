@@ -5514,35 +5514,20 @@ async function addUser(){
 /* ================================================================
    GÜNCELLEMELER — CHANGELOG
    ================================================================ */
+// KURAL: Buraya SADECE kullanıcıyı etkileyen değişiklikler eklenir.
+// Admin paneli, yönetim araçları, arka plan değişiklikleri EKLENMEZ.
 const CHANGELOG = [
-  {
-    date: '2026-04-16',
-    entries: [
-      { type:'new', icon:'🗂️', title:'Müşteri Yönetimi sayfası eklendi', desc:'Günlük kontrol panosu: kimi ne zaman takip etmen gerektiğini 3 sütunda görüyorsun. Geciken / Yaklaşan / Kontrol Edildi.' },
-      { type:'imp', icon:'🔍', title:'Müşteri Sağlığı\'na arama eklendi', desc:'Müşteri listesinde anlık isim arama — büyük listelerde hızlıca kişiyi bulabilirsin.' },
-      { type:'imp', icon:'📊', title:'Kullanıcı eklenince günlük rapora otomatik düşüyor', desc:'Kullanıcı Ekle\'den birini kaydettiğinde o günün satışı ve notu otomatik olarak Raporlar\'a ekleniyor.' },
-      { type:'new', icon:'🔗', title:'Kullanıcı Ekle tam entegre sisteme bağlandı', desc:'Artık kullanıcı eklerken teklif seçebiliyorsun. Süre, bitiş tarihi ve kalan gün otomatik hesaplanıyor. Müşteri Sağlığı ve MRR\'a tek seferde yansıyor.' },
-    ]
-  },
   {
     date: '2026-04-15',
     entries: [
-      { type:'new', icon:'⏳', title:'Kalan gün kartı ve erişim kontrolü eklendi', desc:'Kullanıcı girişinde program bitiş tarihi ve kalan gün görünüyor. Süresi dolan kullanıcılara otomatik blok ekranı gösteriliyor.' },
       { type:'new', icon:'✅', title:'Uygulama Planı sayfası eklendi', desc:'Faz bazlı program takip sistemi: 4 faz, haftalar ve görevler. Her görevin durumunu Başlanmadı / Devam Ediyor / Tamamlandı olarak işaretleyebilirsin.' },
-      { type:'imp', icon:'✨', title:'Sidebar yenilendi', desc:'Tüm menü ikonları SVG\'ye çevrildi. Daha temiz, daha hızlı, retina uyumlu.' },
+      { type:'imp', icon:'✨', title:'Menü yenilendi', desc:'Daha temiz ve hızlı bir navigasyon deneyimi.' },
     ]
   },
   {
     date: '2026-04-14',
     entries: [
-      { type:'new', icon:'⚡', title:'Güncel Aktiviteler akışı eklendi', desc:'Ana sayfada günün satışlarını, notları ve kazanımları canlı olarak gösteren aktivite akışı.' },
       { type:'new', icon:'🏆', title:'Kazanımlar rozet sistemi güncellendi', desc:'5 seviyeli rozet sistemi: Hayatta Kalan\'dan Unicorn\'a. Her rozet belirli bir gelir eşiğini aştığında açılıyor.' },
-    ]
-  },
-  {
-    date: '2026-03-23',
-    entries: [
-      { type:'fix', icon:'🔒', title:'Güvenlik ve veri izolasyonu sağlandı', desc:'Her kullanıcı yalnızca kendi verisini görüyor. Güvenlik açıkları ve veri karışıklıkları giderildi.' },
     ]
   },
 ];
