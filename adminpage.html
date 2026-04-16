@@ -6049,14 +6049,23 @@ async function loadClientReport(email){
 
 function renderCRTeklif(email){
   const el = document.getElementById('cr-teklif'); if(!el) return;
-  // Find client record
-  const client = state.clients.find(c => c.email === email);
-  // Find musteri record (for payment info)
-  const musteri = (typeof musteriler !== 'undefined' ? musteriler : []).find(m => m.email === email);
-  if(!client && !musteri){ el.innerHTML=''; return; }
+  // Find client record — try email field first, then name match via users array
+  let client = state.clients.find(c => c.email === email);
+  if(!client){
+    const u = (typeof users !== 'undefined' ? users : []).find(u => u.email === email);
+    if(u) client = state.clients.find(c => c.name === u.name);
+  }
+  // Find musteri record (for payment info) — email match or name match
+  let musteri = (typeof musteriler !== 'undefined' ? musteriler : []).find(m => m.email === email);
+  if(!musteri && client){
+    musteri = (typeof musteriler !== 'undefined' ? musteriler : []).find(m => m.name === client.name);
+  }
+  const anyUser = (typeof users !== 'undefined' ? users : []).find(u => u.email === email);
+  if(!client && !musteri && !anyUser){ el.innerHTML=''; return; }
 
   const fmtD = s => s ? new Date(s+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '—';
-  const programName = (client&&client.program) || (musteri&&musteri.program_name) || '—';
+  const displayName = (client&&client.name) || (anyUser&&anyUser.name) || email;
+  const programName = (client&&client.program) || (musteri&&musteri.program_name) || 'Dijital Barista Programı';
   const startDate = (client&&client.startDate) || (musteri&&musteri.start_date) || null;
   const endDate = (client&&client.programEnd) || (musteri&&musteri.end_date) || null;
   const monthlyPay = musteri ? (musteri.monthly_payment||0) : 0;
@@ -6068,9 +6077,10 @@ function renderCRTeklif(email){
 
   el.innerHTML = `<div class="cr-teklif-card">
     <div style="font-size:20px">📦</div>
-    <div class="cr-teklif-item" style="flex:2;min-width:140px">
-      <div class="cr-teklif-label">Program</div>
-      <div class="cr-teklif-value">${escHtml(programName)}</div>
+    <div class="cr-teklif-item" style="flex:2;min-width:160px">
+      <div class="cr-teklif-label">Müşteri</div>
+      <div class="cr-teklif-value">${escHtml(displayName)}</div>
+      <div style="font-size:12px;color:var(--color-text-muted)">${escHtml(programName)}</div>
     </div>
     ${monthlyPay ? `<div class="cr-teklif-item">
       <div class="cr-teklif-label">Aylık Ödeme</div>
