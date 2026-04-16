@@ -6041,7 +6041,7 @@ async function loadClientReport(email){
     sb.from('goals').select('*').eq('user_id',email).order('created_at'),
     sb.from('milestones').select('*').eq('user_id',email).order('created_at'),
     sb.from('homework_assignments').select('*').eq('user_id',email).order('created_at'),
-    sb.from('client_teklif').select('*').eq('user_id',email).order('created_at'),
+    sb.from('offers').select('*').eq('user_id',email).order('created_at'),
   ]);
   crData.daily=daily.data||[];
   crData.goals=goals.data||[];
@@ -6201,47 +6201,24 @@ function renderCRTab(){
         <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(52,199,89,0.1);color:#34c759">${m.status||'—'}</span>
       </div>`).join('')+'</div>';
   } else if(crTab==='client-teklif'){
-    const email=document.getElementById('cr-client-select').value;
     const statusBadge = s => {
-      const map = {aktif:'background:rgba(76,175,129,0.15);color:#4caf81', pasif:'background:rgba(107,105,99,0.2);color:#9b9a97', taslak:'background:rgba(74,158,255,0.12);color:#4a9eff'};
-      const label = {aktif:'Aktif', pasif:'Pasif', taslak:'Taslak'};
-      return `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;${map[s]||map.taslak}">${label[s]||'Taslak'}</span>`;
+      const map = {'Aktif':'background:rgba(76,175,129,0.15);color:#4caf81','Pasif':'background:rgba(107,105,99,0.2);color:#9b9a97','Taslak':'background:rgba(224,165,83,0.12);color:var(--color-amber)'};
+      return `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;${map[s]||map['Taslak']}">${s||'Taslak'}</span>`;
     };
     el.innerHTML=`<div style="padding:16px">
-      <div style="background:var(--color-bg-secondary);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid rgba(76,175,129,0.2)">
-        <div style="font-size:12px;font-weight:700;color:#4caf81;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">+ Yeni Teklif Ekle</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <input id="ct-title" class="form-input" placeholder="Teklif adı (örn: 3 Aylık Koçluk)" style="padding:8px 12px;font-size:13px" />
-          <input id="ct-price" class="form-input" placeholder="Fiyat (₺)" type="number" style="padding:8px 12px;font-size:13px" />
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <input id="ct-duration" class="form-input" placeholder="Süre (örn: 3 Ay, 6 Hafta)" style="padding:8px 12px;font-size:13px" />
-          <select id="ct-status" class="form-input form-select" style="padding:8px 12px;font-size:13px">
-            <option value="aktif">Aktif</option>
-            <option value="taslak">Taslak</option>
-            <option value="pasif">Pasif</option>
-          </select>
-        </div>
-        <textarea id="ct-desc" class="form-input" placeholder="Açıklama / içerik (opsiyonel)..." style="min-height:60px;margin-bottom:10px;font-size:13px;resize:none"></textarea>
-        <button class="btn btn-primary" style="font-size:13px;padding:8px 20px;border-radius:10px;background:rgba(76,175,129,0.15);color:#4caf81;border:1px solid rgba(76,175,129,0.3)" onclick="addClientTeklif('${escHtml(email)}')">Ekle</button>
-      </div>
-      ${!crData.clientTeklif.length ? '<div class="empty" style="padding:20px">Henüz teklif eklenmedi</div>' :
+      ${!crData.clientTeklif.length ? '<div class="empty" style="padding:32px">Bu müşteriye ait teklif bulunamadı</div>' :
         crData.clientTeklif.slice().reverse().map(t=>`
         <div style="padding:16px 0;border-bottom:1px solid var(--color-divider)">
-          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:6px">
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-                <div style="font-size:15px;font-weight:600">${escHtml(t.title)}</div>
-                ${statusBadge(t.status||'taslak')}
-              </div>
-              <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px">
-                ${t.price ? `<span style="font-size:14px;font-weight:600;color:var(--color-green)">₺${Number(t.price).toLocaleString('tr-TR')}</span>` : ''}
-                ${t.duration ? `<span style="font-size:13px;color:var(--color-text-muted)">⏱ ${escHtml(t.duration)}</span>` : ''}
-              </div>
-              ${t.description ? `<div style="font-size:13px;color:var(--color-text-secondary)">${escHtml(t.description)}</div>` : ''}
-            </div>
-            <button onclick="deleteClientTeklif(${t.id},'${escHtml(email)}')" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:16px;padding:0;flex-shrink:0" title="Sil">🗑</button>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+            <div style="font-size:15px;font-weight:600">${escHtml(t.name||'')}</div>
+            ${statusBadge(t.status||'Taslak')}
           </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px">
+            ${t.price ? `<span style="font-size:14px;font-weight:600;color:var(--color-green)">₺${Number(t.price).toLocaleString('tr-TR')}</span>` : ''}
+            ${t.duration_value ? `<span style="font-size:13px;color:var(--color-text-muted)">⏱ ${t.duration_value} ${t.duration_unit||'Ay'}</span>` : ''}
+            ${t.category ? `<span style="font-size:12px;color:var(--color-text-muted);background:var(--color-bg-secondary);padding:2px 8px;border-radius:6px">${escHtml(t.category)}</span>` : ''}
+          </div>
+          ${t.description ? `<div style="font-size:13px;color:var(--color-text-secondary)">${escHtml(t.description)}</div>` : ''}
         </div>`).join('')
       }
     </div>`;
