@@ -5269,6 +5269,32 @@ function updateUserFormPreview() {
   prevEl.style.display = 'block';
 }
 
+async function recordSaleInDaily(name, programName, amount) {
+  const today = new Date().toISOString().slice(0,10);
+  const adminEmail = currentUser?.email || '';
+  const noteText = programName ? `${name} – ${programName}` : name;
+
+  const { data: existing } = await sb.from('daily_entries')
+    .select('*').eq('entry_date', today).eq('user_id', adminEmail)
+    .maybeSingle();
+
+  if(existing) {
+    const newAlinan = (existing.alinan||0) + amount;
+    const newWin = existing.win ? existing.win + '\n' + noteText : noteText;
+    await sb.from('daily_entries').update({ alinan: newAlinan, win: newWin }).eq('id', existing.id);
+    const local = state.daily.find(d => String(d.id) === String(existing.id));
+    if(local) { local.alinan = newAlinan; local.win = newWin; }
+  } else {
+    const entry = {
+      dateShort: today, mood:'🙂', takipci:0, mail:0, icerik:0,
+      reklam:0, tpm:0, hotlist:0, musteri:0, teklif:0,
+      alinan: amount, anlasma:0, yorum:'', win: noteText
+    };
+    await saveDailyEntry(entry);
+    state.daily.unshift(entry);
+  }
+}
+
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
@@ -5328,6 +5354,11 @@ async function addUser(){
   };
   const newCustId = await insertMusteriSB(customerRow);
   musteriler.push({ id: newCustId, ...customerRow });
+
+  // 4. Günlük raporlara otomatik satış kaydı
+  if(monthlyPay > 0 || programName) {
+    await recordSaleInDaily(name, programName, monthlyPay);
+  }
 
   closeModal('modal-add-user');
   const prevEl = document.getElementById('u-preview'); if(prevEl) prevEl.style.display='none';
