@@ -5996,6 +5996,10 @@ let crMetric='takipci';
 let crTab='daily';
 
 async function renderClientReports(){
+  // Ensure musteriler is loaded so teklif card can show payment info
+  if((typeof musteriler === 'undefined' || musteriler.length === 0) && typeof loadMusteriler === 'function'){
+    await loadMusteriler();
+  }
   populateCRSelect();
 }
 
