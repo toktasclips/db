@@ -125,62 +125,90 @@ body {
    SIDEBAR
    ============================================ */
 .sidebar {
-  width: 240px;
-  background: var(--color-bg);
-  border-right: 1px solid var(--color-border);
-  padding: 8px 0;
+  width: 232px;
+  background: #111111;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 6px 0 0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 
 .logo {
-  padding: 12px 14px 16px;
-  font-size: var(--text-md);
+  padding: 14px 16px 12px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.2px;
+  color: #e8e8e6;
+  letter-spacing: -0.3px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 6px;
 }
-.logo span { color: var(--color-brand); }
+.logo span { color: #c9905a; }
+.logo-icon-wrap {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(201,144,90,0.12);
+  border-radius: 6px;
+  font-size: 13px;
+}
 
 .nav-lbl {
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--color-text-muted);
-  letter-spacing: 0.4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  padding: 12px 14px 4px;
+  padding: 10px 16px 3px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  gap: 9px;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: var(--text-base);
+  font-size: 13px;
   font-weight: 400;
-  color: var(--color-text-secondary);
-  transition: background 0.1s, color 0.1s;
+  color: rgba(255,255,255,0.45);
+  transition: background 0.12s, color 0.12s;
   user-select: none;
-  margin: 1px 4px;
+  margin: 1px 6px;
 }
-.nav-item:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+.nav-item svg { flex-shrink: 0; opacity: 0.7; transition: opacity 0.12s; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); }
+.nav-item:hover svg { opacity: 1; }
 .nav-item.active {
-  background: var(--color-surface-hover);
-  color: var(--color-text-primary);
+  background: rgba(201,144,90,0.10);
+  color: #d4a264;
   font-weight: 500;
 }
+.nav-item.active svg { opacity: 1; color: #d4a264; }
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 12px 14px;
-  border-top: 1px solid var(--color-divider);
+  padding: 10px 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
+
+/* SVG icon helper */
+.ni { width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; }
+
+/* User program card */
+.upc { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-xl); padding:20px 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.upc-kalan { flex-shrink:0; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius-lg); padding:14px 20px; min-width:90px; }
+.upc-kalan-num { font-size:26px; font-weight:700; line-height:1; color:var(--color-text-primary); }
+.upc-kalan-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--color-text-muted); margin-top:4px; }
+.upc-info { flex:1; min-width:180px; }
+.upc-program { font-size:15px; font-weight:600; color:var(--color-text-primary); margin-bottom:4px; }
+.upc-dates { font-size:12px; color:var(--color-text-muted); }
+.upc-badge { display:inline-block; font-size:10.5px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.upc-badge-active  { background:rgba(76,175,129,0.12); color:#4caf81; }
+.upc-badge-warning { background:rgba(224,165,83,0.12); color:#e0a553; }
+.upc-badge-expired { background:rgba(229,115,115,0.12); color:#e57373; }
 
 /* ============================================
    MAIN CONTENT
@@ -1642,6 +1670,125 @@ select option { background: #232323; color: #e8e8e6; }
 .ig-empty-title { font-size: 14px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
 .ig-empty-sub   { font-size: 12.5px; color: var(--color-text-muted); max-width: 320px; margin: 0 auto 18px; line-height: 1.5; }
 .ig-section-head { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; margin-top: 20px; }
+
+/* ============================================
+   IMPLEMENTATION CHECKLIST
+   ============================================ */
+.impl-progress-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.impl-progress-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 14px; }
+.impl-progress-label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+.impl-progress-sub { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
+.impl-progress-pct { font-size: 28px; font-weight: 700; color: var(--color-text-primary); line-height:1; }
+.impl-progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow:hidden; }
+.impl-progress-bar-fill { height:100%; background: var(--color-green); border-radius: 999px; transition: width 0.5s ease; }
+
+.impl-loading { display:flex; align-items:center; gap:10px; padding:32px; color:var(--color-text-muted); font-size:13px; }
+
+/* Month row */
+.impl-phase {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.impl-phase-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.impl-phase-header:hover { background: rgba(255,255,255,0.03); }
+.impl-phase-chevron { width:16px; height:16px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
+.impl-phase-chevron.open { transform: rotate(90deg); }
+.impl-phase-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); flex:1; }
+.impl-phase-meta { display:flex; align-items:center; gap:16px; }
+.impl-phase-prog-text { font-size: 12px; color: var(--color-text-muted); white-space:nowrap; }
+.impl-phase-bar-wrap { width: 80px; height: 4px; background: rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
+.impl-phase-bar-fill { height:100%; background: var(--color-green); border-radius:999px; transition:width 0.4s; }
+.impl-phase-body { display:none; border-top: 1px solid var(--color-divider); }
+.impl-phase-body.open { display:block; }
+
+/* Week row */
+.impl-week { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.impl-week:last-child { border-bottom: none; }
+.impl-week-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px 10px 36px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s;
+}
+.impl-week-header:hover { background: rgba(255,255,255,0.02); }
+.impl-week-chevron { width:14px; height:14px; flex-shrink:0; color:var(--color-text-muted); transition:transform 0.2s; }
+.impl-week-chevron.open { transform: rotate(90deg); }
+.impl-week-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); flex:1; }
+.impl-week-count { font-size: 11px; color: var(--color-text-muted); }
+.impl-week-body { display:none; }
+.impl-week-body.open { display:block; }
+
+/* Task row */
+.impl-task {
+  display: grid;
+  grid-template-columns: 32px 1fr 90px 110px 90px 120px;
+  gap: 0;
+  align-items: center;
+  padding: 9px 18px 9px 48px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s;
+}
+.impl-task:hover { background: rgba(255,255,255,0.02); }
+
+.impl-task-status {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.impl-task-status.not_started { border: 2px solid rgba(255,255,255,0.18); }
+.impl-task-status.not_started:hover { border-color: rgba(255,255,255,0.4); }
+.impl-task-status.in_progress { border: 2px solid #e0a553; background: rgba(224,165,83,0.12); }
+.impl-task-status.in_progress::after { content:''; width:7px; height:7px; border-radius:50%; background:#e0a553; }
+.impl-task-status.done { border: 2px solid #4caf81; background: rgba(76,175,129,0.12); }
+.impl-task-status.done::after { content:''; font-family:inherit; }
+.impl-task-status.done svg { display:block; }
+
+.impl-task-name { font-size: 13px; color: var(--color-text-primary); padding-right: 12px; line-height: 1.4; }
+.impl-task-name.done-text { color: var(--color-text-muted); text-decoration: line-through; }
+
+.impl-badge { display:inline-block; font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space:nowrap; }
+.impl-badge-level  { background: rgba(74,158,255,0.12); color: #4a9eff; }
+.impl-badge-outcome{ background: rgba(76,175,129,0.12); color: #4caf81; }
+.impl-badge-roadmap{ background: rgba(180,142,173,0.12); color: #b48ead; }
+
+.impl-task-url a {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--color-text-muted);
+  text-decoration: none; overflow:hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+  max-width: 110px;
+}
+.impl-task-url a:hover { color: var(--color-accent); }
+
+/* task header row labels */
+.impl-tasks-header {
+  display: grid;
+  grid-template-columns: 32px 1fr 90px 110px 90px 120px;
+  gap: 0;
+  padding: 7px 18px 7px 48px;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.impl-tasks-header span { font-size: 10px; font-weight: 600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; }
 .ig-info-box {
   background: rgba(193,100,200,0.06); border: 1px solid rgba(193,100,200,0.15);
   border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px;
@@ -1654,6 +1801,113 @@ select option { background: #232323; color: #e8e8e6; }
   .ig-media-grid { grid-template-columns: repeat(2, 1fr); }
   .ig-connect-card { flex-direction: column; align-items: flex-start; }
 }
+
+/* ============================================================
+   SIDEBAR ACCORDION GROUPS
+   ============================================================ */
+.nav-group { margin-bottom: 2px; }
+.nav-group-hd {
+  display:flex; align-items:center; gap:7px;
+  padding:5px 10px; border-radius:6px; margin:0 4px;
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+  color:rgba(255,255,255,0.22); cursor:pointer;
+  transition:color 0.12s, background 0.12s; user-select:none;
+}
+.nav-group-hd:hover { color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.04); }
+.nav-group-arrow { margin-left:auto; transition:transform 0.18s; flex-shrink:0; opacity:0.5; }
+.nav-group-hd.open .nav-group-arrow { transform:rotate(180deg); }
+.nav-group-bd { display:none; }
+.nav-group-bd.open { display:block; }
+.nav-divider { height:1px; background:rgba(255,255,255,0.05); margin:6px 10px; }
+
+/* ============================================================
+   GÜNCELLEMELER — CHANGELOG
+   ============================================================ */
+.cl-group { margin-bottom:6px; }
+.cl-date-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--color-text-muted); padding:6px 0 8px; }
+.cl-entry { background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px; }
+.cl-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.cl-icon-new  { background:rgba(74,158,255,0.12); }
+.cl-icon-fix  { background:rgba(76,175,129,0.12); }
+.cl-icon-imp  { background:rgba(224,165,83,0.12); }
+.cl-body { flex:1; min-width:0; }
+.cl-title { font-size:13.5px; font-weight:600; color:var(--color-text-primary); margin-bottom:3px; }
+.cl-desc  { font-size:12px; color:var(--color-text-muted); line-height:1.5; }
+.cl-tag { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:2px 7px; border-radius:20px; margin-bottom:5px; }
+.cl-tag-new { background:rgba(74,158,255,0.12); color:#4a9eff; }
+.cl-tag-fix { background:rgba(76,175,129,0.12); color:#4caf81; }
+.cl-tag-imp { background:rgba(224,165,83,0.12); color:#e0a553; }
+
+/* ============================================================
+   MÜŞTERİ YÖNETİMİ — CHECK-IN BOARD
+   ============================================================ */
+.cm-board { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; align-items:start; }
+.cm-col { background:var(--color-bg-secondary); border-radius:var(--radius-lg); overflow:hidden; }
+.cm-col-head { padding:14px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.cm-col-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; flex:1; }
+.cm-col-badge { font-size:11px; font-weight:600; padding:2px 9px; border-radius:20px; }
+.cm-col-overdue  .cm-col-head { background:rgba(255,59,48,0.06); }
+.cm-col-overdue  .cm-col-title { color:#ff6b6b; }
+.cm-col-overdue  .cm-col-badge { background:rgba(255,59,48,0.15); color:#ff6b6b; }
+.cm-col-upcoming .cm-col-head { background:rgba(224,165,83,0.07); }
+.cm-col-upcoming .cm-col-title { color:#e0a553; }
+.cm-col-upcoming .cm-col-badge { background:rgba(224,165,83,0.15); color:#e0a553; }
+.cm-col-checked  .cm-col-head { background:rgba(76,175,129,0.07); }
+.cm-col-checked  .cm-col-title { color:#4caf81; }
+.cm-col-checked  .cm-col-badge { background:rgba(76,175,129,0.15); color:#4caf81; }
+.cm-col-body { padding:8px; display:flex; flex-direction:column; gap:5px; min-height:100px; }
+.cm-card { background:var(--color-bg-tertiary); border:1px solid var(--color-border); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; transition:background 0.12s,border-color 0.12s; }
+.cm-card:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); }
+.cm-card-info { flex:1; min-width:0; }
+.cm-card-name { font-size:13px; font-weight:500; color:var(--color-text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cm-card-meta { font-size:11px; color:var(--color-text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cm-check-btn { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.12); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+.cm-check-btn:hover { border-color:#4caf81; background:rgba(76,175,129,0.15); }
+.cm-check-btn.done { border-color:#4caf81; background:rgba(76,175,129,0.2); }
+.cm-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:1px; }
+.cm-empty { text-align:center; padding:30px 12px; font-size:12px; color:var(--color-text-muted); }
+@media(max-width:900px){ .cm-board { grid-template-columns:1fr; } }
+
+/* ============================================================
+   ÖDEVLER — STATUS BADGES & CARDS
+   ============================================================ */
+.odev-card { background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:12px; padding:16px; display:flex; gap:14px; align-items:flex-start; transition:border-color 0.15s; }
+.odev-card:hover { border-color:rgba(255,255,255,0.12); }
+.odev-status { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+.odev-status-atanmis    { background:rgba(74,158,255,0.12); color:#4a9eff; }
+.odev-status-inceleniyor { background:rgba(224,165,83,0.15); color:#e0a553; }
+.odev-status-onaylandi  { background:rgba(76,175,129,0.15); color:#4caf81; }
+.odev-status-revize     { background:rgba(229,115,115,0.15); color:#e57373; }
+.odev-badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.odev-complete-btn { padding:8px 18px; background:rgba(74,158,255,0.12); color:#4a9eff; border:1px solid rgba(74,158,255,0.25); border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.odev-complete-btn:hover { background:rgba(74,158,255,0.22); }
+.odev-done-check { width:22px; height:22px; border-radius:50%; background:rgba(76,175,129,0.2); border:2px solid #4caf81; display:flex; align-items:center; justify-content:center; color:#4caf81; font-size:12px; flex-shrink:0; }
+.odev-review-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.odev-approve-btn { padding:6px 14px; background:rgba(76,175,129,0.12); color:#4caf81; border:1px solid rgba(76,175,129,0.25); border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.odev-approve-btn:hover { background:rgba(76,175,129,0.22); }
+.odev-revize-btn { padding:6px 14px; background:rgba(229,115,115,0.10); color:#e57373; border:1px solid rgba(229,115,115,0.2); border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+.odev-revize-btn:hover { background:rgba(229,115,115,0.18); }
+
+/* ============================================================
+   ALet ÇANTASI — ADMIN CONTROLS
+   ============================================================ */
+.tb-admin-bar { display:flex; align-items:center; gap:10px; background:rgba(74,158,255,0.06); border:1px solid rgba(74,158,255,0.15); border-radius:10px; padding:10px 16px; margin-bottom:20px; }
+.tb-admin-label { font-size:12px; font-weight:600; color:#4a9eff; flex:1; }
+.tb-card-actions { display:none; position:absolute; top:8px; right:8px; gap:4px; }
+.db-card:hover .tb-card-actions { display:flex; }
+.tb-edit-btn, .tb-del-btn { width:26px; height:26px; border:none; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; font-family:inherit; transition:all 0.15s; }
+.tb-edit-btn { background:rgba(255,255,255,0.08); color:#ccc; }
+.tb-edit-btn:hover { background:rgba(74,158,255,0.2); color:#4a9eff; }
+.tb-del-btn { background:rgba(255,255,255,0.05); color:#888; }
+.tb-del-btn:hover { background:rgba(229,115,115,0.2); color:#e57373; }
+.tb-unpublished { opacity:0.45; }
+.tb-unpublished::after { content:'(Gizli)'; font-size:10px; font-weight:600; color:#e0a553; margin-left:6px; }
+
+/* Teklif info card in client reports */
+.cr-teklif-card { background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:12px; padding:16px 20px; display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+.cr-teklif-item { display:flex; flex-direction:column; gap:3px; }
+.cr-teklif-label { font-size:11px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.4px; }
+.cr-teklif-value { font-size:15px; font-weight:600; color:var(--color-text-primary); }
 
 </style>
 <body>
@@ -1693,39 +1947,138 @@ select option { background: #232323; color: #e8e8e6; }
   </div>
 </div>
 
+<!-- ===== BLOCK SCREEN (program expired) ===== -->
+<div id="block-screen" style="display:none;position:fixed;inset:0;background:#111111;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(229,115,115,0.5)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:24px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <div style="font-size:24px;font-weight:700;color:#e8e8e6;letter-spacing:-0.5px;margin-bottom:12px">Süre Doldu</div>
+  <div style="font-size:15px;color:rgba(255,255,255,0.4);max-width:380px;line-height:1.6;margin-bottom:32px">Program süreniz sona erdi. Sisteme tekrar erişmek için kaydınızı yenilemeniz gerekiyor.</div>
+  <a href="mailto:destek@dijitalbarista.com" style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#e8e8e6'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)'">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6 5 6-5"/><rect x="1" y="3" width="14" height="10" rx="2"/></svg>
+    Destek ile iletişime geç
+  </a>
+  <button onclick="doLogout()" style="margin-top:16px;background:transparent;border:none;font-size:12px;color:rgba(255,255,255,0.2);cursor:pointer;font-family:inherit">Çıkış Yap</button>
+</div>
+
 <div class="app" id="app-root" style="display:none">
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo"><div class="logo-icon-wrap">☕</div>Dijital <span>Barista</span></div>
-    <div class="nav-lbl">Program</div>
-    <div class="nav-item" onclick="go('barista',this)"><span style="width:20px;text-align:center">☕</span> Dijital Barista</div>
-    <div class="nav-lbl">Genel</div>
-    <div class="nav-item" onclick="go('dashboard',this)" style="display:none"><span style="width:20px;text-align:center">⊞</span> Panel</div>
-    <div class="nav-item active" onclick="go('daily',this)"><span style="width:20px;text-align:center">▣</span> Günlük Giriş</div>
-    <div class="nav-item" onclick="go('health',this)"><span style="width:20px;text-align:center">❤️</span> Müşteri Sağlığı</div>
-    <div class="nav-item" onclick="go('leads',this)"><span style="width:20px;text-align:center">◇</span> Potansiyel</div>
-    <div class="nav-lbl">Takip</div>
-    <div class="nav-item" onclick="go('goals',this)"><span style="width:20px;text-align:center">◉</span> Hedefler</div>
-    <div class="nav-item" onclick="go('reports',this)"><span style="width:20px;text-align:center">≋</span> Raporlar</div>
-    <div class="nav-item" onclick="go('kazanimlar',this)"><span style="width:20px;text-align:center">🥋</span> Kazanımlar</div>
-    <div class="nav-item" onclick="go('icerik-yonetimi',this)"><span style="width:20px;text-align:center">🎬</span> İçerik Yönetimi</div>
-    <div class="nav-item" onclick="go('competitors',this)"><span style="width:20px;text-align:center">🔍</span> Rakip Takibi</div>
-    <div class="nav-lbl admin-only">Yönetim</div>
-    <div class="nav-item admin-only" onclick="go('musteriler',this)"><span style="width:20px;text-align:center">💰</span> Müşteriler & MRR</div>
-    <div class="nav-item admin-only" onclick="go('teklifler',this)"><span style="width:20px;text-align:center">📋</span> Teklifler</div>
-    <div class="nav-item admin-only" onclick="go('client-reports',this)"><span style="width:20px;text-align:center">📊</span> Müşteri Raporları</div>
-    <div class="nav-item admin-only" onclick="go('users',this)"><span style="width:20px;text-align:center">🔑</span> Kullanıcılar</div>
-    <div class="nav-lbl">Entegrasyon</div>
-    <div class="nav-item" onclick="go('instagram',this)"><span style="width:20px;text-align:center">📸</span> Instagram</div>
-    <div class="sidebar-footer">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div class="avatar av-blue" style="width:34px;height:34px;font-size:12px">DB</div>
-        <div>
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)" id="sidebar-username">Dijital Barista</div>
-          <div style="font-size:11px;color:var(--color-text-muted)" id="sidebar-role">Koç & Mentor</div>
+
+    <!-- TOP LEVEL -->
+    <div class="nav-item" onclick="go('barista',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg>
+      Alet Çantası
+    </div>
+    <div class="nav-item active" onclick="go('daily',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
+      Günlük Giriş
+    </div>
+    <div class="nav-item" onclick="go('implementation',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3"/><path d="M3 4.5h10" stroke-width="1"/></svg>
+      Uygulama Planı
+    </div>
+    <div class="nav-item" onclick="go('icerik-yonetimi',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M6 8l2 2 4-4"/></svg>
+      İçerik Yönetimi
+    </div>
+    <div class="nav-item" onclick="go('kazanimlar',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.5 3.5H13l-2.75 2 1 3.5L8 9l-3.25 2 1-3.5L3 5.5h3.5z"/></svg>
+      Kazanımlar
+    </div>
+    <div class="nav-item non-admin-only" onclick="go('odevler',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 5.5h4M6 8h4M6 10.5h2.5"/><path d="M10 10l1.5 1.5L14 9" stroke-width="1.4"/></svg>
+      Ödevler
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- OPERASYON ACCORDION -->
+    <div class="nav-group" id="navgroup-operasyon">
+      <div class="nav-group-hd" onclick="toggleNavGroup('operasyon')">
+        Operasyon
+        <svg class="nav-group-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
+      </div>
+      <div class="nav-group-bd" id="navgroupbd-operasyon">
+        <div class="nav-item admin-only" onclick="go('musteri-yonetimi',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="2.5"/><path d="M2 13.5c0-3 2.5-4.5 6-4.5s6 1.5 6 4.5"/><path d="M11 9.5l1.5 1.5L15 8" stroke-width="1.4"/></svg>
+          Müşteri Yönetimi
+        </div>
+        <div class="nav-item" onclick="go('health',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5S2 9.5 2 5.5A3 3 0 0 1 8 4a3 3 0 0 1 6 1.5c0 4-6 8-6 8z"/></svg>
+          Müşteri Sağlığı
+        </div>
+        <div class="nav-item admin-only" onclick="go('musteriler',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2"/><circle cx="10.5" cy="5" r="2"/><path d="M1 13c0-2.5 2-3.5 4.5-3.5S7.5 12 7.5 12M8.5 10c.7-.4 1.4-.5 2-.5 2.5 0 4.5 1 4.5 3.5"/></svg>
+          Müşteriler & MRR
+        </div>
+        <div class="nav-item admin-only" onclick="go('client-reports',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V9M6 13V6M9 13V8M12 13V4"/><path d="M2 14h12" stroke-width="1"/></svg>
+          Müşteri Raporları
+        </div>
+        <div class="nav-item" onclick="go('leads',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"/><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5"/></svg>
+          Potansiyel Müşteriler
         </div>
       </div>
-      <button onclick="doLogout()" style="width:100%;padding:8px;background:transparent;border:1px solid var(--color-border);border-radius:6px;font-size:12px;color:var(--color-text-muted);cursor:pointer;font-family:inherit;transition:all 0.12s" onmouseover="this.style.background='var(--color-surface-hover)';this.style.color='var(--color-text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--color-text-muted)'">↩ Çıkış Yap</button>
+    </div>
+
+    <!-- İŞ TAKİBİ ACCORDION -->
+    <div class="nav-group" id="navgroup-istakibi">
+      <div class="nav-group-hd" onclick="toggleNavGroup('istakibi')">
+        İş Takibi
+        <svg class="nav-group-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
+      </div>
+      <div class="nav-group-bd" id="navgroupbd-istakibi">
+        <div class="nav-item" onclick="go('goals',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/></svg>
+          Hedefler
+        </div>
+        <div class="nav-item" onclick="go('competitors',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l2.5 2.5"/></svg>
+          Rakip Takibi
+        </div>
+        <div class="nav-item admin-only" onclick="go('teklifler',this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 6h4M6 9h4M6 12h2"/></svg>
+          Teklifler
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- BOTTOM FIXED -->
+    <div class="nav-item" onclick="go('reports',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V9M6 13V6M9 13V8M12 13V4"/></svg>
+      Raporlar
+    </div>
+    <div class="nav-item" onclick="go('guncellemeler',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2 2"/></svg>
+      Güncellemeler
+    </div>
+    <div class="nav-item admin-only" onclick="go('users',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M9 11.5h5M11.5 9v5"/></svg>
+      Kullanıcılar
+    </div>
+
+    <!-- hidden instagram -->
+    <div class="nav-item" onclick="go('instagram',this)" style="display:none">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="3"/><circle cx="8" cy="8" r="2.5"/><circle cx="11.5" cy="4.5" r=".5" fill="currentColor" stroke="none"/></svg>
+      Instagram
+    </div>
+    <div class="nav-item" onclick="go('dashboard',this)" style="display:none">Panel</div>
+
+    <div class="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="avatar av-blue" style="width:32px;height:32px;font-size:11px;flex-shrink:0">DB</div>
+        <div style="min-width:0">
+          <div style="font-size:12.5px;font-weight:500;color:#e8e8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sidebar-username">Dijital Barista</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3)" id="sidebar-role">Koç & Mentor</div>
+        </div>
+      </div>
+      <button onclick="doLogout()" style="width:100%;padding:7px 10px;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:12px;color:rgba(255,255,255,0.3);cursor:pointer;font-family:inherit;transition:all 0.12s;display:flex;align-items:center;gap:6px;justify-content:center" onmouseover="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,0.3)'">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3l4 5-4 5M15 8H6"/><path d="M6 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4"/></svg>
+        Çıkış Yap
+      </button>
     </div>
   </aside>
 
@@ -1794,14 +2147,20 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
       </div>
       <div class="card">
-        <div class="card-head">
+        <div class="card-head" style="flex-wrap:wrap;gap:8px">
           <span class="card-title">Müşteri Listesi</span>
-          <select id="hs-sort" onchange="setHsSort(this.value)" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-secondary);font-size:11px;font-family:inherit;padding:4px 24px 4px 8px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9a97' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center">
-            <option value="health_desc">Sağlık Skoru (Yüksekten Düşüğe)</option>
-            <option value="health_asc">Sağlık Skoru (Düşükten Yükseğe)</option>
-            <option value="days_asc">Kalan Gün (Azdan Çoğa)</option>
-            <option value="days_desc">Kalan Gün (Çoktan Aza)</option>
-          </select>
+          <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+            <div style="position:relative">
+              <input id="hs-search" type="text" placeholder="İsim ara..." oninput="renderHealthPage()" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-primary);font-size:12px;font-family:inherit;padding:5px 28px 5px 10px;outline:none;width:160px" />
+              <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);opacity:0.4;pointer-events:none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+            <select id="hs-sort" onchange="setHsSort(this.value)" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-secondary);font-size:11px;font-family:inherit;padding:4px 24px 4px 8px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9a97' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center">
+              <option value="health_desc">Sağlık Skoru (Yüksekten Düşüğe)</option>
+              <option value="health_asc">Sağlık Skoru (Düşükten Yükseğe)</option>
+              <option value="days_asc">Kalan Gün (Azdan Çoğa)</option>
+              <option value="days_desc">Kalan Gün (Çoktan Aza)</option>
+            </select>
+          </div>
         </div>
         <div class="card-body"><div id="hs-client-list"></div></div>
       </div>
@@ -1821,17 +2180,11 @@ select option { background: #232323; color: #e8e8e6; }
     <!-- ===== HEDEFLER ===== -->
     <div class="page" id="page-goals">
       <div class="page-head">
-        <div><div class="page-title">Hedefler & Milestonelar</div><div class="page-sub">Kendi hedeflerini takip et</div></div>
+        <div><div class="page-title">Hedefler</div><div class="page-sub">Kendi hedeflerini takip et</div></div>
+        <button class="btn btn-primary" style="font-size:12px;padding:5px 14px;border-radius:20px" onclick="openModal('modal-add-goal')">+ Ekle</button>
       </div>
-      <div class="two-col-eq">
-        <div class="card">
-          <div class="card-head"><span class="card-title">Aktif Hedefler</span><button class="btn btn-primary" style="font-size:12px;padding:5px 14px;border-radius:20px" onclick="openModal('modal-add-goal')">+ Ekle</button></div>
-          <div class="card-body"><div id="goals-list"></div></div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Milestonelar</span><button class="btn btn-primary" style="font-size:12px;padding:5px 14px;border-radius:20px" onclick="openModal('modal-add-ms')">+ Ekle</button></div>
-          <div class="card-body"><div class="ms-list" id="ms-list"></div></div>
-        </div>
+      <div class="card">
+        <div class="card-body"><div id="goals-list"></div></div>
       </div>
     </div>
 
@@ -1864,6 +2217,9 @@ select option { background: #232323; color: #e8e8e6; }
           <div id="daily-quote" style="margin-top:8px;font-size:14px;font-weight:600;background:linear-gradient(90deg,#3b1f0a,#7b4a1e,#c47c3a,#e8b97a,#f5deb3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.2px"></div>
         </div>
       </div>
+
+      <!-- Program durumu kartı — sadece üye (non-admin) kullanıcılara gösterilir -->
+      <div id="user-program-card" style="display:none;margin-bottom:20px"></div>
 
       <!-- Instagram KPI strip (görünür sadece hesap bağlıysa) -->
       <div id="ig-kpi-section">
@@ -2078,6 +2434,17 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
+    <!-- ===== GÜNCELLEMELER ===== -->
+    <div class="page" id="page-guncellemeler">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Güncellemeler</div>
+          <div class="page-sub">Platforma eklenen yeni özellikler ve geliştirmeler</div>
+        </div>
+      </div>
+      <div id="cl-list" style="max-width:680px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
     <!-- ===== RAPORLAR ===== -->
     <div class="page" id="page-reports">
       <div class="page-head"><div><div class="page-title">Raporlar</div><div class="page-sub">Geçmiş günlük girişler</div></div></div>
@@ -2088,9 +2455,16 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
-    <!-- ===== DİJİTAL BARİSTA ===== -->
+    <!-- ===== ALET ÇANTASI ===== -->
     <div class="page" id="page-barista">
-      <div class="page-head"><div><div class="page-title">Dijital Barista</div><div class="page-sub">Botlar, kitler ve araçlar — tıkla, kullan</div></div></div>
+      <div class="page-head">
+        <div><div class="page-title">Alet Çantası</div><div class="page-sub">Botlar, kitler ve araçlar — tıkla, kullan</div></div>
+        <button class="btn btn-primary admin-only" onclick="openToolboxModal()" style="font-size:13px">+ İçerik Ekle</button>
+      </div>
+      <div id="tb-admin-bar" class="tb-admin-bar admin-only" style="display:none">
+        <span style="font-size:16px">🔧</span>
+        <span class="tb-admin-label">Admin Modu — Kartları düzenleyebilir, gizleyebilir veya yeni içerik ekleyebilirsin</span>
+      </div>
       <div class="db-hero">
         <div class="db-hero-title">Programdaki herkese özel kaynaklar ☕</div>
         <div class="db-hero-sub">Her karta tıklayarak doğrudan ilgili bota veya kite ulaşabilirsin. Mehmet Bot ile sanki Mehmet'le konuşur gibi programla ilgili her şeyi yapabilirsin.</div>
@@ -2107,6 +2481,18 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="db-grid" id="db-sales"></div>
       <div class="db-section-title">Diğer Botlar</div>
       <div class="db-grid" id="db-bots"></div>
+    </div>
+
+    <!-- ===== ÖDEVLER (Kullanıcı) ===== -->
+    <div class="page" id="page-odevler">
+      <div class="page-head">
+        <div><div class="page-title">Ödevler</div><div class="page-sub">Koçun tarafından atanan görevler</div></div>
+      </div>
+      <div id="odev-list" style="display:flex;flex-direction:column;gap:12px"></div>
+      <div id="odev-empty" style="display:none;text-align:center;padding:60px;color:var(--color-text-muted);font-size:14px">
+        <div style="font-size:36px;margin-bottom:12px">📋</div>
+        Henüz ödev atanmadı. Koçun yakında görev ekleyecek!
+      </div>
     </div>
 
     <!-- ===== MÜŞTERİ RAPORLARI ===== -->
@@ -2127,6 +2513,8 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
       <!-- Rapor İçeriği -->
       <div id="cr-content" style="display:none">
+        <!-- Teklif / Program Bilgisi -->
+        <div id="cr-teklif" style="margin-bottom:16px"></div>
         <!-- KPI Özeti -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="cr-stats"></div>
         <!-- Grafik -->
@@ -2145,7 +2533,7 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="tab active" onclick="setCRTab('daily',this)">Günlük Girişler</div>
           <div class="tab" onclick="setCRTab('goals',this)">Hedefler</div>
           <div class="tab" onclick="setCRTab('milestones',this)">Milestonelar</div>
-          <div class="tab" onclick="setCRTab('tasks',this)">📋 Görevler</div>
+          <div class="tab" onclick="setCRTab('tasks',this)">📋 Ödevler</div>
         </div>
         <div class="card">
           <div class="card-body" style="padding:0">
@@ -2165,6 +2553,63 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="card">
         <div class="card-head"><span class="card-title">Kayıtlı Kullanıcılar</span></div>
         <div class="card-body"><div id="users-list"></div></div>
+      </div>
+    </div>
+
+    <!-- ===== MÜŞTERİ YÖNETİMİ ===== -->
+    <div class="page admin-only" id="page-musteri-yonetimi" style="max-width:none">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Müşteri Yönetimi</div>
+          <div class="page-sub">Günlük kontrol — kimi ne zaman takip etmen gerekiyor?</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="position:relative">
+            <input id="cm-search" type="text" placeholder="İsim ara..." oninput="renderMusteriYonetimi()" style="background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:var(--radius);color:var(--color-text-primary);font-size:12px;font-family:inherit;padding:6px 30px 6px 12px;outline:none;width:180px" />
+            <svg style="position:absolute;right:9px;top:50%;transform:translateY(-50%);opacity:0.35;pointer-events:none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <button class="btn btn-ghost" style="font-size:12px" onclick="loadMusteriYonetimi()">↺ Yenile</button>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div id="cm-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+
+      <!-- Board -->
+      <div class="cm-board" id="cm-board">
+        <!-- Geciken -->
+        <div class="cm-col cm-col-overdue" id="cm-col-overdue">
+          <div class="cm-col-head">
+            <div class="cm-dot" style="background:#ff6b6b"></div>
+            <span class="cm-col-title">Geciken</span>
+            <span class="cm-col-badge" id="cm-cnt-overdue">0</span>
+          </div>
+          <div class="cm-col-body" id="cm-list-overdue">
+            <div class="cm-empty">Yükleniyor...</div>
+          </div>
+        </div>
+        <!-- Yaklaşan -->
+        <div class="cm-col cm-col-upcoming" id="cm-col-upcoming">
+          <div class="cm-col-head">
+            <div class="cm-dot" style="background:#e0a553"></div>
+            <span class="cm-col-title">Yaklaşan</span>
+            <span class="cm-col-badge" id="cm-cnt-upcoming">0</span>
+          </div>
+          <div class="cm-col-body" id="cm-list-upcoming">
+            <div class="cm-empty">Yükleniyor...</div>
+          </div>
+        </div>
+        <!-- Kontrol Edildi -->
+        <div class="cm-col cm-col-checked" id="cm-col-checked">
+          <div class="cm-col-head">
+            <div class="cm-dot" style="background:#4caf81"></div>
+            <span class="cm-col-title">Kontrol Edildi</span>
+            <span class="cm-col-badge" id="cm-cnt-checked">0</span>
+          </div>
+          <div class="cm-col-body" id="cm-list-checked">
+            <div class="cm-empty">Henüz kontrol yok</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2803,6 +3248,38 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
+    <!-- ===== UYGULAMA PLANI (Implementation Checklist) ===== -->
+    <div class="page" id="page-implementation">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Uygulama Planı</div>
+          <div class="page-sub">Programın yapısı ve görevleri admin tarafından tanımlanır — kendi ilerlemenizi buradan takip edin</div>
+        </div>
+      </div>
+
+      <!-- Overall progress card -->
+      <div class="impl-progress-card" id="impl-progress-card">
+        <div class="impl-progress-top">
+          <div>
+            <div class="impl-progress-label">Genel İlerleme</div>
+            <div class="impl-progress-sub" id="impl-progress-sub">Yükleniyor…</div>
+          </div>
+          <div class="impl-progress-pct" id="impl-progress-pct">—</div>
+        </div>
+        <div class="impl-progress-bar-wrap">
+          <div class="impl-progress-bar-fill" id="impl-progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div id="impl-list">
+        <div class="impl-loading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Veriler yükleniyor…
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -2919,7 +3396,6 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">İkon</label><select class="form-input form-select" id="g-icon"><option value="🎯">🎯 Hedef</option><option value="💰">💰 Gelir</option><option value="📚">📚 Eğitim</option><option value="🤝">🤝 İlişki</option><option value="🚀">🚀 Büyüme</option><option value="⭐">⭐ Kalite</option></select></div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-goal')">İptal</button><button class="btn btn-primary" onclick="addGoal()">Kaydet</button></div>
   </div>
 </div>
@@ -3135,14 +3611,110 @@ select option { background: #232323; color: #e8e8e6; }
 </div>
 
 <div class="modal-bg" id="modal-add-user">
-  <div class="modal" style="width:420px">
+  <div class="modal" style="width:480px">
     <div class="modal-head"><div class="modal-title">Yeni Kullanıcı</div><button class="modal-close" onclick="closeModal('modal-add-user')">✕</button></div>
-    <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya" /></div>
-    <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com" /></div>
+
+    <!-- Temel bilgiler -->
+    <div class="two-form">
+      <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya" /></div>
+      <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com" /></div>
+    </div>
     <div class="form-group"><label class="form-label">Şifre *</label><input class="form-input" id="u-password" type="password" placeholder="En az 6 karakter" /></div>
+
+    <!-- Teklif & program -->
+    <div style="height:1px;background:var(--color-border);margin:4px 0 12px"></div>
+    <div class="form-group">
+      <label class="form-label">Katıldığı Teklif</label>
+      <select class="form-input form-select" id="u-offer" onchange="updateUserFormPreview()">
+        <option value="">— Teklif seç —</option>
+      </select>
+    </div>
+    <div class="two-form">
+      <div class="form-group">
+        <label class="form-label">Başlangıç Tarihi</label>
+        <input class="form-input" type="date" id="u-start" onchange="updateUserFormPreview()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Aylık Ödeme (₺)</label>
+        <input class="form-input" type="number" id="u-monthly" placeholder="0" min="0" />
+      </div>
+    </div>
+
+    <!-- Otomatik hesaplanan özet -->
+    <div id="u-preview" style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--color-border);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-muted);margin-bottom:10px">Program Özeti</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Süre</div>
+          <div id="u-prev-dur" style="font-size:14px;font-weight:600;color:var(--color-text-primary)">—</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Bitiş</div>
+          <div id="u-prev-end" style="font-size:14px;font-weight:600;color:var(--color-text-primary)">—</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Kalan Gün</div>
+          <div id="u-prev-rem" style="font-size:14px;font-weight:600">—</div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-add-user')">İptal</button>
       <button class="btn btn-primary" onclick="addUser()">Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ALET ÇANTASI EKLE/DÜZENLE MODAL ===== -->
+<div class="modal-bg" id="modal-toolbox" onclick="if(event.target===this)closeModal('modal-toolbox')">
+  <div class="modal" style="max-width:500px;width:95vw">
+    <div class="modal-head">
+      <div class="modal-title" id="toolbox-modal-title">İçerik Ekle</div>
+      <button class="modal-close" onclick="closeModal('modal-toolbox')">✕</button>
+    </div>
+    <input type="hidden" id="tb-edit-id" value="">
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">İkon</label>
+          <input class="form-input" id="tb-icon" value="🔧" style="font-size:22px;text-align:center;padding:8px" maxlength="4" />
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Başlık</label>
+          <input class="form-input" id="tb-title" placeholder="Araç/bot adı" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Açıklama</label>
+        <textarea class="form-input" id="tb-desc" rows="3" placeholder="Ne işe yarıyor?" style="resize:none;min-height:70px"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Kategori (bölüm)</label>
+          <select class="form-input form-select" id="tb-category">
+            <option value="kits">Momentum Kitleri</option>
+            <option value="sales">Satış Kurgusu</option>
+            <option value="bots">Diğer Botlar</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Etiketler (virgülle)</label>
+          <input class="form-input" id="tb-cats" placeholder="Satış, Pazarlama" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL (link)</label>
+        <input class="form-input" id="tb-url" placeholder="https://..." />
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <input type="checkbox" id="tb-published" checked style="width:16px;height:16px;cursor:pointer" />
+        <label for="tb-published" style="font-size:13px;cursor:pointer">Yayınlansın (kullanıcılar görsün)</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-toolbox')">İptal</button>
+      <button class="btn btn-primary" onclick="saveToolboxItem()">Kaydet</button>
     </div>
   </div>
 </div>
@@ -3265,10 +3837,12 @@ async function loadFromSupabase(){
     const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
     const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
-    const [clients, leads, goals, milestones, daily, offers, usersData] = await Promise.all([
+    const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
       cq, lq, gq, mq, dq,
       sb.from('offers').select('*').order('created_at'),
-      sb.from('users').select('*').order('created_at')
+      sb.from('users').select('*').order('created_at'),
+      // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
+      !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
     ]);
 
     if(clients.data?.length) state.clients = clients.data.map(c=>({
@@ -3279,6 +3853,19 @@ async function loadFromSupabase(){
       program:c.program||'', health:c.health||5,
       notes:c.notes||[], start:c.start_date||'', social:c.social||''
     }));
+
+    // Non-admin: kendi müşteri kaydı (admin tarafından oluşturulmuş, email eşleşmesi ile)
+    if(ownClientRes?.data) {
+      const oc = ownClientRes.data;
+      state.ownClient = {
+        id:oc.id, name:oc.name, type:oc.type, status:oc.status,
+        email:oc.email||'', phone:oc.phone||'', sessions:oc.sessions||0,
+        remainingSessions:oc.remaining_sessions||0,
+        programEnd:oc.program_end||'', startDate:oc.start_date||'',
+        program:oc.program||'', health:oc.health||5,
+        notes:oc.notes||[], start:oc.start_date||'', social:oc.social||''
+      };
+    }
 
     if(leads.data?.length) state.leads = leads.data.map(l=>({
       id:l.id, name:l.name, type:l.type||'', social:l.social||'', source:l.source,
@@ -3482,6 +4069,7 @@ const state = {
   milestones:[],
   daily:[],
   offers:[],
+  ownClient:null,
   currentClientId:null,
   currentMsId:null,
   currentLeadId:null,
@@ -3547,11 +4135,37 @@ function showDailyWelcome(){
   if(sub) sub.textContent = w.sub;
 }
 
+const NAV_GROUPS = {
+  operasyon: ['musteri-yonetimi','health','musteriler','client-reports','leads'],
+  istakibi:  ['goals','competitors','teklifler']
+};
+
+function toggleNavGroup(name) {
+  const hd = document.querySelector(`#navgroup-${name} .nav-group-hd`);
+  const bd = document.getElementById(`navgroupbd-${name}`);
+  if(!hd||!bd) return;
+  const open = bd.classList.toggle('open');
+  hd.classList.toggle('open', open);
+}
+
+function openNavGroupFor(pageId) {
+  Object.entries(NAV_GROUPS).forEach(([name, pages]) => {
+    if(pages.includes(pageId)) {
+      const bd = document.getElementById(`navgroupbd-${name}`);
+      const hd = document.querySelector(`#navgroup-${name} .nav-group-hd`);
+      if(bd) { bd.classList.add('open'); }
+      if(hd) { hd.classList.add('open'); }
+    }
+  });
+}
+
 function go(id,el){
+  if(!checkAccess()) return; // block expired users on every navigation
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   if(el) el.classList.add('active');
+  openNavGroupFor(id);
   closeAllPanels();
   if(id==='daily') showDailyWelcome();
   if(id==='client-reports') renderClientReports();
@@ -3560,6 +4174,11 @@ function go(id,el){
   if(id==='teklifler') setTimeout(loadTeklifler, 50);
   if(id==='kazanimlar') setTimeout(loadKazanimlarPage, 50);
   if(id==='instagram') setTimeout(loadInstagramPage, 50);
+  if(id==='implementation') setTimeout(loadImplementationPage, 50);
+  if(id==='musteri-yonetimi') setTimeout(loadMusteriYonetimi, 50);
+  if(id==='guncellemeler') setTimeout(renderGuncellemeler, 50);
+  if(id==='barista') setTimeout(loadToolboxItems, 50);
+  if(id==='odevler') setTimeout(loadOdevler, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -3568,11 +4187,85 @@ function go(id,el){
 function healthColor(s){return s>=7?'var(--color-green)':s>=4?'var(--color-amber)':'#ff3b30';}
 function healthLabel(s){return s>=7?'Sağlıklı':s>=4?'Risk Altında':'Kritik';}
 
+// ── Remaining days — single source of truth ───────────────────
+function remainingDays(endDateStr){
+  if(!endDateStr||endDateStr==='—'||endDateStr==='') return null;
+  const end=new Date(endDateStr+(endDateStr.includes('T')?'':'T00:00:00'));
+  const today=new Date(); today.setHours(0,0,0,0);
+  return Math.floor((end-today)/(1000*60*60*24));
+}
+function remainingDaysLabel(days){
+  if(days===null) return '—';
+  if(days>0) return `${days} gün`;
+  if(days===0) return 'Bugün bitiyor';
+  return 'Süresi doldu';
+}
+function remainingDaysColor(days){
+  if(days===null) return 'var(--color-text-muted)';
+  if(days>14) return 'var(--color-green)';
+  if(days>0)  return 'var(--color-amber)';
+  return 'var(--color-red)';
+}
+
+// ── Access control ────────────────────────────────────────────
+function getUserClient(){
+  if(!currentUser) return null;
+  if(currentUser.role==='admin') return null;
+  // Non-admin: admin tarafından oluşturulan kayıt, email eşleşmesiyle yüklenir
+  return state.ownClient || null;
+}
+
+function isUserExpired(){
+  if(!currentUser||currentUser.role==='admin') return false;
+  const c=getUserClient();
+  if(!c||!c.programEnd) return false;
+  const d=remainingDays(c.programEnd);
+  return d!==null&&d<0;
+}
+
+function checkAccess(){
+  if(isUserExpired()){ showBlockScreen(); return false; }
+  return true;
+}
+
+function showBlockScreen(){
+  document.getElementById('app-root').style.display='none';
+  document.getElementById('block-screen').style.display='flex';
+}
+
+// ── User program card ─────────────────────────────────────────
+function renderUserProgramCard(){
+  const card=document.getElementById('user-program-card');
+  if(!card) return;
+  if(!currentUser||currentUser.role==='admin'){ card.style.display='none'; return; }
+  const c=getUserClient();
+  if(!c){ card.style.display='none'; return; }
+  const days=remainingDays(c.programEnd);
+  const dcolor=remainingDaysColor(days);
+  const dlabel=remainingDaysLabel(days);
+  const badgeCls=days===null?'upc-badge-active':days<0?'upc-badge-expired':days<=7?'upc-badge-warning':'upc-badge-active';
+  const badgeTxt=days===null?'Aktif':days<0?'Süresi Doldu':days<=7?'Bitiyor':'Aktif';
+  const fmtD=s=>s?new Date(s+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'—';
+  card.style.display='block';
+  card.innerHTML=`<div class="upc">
+    <div class="upc-kalan">
+      <div class="upc-kalan-num" style="color:${dcolor}">${days===null?'—':days<0?'0':days}</div>
+      <div class="upc-kalan-lbl">Kalan Gün</div>
+    </div>
+    <div class="upc-info">
+      <div class="upc-program">${c.program||'Dijital Barista Programı'}</div>
+      <div class="upc-dates" style="margin-bottom:8px">${fmtD(c.startDate)} — ${fmtD(c.programEnd)}</div>
+      <span class="upc-badge ${badgeCls}">${badgeTxt}</span>
+    </div>
+  </div>`;
+}
+
 function render(){
   renderStats(); renderDashClients(); renderDashMilestones(); renderDashGoals();
   renderDailyClients();
   renderPipeline(); renderGoals(); renderMilestones(); renderReports();
   renderHealthPage(); renderDijitalBarista(); renderUsers(); setDates();
+  renderUserProgramCard();
 }
 
 function renderDashGoals(){
@@ -3659,13 +4352,19 @@ function renderHealthPage(){
   if(avgValEl){avgValEl.textContent=avg+'/10';avgValEl.style.color=healthColor(avg);}
   if(avgBarEl) avgBarEl.style.width=(avg/10*100)+'%';
 
-  el.innerHTML = sortClients([...clients], hsSort).map((c,i)=>{
+  const hsQ = (document.getElementById('hs-search')?.value||'').toLowerCase().trim();
+  const filtered = hsQ ? clients.filter(c => c.name.toLowerCase().includes(hsQ)) : clients;
+
+  if(filtered.length === 0 && hsQ) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--color-text-muted);font-size:13px">"${escHtml(hsQ)}" için sonuç bulunamadı</div>`;
+    return;
+  }
+
+  el.innerHTML = sortClients([...filtered], hsSort).map((c,i)=>{
     const h=c.health||0;
-    const days=c.programEnd?Math.ceil((new Date(c.programEnd)-new Date())/(1000*60*60*24)):null;
-    const daysStr=days===null?''
-      :days<0?`<span style="font-size:11px;font-weight:600;color:#ff3b30">Süre doldu</span>`
-      :days<=7?`<span style="font-size:11px;font-weight:600;color:#ff9500">⏰ ${days} gün</span>`
-      :`<span style="font-size:11px;font-weight:600;color:#34c759">📅 ${days} gün</span>`;
+    const days=remainingDays(c.programEnd);
+    const dcolor=remainingDaysColor(days);
+    const daysStr=days===null?'':`<span style="font-size:11px;font-weight:600;color:${dcolor}">${remainingDaysLabel(days)}</span>`;
     return `<div class="hs-client-row" style="animation:fadeIn 0.18s ease both;animation-delay:${i*0.03}s" onclick="openClientPanel(${c.id})">
       <div class="avatar ${avc(state.clients.indexOf(c))}" style="width:38px;height:38px;font-size:13px">${escHtml(ini(c.name))}</div>
       <div style="flex:1">
@@ -4176,26 +4875,131 @@ function buildDailyFollowerChart(){
 
 function catClass(c){return{'Satış':'cat-satis','Pazarlama':'cat-pazarlama','Operasyon':'cat-operasyon','Fikir Alışverişi':'cat-fikir'}[c]||'cat-satis';}
 
+// ===== ALET ÇANTASI (TOOLBOX) =====
+let toolboxItems = []; // loaded from Supabase or falls back to dbContent
+
+async function loadToolboxItems() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  // Show admin bar
+  const adminBar = document.getElementById('tb-admin-bar');
+  if(adminBar) adminBar.style.display = isAdmin ? 'flex' : 'none';
+
+  const {data, error} = await sb.from('toolbox_items').select('*').order('order_index').order('created_at');
+  if(!error && data && data.length > 0) {
+    toolboxItems = data;
+  } else {
+    // Fall back to hardcoded dbContent
+    toolboxItems = [
+      ...dbContent.kits.map((x,i) => ({...x, id:'k'+i, category:'kits', description:x.desc, published:true})),
+      ...dbContent.sales.map((x,i) => ({...x, id:'s'+i, category:'sales', description:x.desc, published:true})),
+      ...dbContent.bots.map((x,i) => ({...x, id:'b'+i, category:'bots', description:x.desc, published:true})),
+    ];
+  }
+  renderDijitalBarista();
+}
+
 function renderDijitalBarista(){
   const botsEl=document.getElementById('db-bots');
   const kitsEl=document.getElementById('db-kits');
   const salesEl=document.getElementById('db-sales');
-  const renderCard=items=>items.map(item=>`
-    <a class="db-card" href="${item.url}" onclick="dbClick(event,'${item.url}')">
-      <div class="db-card-icon">${item.icon}</div>
-      <div class="db-card-title">${item.title}</div>
-      <div class="db-card-desc">${item.desc}</div>
-      <div class="db-cats">${item.categories.map(c=>`<span class="db-cat ${catClass(c)}">${c}</span>`).join('')}</div>
-    </a>`).join('');
-  if(kitsEl) kitsEl.innerHTML=renderCard(dbContent.kits);
-  if(salesEl) salesEl.innerHTML=renderCard(dbContent.sales);
-  if(botsEl) botsEl.innerHTML=renderCard(dbContent.bots);
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
+  const renderCard = items => items
+    .filter(item => isAdmin || item.published !== false)
+    .map(item => {
+      const cats = Array.isArray(item.categories) ? item.categories : (item.categories ? item.categories : []);
+      const adminControls = isAdmin ? `
+        <div class="tb-card-actions" style="position:absolute;top:8px;right:8px;display:none;gap:4px">
+          <button class="tb-edit-btn" onclick="event.preventDefault();event.stopPropagation();editToolboxItem('${item.id}')">✏️</button>
+          <button class="tb-del-btn" onclick="event.preventDefault();event.stopPropagation();deleteToolboxItem('${item.id}')">🗑</button>
+        </div>` : '';
+      const unpubClass = (!item.published && isAdmin) ? 'tb-unpublished' : '';
+      return `<div style="position:relative" onmouseenter="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='flex')" onmouseleave="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='none')">
+        ${adminControls}
+        <a class="db-card ${unpubClass}" href="${item.url||'#'}" onclick="dbClick(event,'${item.url||'#'}')">
+          <div class="db-card-icon">${item.icon||'🔧'}</div>
+          <div class="db-card-title">${escHtml(item.title)}</div>
+          <div class="db-card-desc">${escHtml(item.description||item.desc||'')}</div>
+          <div class="db-cats">${cats.map(c=>`<span class="db-cat ${catClass(c)}">${escHtml(c)}</span>`).join('')}</div>
+        </a>
+      </div>`;
+    }).join('');
+
+  // Use toolboxItems if loaded, else dbContent
+  const src = toolboxItems.length > 0 ? toolboxItems : [
+    ...dbContent.kits.map(x=>({...x,category:'kits',description:x.desc,published:true})),
+    ...dbContent.sales.map(x=>({...x,category:'sales',description:x.desc,published:true})),
+    ...dbContent.bots.map(x=>({...x,category:'bots',description:x.desc,published:true})),
+  ];
+  if(kitsEl) kitsEl.innerHTML = renderCard(src.filter(x=>x.category==='kits'));
+  if(salesEl) salesEl.innerHTML = renderCard(src.filter(x=>x.category==='sales'));
+  if(botsEl) botsEl.innerHTML = renderCard(src.filter(x=>x.category==='bots'));
 }
 
 function dbClick(e,url){
   e.preventDefault();
-  if(url==='#'){toast('Link henüz eklenmedi — düzenlemek için kodu güncelle');return;}
+  if(!url||url==='#'){toast('Link henüz eklenmedi');return;}
   window.open(url,'_blank');
+}
+
+function openToolboxModal(item=null){
+  document.getElementById('toolbox-modal-title').textContent = item ? 'İçeriği Düzenle' : 'İçerik Ekle';
+  document.getElementById('tb-edit-id').value = item ? item.id : '';
+  document.getElementById('tb-icon').value = item ? (item.icon||'🔧') : '🔧';
+  document.getElementById('tb-title').value = item ? (item.title||'') : '';
+  document.getElementById('tb-desc').value = item ? (item.description||item.desc||'') : '';
+  document.getElementById('tb-category').value = item ? (item.category||'bots') : 'bots';
+  const cats = item && Array.isArray(item.categories) ? item.categories.join(', ') : '';
+  document.getElementById('tb-cats').value = cats;
+  document.getElementById('tb-url').value = item ? (item.url||'') : '';
+  document.getElementById('tb-published').checked = item ? (item.published !== false) : true;
+  openModal('modal-toolbox');
+}
+
+function editToolboxItem(id){
+  const item = toolboxItems.find(x=>String(x.id)===String(id));
+  if(item) openToolboxModal(item);
+}
+
+async function saveToolboxItem(){
+  const editId = document.getElementById('tb-edit-id').value;
+  const icon = document.getElementById('tb-icon').value.trim()||'🔧';
+  const title = document.getElementById('tb-title').value.trim();
+  const description = document.getElementById('tb-desc').value.trim();
+  const category = document.getElementById('tb-category').value;
+  const catsRaw = document.getElementById('tb-cats').value;
+  const categories = catsRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  const url = document.getElementById('tb-url').value.trim();
+  const published = document.getElementById('tb-published').checked;
+
+  if(!title){toast('Başlık gerekli');return;}
+
+  const payload = {icon, title, description, category, categories, url, published};
+  if(editId){
+    const {error} = await sb.from('toolbox_items').update(payload).eq('id', editId);
+    if(error){toast('❌ '+error.message);return;}
+    const idx = toolboxItems.findIndex(x=>String(x.id)===String(editId));
+    if(idx>=0) toolboxItems[idx] = {...toolboxItems[idx], ...payload};
+    toast('✅ İçerik güncellendi');
+  } else {
+    const {data, error} = await sb.from('toolbox_items').insert({...payload, order_index:toolboxItems.length}).select().single();
+    if(error){toast('❌ '+error.message);return;}
+    toolboxItems.push(data);
+    toast('✅ İçerik eklendi');
+  }
+  closeModal('modal-toolbox');
+  renderDijitalBarista();
+}
+
+async function deleteToolboxItem(id){
+  if(!confirm('Bu içeriği silmek istiyor musun?'))return;
+  // Only delete from Supabase if it's a numeric id (not a hardcoded fallback)
+  if(!String(id).startsWith('k') && !String(id).startsWith('s') && !String(id).startsWith('b')){
+    await sb.from('toolbox_items').delete().eq('id', id);
+  }
+  toolboxItems = toolboxItems.filter(x=>String(x.id)!==String(id));
+  renderDijitalBarista();
+  toast('Silindi');
 }
 
 // ===== PANELS =====
@@ -4391,7 +5195,11 @@ function deleteCurrentMs(){
 }
 
 // ===== MODALS =====
-function openModal(id){document.getElementById(id).classList.add('open');if(id==='modal-add-goal')initCal();}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-add-goal') initCal();
+  if(id==='modal-add-user') populateUserTeklifSelect();
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
@@ -4519,7 +5327,7 @@ function deleteCurrentLead(){
 async function addGoal(){
   const name=document.getElementById('g-name').value.trim();if(!name){toast('Hedef adı zorunlu');return;}
   const dateStr=selectedDate?selectedDate.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'—';
-  const ng={id:Date.now(),_new:true,name,date:dateStr,icon:document.getElementById('g-icon').value,done:false,notes:[]};
+  const ng={id:Date.now(),_new:true,name,date:dateStr,icon:'🎯',done:false,notes:[]};
   state.goals.push(ng);
   closeModal('modal-add-goal');document.getElementById('g-name').value='';initCal();
   toast('Hedef eklendi ✓');render();
@@ -4793,25 +5601,135 @@ function showApp(){
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = isAdmin ? '' : 'none';
   });
+  document.querySelectorAll('.non-admin-only').forEach(el => {
+    el.style.display = isAdmin ? 'none' : '';
+  });
 
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
-  state.milestones=[]; state.daily=[]; state.offers=[];
+  state.milestones=[]; state.daily=[]; state.offers=[]; state.ownClient=null;
 
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
-  loadFromSupabase().then(() => { render(); loadSalesTicker(); loadIgDailyKPIs(); });
+  loadFromSupabase().then(() => {
+    render();
+    loadSalesTicker();
+    loadIgDailyKPIs();
+    renderUserProgramCard();
+    checkAccess(); // enforce expiry after client data is loaded
+  });
 }
 
 function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
-  state.milestones=[]; state.daily=[]; state.offers=[];
+  state.milestones=[]; state.daily=[]; state.offers=[]; state.ownClient=null;
   document.getElementById('app-root').style.display = 'none';
+  document.getElementById('block-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
+}
+
+/* ---- Kullanıcı Ekle helpers ---- */
+function offerToDays(o) {
+  if(!o || !o.duration_value) return null;
+  const v = parseInt(o.duration_value);
+  const u = (o.duration_unit || 'Ay').trim();
+  if(u === 'Gün')   return v;
+  if(u === 'Hafta') return v * 7;
+  if(u === 'Ay')    return v * 30;
+  if(u === 'Yıl')   return v * 365;
+  return null;
+}
+
+function populateUserTeklifSelect() {
+  const sel = document.getElementById('u-offer'); if(!sel) return;
+  const opts = state.offers.map(o =>
+    `<option value="${o.id}" data-price="${o.price||0}" data-dur-val="${o.duration_value||''}" data-dur-unit="${o.duration_unit||'Ay'}" data-name="${escHtml(o.name)}">${escHtml(o.name)}${o.duration_value ? ' · '+o.duration_value+' '+o.duration_unit : ''}</option>`
+  ).join('');
+  sel.innerHTML = '<option value="">— Teklif seç —</option>' + opts;
+  // today as default start_date
+  const sd = document.getElementById('u-start');
+  if(sd && !sd.value) sd.value = new Date().toISOString().slice(0,10);
+  updateUserFormPreview();
+}
+
+function updateUserFormPreview() {
+  const sel = document.getElementById('u-offer');
+  const sdEl = document.getElementById('u-start');
+  const prevEl = document.getElementById('u-preview');
+  const monthlyEl = document.getElementById('u-monthly');
+  if(!sel || !sdEl || !prevEl) return;
+
+  const opt = sel.options[sel.selectedIndex];
+  const offerId = sel.value;
+  if(!offerId) { prevEl.style.display='none'; return; }
+
+  const o = state.offers.find(x => String(x.id) === String(offerId));
+  if(!o) { prevEl.style.display='none'; return; }
+
+  const days = offerToDays(o);
+  const startStr = sdEl.value;
+
+  // Auto-fill monthly payment from offer price / duration months
+  if(monthlyEl && !monthlyEl._userEdited) {
+    const months = o.duration_unit==='Ay' ? (o.duration_value||1) :
+                   o.duration_unit==='Yıl' ? (o.duration_value||1)*12 : null;
+    if(months && o.price) monthlyEl.value = Math.round(o.price / months);
+    else if(o.price) monthlyEl.value = o.price;
+  }
+  monthlyEl.addEventListener('input', () => { monthlyEl._userEdited = true; }, {once:true});
+
+  // Duration label
+  const durLabel = o.duration_value ? o.duration_value + ' ' + (o.duration_unit||'Ay') : '—';
+  document.getElementById('u-prev-dur').textContent = durLabel;
+
+  if(days && startStr) {
+    const start = new Date(startStr + 'T00:00:00');
+    const end = new Date(start.getTime() + days * 86400000);
+    const endStr = end.toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'});
+    document.getElementById('u-prev-end').textContent = endStr;
+
+    const rem = remainingDays(end.toISOString().slice(0,10));
+    const remEl = document.getElementById('u-prev-rem');
+    remEl.textContent = remainingDaysLabel(rem);
+    remEl.style.color = remainingDaysColor(rem);
+  } else {
+    document.getElementById('u-prev-end').textContent = '—';
+    document.getElementById('u-prev-rem').textContent = '—';
+  }
+
+  prevEl.style.display = 'block';
+}
+
+async function recordSaleInDaily(name, programName, amount) {
+  const today = new Date().toISOString().slice(0,10);
+  const adminEmail = currentUser?.email || '';
+  const noteText = programName ? `${name} – ${programName}` : name;
+
+  const { data: rows } = await sb.from('daily_entries')
+    .select('*').eq('entry_date', today).eq('user_id', adminEmail);
+
+  const existing = rows && rows.length > 0 ? rows[0] : null;
+
+  if(existing) {
+    const newAlinan = (existing.alinan||0) + amount;
+    const newWin = existing.win ? existing.win + '\n' + noteText : noteText;
+    await sb.from('daily_entries').update({ alinan: newAlinan, win: newWin }).eq('id', existing.id);
+    const local = state.daily.find(d => String(d.id) === String(existing.id));
+    if(local) { local.alinan = newAlinan; local.win = newWin; }
+    else { state.daily.unshift({ id:existing.id, date:today, dateShort:today, mood:existing.mood||'🙂', takipci:existing.takipci||0, mail:existing.mail||0, icerik:existing.icerik||0, reklam:existing.reklam||0, tpm:existing.tpm||0, hotlist:existing.hotlist||0, musteri:existing.musteri||0, teklif:existing.teklif||0, alinan:newAlinan, anlasma:existing.anlasma||0, yorum:existing.yorum||'', win:newWin }); }
+  } else {
+    const entry = {
+      dateShort: today, mood:'🙂', takipci:0, mail:0, icerik:0,
+      reklam:0, tpm:0, hotlist:0, musteri:0, teklif:0,
+      alinan: amount, anlasma:0, yorum:'', win: noteText
+    };
+    await saveDailyEntry(entry);
+    state.daily.unshift(entry);
+  }
 }
 
 async function addUser(){
@@ -4820,6 +5738,17 @@ async function addUser(){
   const password = document.getElementById('u-password').value;
   if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
   if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
+
+  // Offer / program bilgileri
+  const offerId = document.getElementById('u-offer').value;
+  const offer = offerId ? state.offers.find(x => String(x.id)===String(offerId)) : null;
+  const startStr = document.getElementById('u-start').value || new Date().toISOString().slice(0,10);
+  const monthlyPay = parseFloat(document.getElementById('u-monthly').value) || (offer ? offer.price||0 : 0);
+  const durationDays = offer ? offerToDays(offer) : null;
+  const endDate = (durationDays && startStr)
+    ? new Date(new Date(startStr+'T00:00:00').getTime() + durationDays*86400000).toISOString().slice(0,10)
+    : null;
+  const programName = offer ? offer.name : '';
 
   // Supabase'de zaten var mı kontrol et
   const {data:existing} = await sb.from('users').select('id').eq('email',email);
@@ -4831,17 +5760,225 @@ async function addUser(){
   if(!users) users=[];
   users.push({id:data.id,name,email,password});
 
-  // 2. Clients tablosuna da ekle
-  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
-  const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
-  if(!ce&&cd){
-    state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
+  // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
+  const clientRow = {
+    name, email, type: offer?.category||'', status:'Aktif',
+    phone:'', social:null, sessions:0, remaining_sessions:0,
+    program: programName||null,
+    start_date: startStr||null,
+    program_end: endDate||null,
+    health: 8, notes: [],
+    user_id: currentUser?.email||null
+  };
+  const {data:cd, error:ce} = await sb.from('clients').insert(clientRow).select().single();
+  if(!ce && cd) {
+    state.clients.push({
+      id:+cd.id, _new:false, name, email,
+      type: clientRow.type, status:'Aktif',
+      phone:'', social:'', sessions:0, remainingSessions:0,
+      programEnd: endDate||'', startDate: startStr||'',
+      program: programName, health:8, notes:[], start:startStr||''
+    });
+  }
+
+  // 3. Customers tablosuna ekle (MRR kaynağı)
+  const customerRow = {
+    name, email, program: programName||'',
+    monthly_payment: monthlyPay,
+    start_date: startStr||null,
+    end_date: endDate||null,
+    status: 'Aktif', notes: ''
+  };
+  const newCustId = await insertMusteriSB(customerRow);
+  musteriler.push({ id: newCustId, ...customerRow });
+
+  // 4. Günlük raporlara otomatik satış kaydı
+  if(monthlyPay > 0 || programName) {
+    await recordSaleInDaily(name, programName, monthlyPay);
   }
 
   closeModal('modal-add-user');
-  ['u-name','u-email','u-password'].forEach(id => document.getElementById(id).value = '');
+  const prevEl = document.getElementById('u-preview'); if(prevEl) prevEl.style.display='none';
+  ['u-name','u-email','u-password','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
+  document.getElementById('u-offer').value='';
   toast('✅ '+name+' eklendi!');
   renderUsers(); renderHealthPage(); renderStats();
+  renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
+}
+
+/* ================================================================
+   GÜNCELLEMELER — CHANGELOG
+   ================================================================ */
+// KURAL: Buraya SADECE kullanıcıyı etkileyen değişiklikler eklenir.
+// Admin paneli, yönetim araçları, arka plan değişiklikleri EKLENMEZ.
+const CHANGELOG = [
+  {
+    date: '2026-04-16',
+    entries: [
+      { type:'new', icon:'📋', title:'Ödevler sistemi eklendi', desc:'Koçun sana görev atayabilecek. Ödevi tamamladığında "Tamamladım" diyorsun, koç inceleyip onaylıyor. Durum takibi: Atandı → İnceleniyor → Onaylandı.' },
+      { type:'new', icon:'🧰', title:'Alet Çantası güncellendi', desc:'Tüm botlar ve kitler artık düzenlenebilir içerik olarak yönetiliyor. Koçun yeni araçlar ekleyip kaldırabilir.' },
+      { type:'imp', icon:'🗂️', title:'Menü yeniden düzenlendi', desc:'Navigasyon daha sade ve organize bir yapıya kavuştu. Operasyon ve İş Takibi grupları açılır/kapanır hale getirildi. Alet Çantası, Uygulama Planı ve İçerik Yönetimi ana seviyeye taşındı.' },
+    ]
+  },
+  {
+    date: '2026-04-15',
+    entries: [
+      { type:'new', icon:'✅', title:'Uygulama Planı sayfası eklendi', desc:'Faz bazlı program takip sistemi: 4 faz, haftalar ve görevler. Her görevin durumunu Başlanmadı / Devam Ediyor / Tamamlandı olarak işaretleyebilirsin.' },
+    ]
+  },
+  {
+    date: '2026-04-14',
+    entries: [
+      { type:'new', icon:'🏆', title:'Kazanımlar rozet sistemi güncellendi', desc:'5 seviyeli rozet sistemi: Hayatta Kalan\'dan Unicorn\'a. Her rozet belirli bir gelir eşiğini aştığında açılıyor.' },
+    ]
+  },
+];
+
+function renderGuncellemeler() {
+  const el = document.getElementById('cl-list'); if(!el) return;
+  el.innerHTML = CHANGELOG.map(group => {
+    const d = new Date(group.date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
+    const entries = group.entries.map(e => {
+      const tagClass = e.type==='new' ? 'cl-tag-new' : e.type==='fix' ? 'cl-tag-fix' : 'cl-tag-imp';
+      const tagLabel = e.type==='new' ? 'Yeni' : e.type==='fix' ? 'Düzeltme' : 'İyileştirme';
+      const iconClass = e.type==='new' ? 'cl-icon-new' : e.type==='fix' ? 'cl-icon-fix' : 'cl-icon-imp';
+      return `<div class="cl-entry">
+        <div class="cl-icon ${iconClass}">${e.icon}</div>
+        <div class="cl-body">
+          <span class="cl-tag ${tagClass}">${tagLabel}</span>
+          <div class="cl-title">${e.title}</div>
+          <div class="cl-desc">${e.desc}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="cl-group">
+      <div class="cl-date-label">${dateStr}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${entries}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ================================================================
+   MÜŞTERİ YÖNETİMİ — CHECK-IN BOARD
+   ================================================================ */
+const CM_FREQ = 7;        // varsayılan kontrol sıklığı (gün)
+const CM_UPCOMING = 2;    // bu kadar gün kalmışsa "yaklaşan"
+
+function cmDaysSince(dateStr) {
+  if(!dateStr) return Infinity;
+  const d = new Date(dateStr + (dateStr.length === 10 ? 'T00:00:00' : ''));
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.floor((today - d) / 86400000);
+}
+
+function cmClassify(c) {
+  const since = cmDaysSince(c.last_check_in_at);
+  if(since <= CM_UPCOMING)       return 'checked';
+  if(since < CM_FREQ)            return 'upcoming';
+  return 'overdue';
+}
+
+function cmStatusText(c) {
+  const since = cmDaysSince(c.last_check_in_at);
+  if(since === 0)       return 'Bugün kontrol edildi';
+  if(since === 1)       return '1 gün önce kontrol edildi';
+  if(since < CM_FREQ)   return `${since} gün önce kontrol edildi`;
+  if(since === Infinity) return 'Hiç kontrol edilmedi';
+  return `${since} gün gecikti`;
+}
+
+function cmStatusColor(bucket) {
+  if(bucket === 'overdue')  return '#ff6b6b';
+  if(bucket === 'upcoming') return '#e0a553';
+  return '#4caf81';
+}
+
+async function loadMusteriYonetimi() {
+  // Load last_check_in_at from clients table
+  const { data, error } = await sb.from('clients').select('id,name,email,program,program_end,health,last_check_in_at').order('name');
+  if(error) { console.warn('cm load error', error.message); return; }
+  // Merge into state.clients
+  (data||[]).forEach(row => {
+    const c = state.clients.find(x => String(x.id) === String(row.id));
+    if(c) c.last_check_in_at = row.last_check_in_at || null;
+  });
+  renderMusteriYonetimi();
+}
+
+function renderMusteriYonetimi() {
+  const q = (document.getElementById('cm-search')?.value||'').toLowerCase().trim();
+  let clients = state.clients.filter(c => c.status !== 'Tamamlandı');
+  if(q) clients = clients.filter(c => c.name.toLowerCase().includes(q));
+
+  const overdue  = clients.filter(c => cmClassify(c) === 'overdue');
+  const upcoming = clients.filter(c => cmClassify(c) === 'upcoming');
+  const checked  = clients.filter(c => cmClassify(c) === 'checked');
+
+  // KPI strip
+  const kpiEl = document.getElementById('cm-kpi');
+  if(kpiEl) kpiEl.innerHTML = [
+    { label:'Geciken', val:overdue.length, color:'#ff6b6b', bg:'rgba(255,59,48,0.08)' },
+    { label:'Yaklaşan', val:upcoming.length, color:'#e0a553', bg:'rgba(224,165,83,0.08)' },
+    { label:'Kontrol Edildi', val:checked.length, color:'#4caf81', bg:'rgba(76,175,129,0.08)' },
+  ].map(k=>`<div class="stat-card" style="background:${k.bg};border-color:transparent">
+    <div class="stat-label" style="color:${k.color}">${k.label}</div>
+    <div class="stat-value" style="font-size:28px;color:${k.color}">${k.val}</div>
+  </div>`).join('');
+
+  // Badge counts
+  ['overdue','upcoming','checked'].forEach((b,i)=>{
+    const cnt = [overdue,upcoming,checked][i].length;
+    const el = document.getElementById(`cm-cnt-${b}`); if(el) el.textContent = cnt;
+  });
+
+  // Render each column
+  const render = (list, bucket, elId) => {
+    const el = document.getElementById(elId); if(!el) return;
+    if(!list.length) { el.innerHTML = `<div class="cm-empty">${bucket==='checked'?'Henüz kontrol yok':'Hepsi tamam 🎉'}</div>`; return; }
+    el.innerHTML = list.map(c => {
+      const days = remainingDays(c.programEnd);
+      const remStr = days !== null ? `· ${remainingDaysLabel(days)}` : '';
+      const sinceStr = cmStatusText(c);
+      const color = cmStatusColor(bucket);
+      const isDone = bucket === 'checked';
+      return `<div class="cm-card" onclick="openClientPanel(${c.id})">
+        <div class="cm-dot" style="background:${color}"></div>
+        <div class="cm-card-info">
+          <div class="cm-card-name">${escHtml(c.name)}</div>
+          <div class="cm-card-meta">${escHtml(c.program||c.type||'—')} ${escHtml(remStr)}</div>
+          <div class="cm-card-meta" style="color:${color};margin-top:1px">${sinceStr}</div>
+        </div>
+        <button class="cm-check-btn ${isDone?'done':''}" title="Kontrol edildi olarak işaretle"
+          onclick="event.stopPropagation();cmCheckIn(${c.id})">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="${isDone?'#4caf81':'rgba(255,255,255,0.4)'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 8 6.5 12 13 4"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  };
+
+  render(overdue,  'overdue',  'cm-list-overdue');
+  render(upcoming, 'upcoming', 'cm-list-upcoming');
+  render(checked,  'checked',  'cm-list-checked');
+}
+
+async function cmCheckIn(clientId) {
+  const c = state.clients.find(x => String(x.id) === String(clientId));
+  if(!c) return;
+  const today = new Date().toISOString().slice(0,10);
+  c.last_check_in_at = today;
+
+  // Boost health slightly if overdue
+  if((c.health||5) < 6) { c.health = Math.min(10, (c.health||5) + 1); }
+
+  renderMusteriYonetimi();
+  renderHealthPage();
+
+  // Persist
+  const { error } = await sb.from('clients')
+    .update({ last_check_in_at: today, health: c.health })
+    .eq('id', clientId);
+  if(error) console.warn('cm checkin error', error.message);
 }
 
 async function deleteUser(id){
@@ -4894,19 +6031,68 @@ async function loadClientReport(email){
   document.getElementById('cr-empty').style.display='none';
   document.getElementById('cr-content').style.display='block';
   // Supabase'den bu müşterinin verilerini çek
-  const [daily,goals,milestones,tasks]=await Promise.all([
+  const [daily,goals,milestones,homeworks]=await Promise.all([
     sb.from('daily_entries').select('*').eq('user_id',email).order('entry_date'),
     sb.from('goals').select('*').eq('user_id',email).order('created_at'),
     sb.from('milestones').select('*').eq('user_id',email).order('created_at'),
-    sb.from('tasks').select('*').eq('user_id',email).order('created_at'),
+    sb.from('homework_assignments').select('*').eq('user_id',email).order('created_at'),
   ]);
   crData.daily=daily.data||[];
   crData.goals=goals.data||[];
   crData.milestones=milestones.data||[];
-  crData.tasks=tasks.data||[];
+  crData.tasks=homeworks.data||[];
+  renderCRTeklif(email);
   renderCRStats();
   buildCRChart();
   renderCRTab();
+}
+
+function renderCRTeklif(email){
+  const el = document.getElementById('cr-teklif'); if(!el) return;
+  // Find client record
+  const client = state.clients.find(c => c.email === email);
+  // Find musteri record (for payment info)
+  const musteri = (typeof musteriler !== 'undefined' ? musteriler : []).find(m => m.email === email);
+  if(!client && !musteri){ el.innerHTML=''; return; }
+
+  const fmtD = s => s ? new Date(s+'T00:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '—';
+  const programName = (client&&client.program) || (musteri&&musteri.program_name) || '—';
+  const startDate = (client&&client.startDate) || (musteri&&musteri.start_date) || null;
+  const endDate = (client&&client.programEnd) || (musteri&&musteri.end_date) || null;
+  const monthlyPay = musteri ? (musteri.monthly_payment||0) : 0;
+  const days = endDate ? remainingDays(endDate) : null;
+  const dcolor = remainingDaysColor(days);
+  const dlabel = days===null ? '—' : days < 0 ? 'Süresi doldu' : days===0 ? 'Bugün bitiyor' : days+' gün kaldı';
+  const statusLabel = days===null ? 'Aktif' : days<0 ? 'Sona Erdi' : days<=7 ? 'Bitiyor' : 'Aktif';
+  const statusColor = days===null||days>7 ? 'var(--color-green)' : days<=0 ? 'var(--color-red)' : 'var(--color-amber)';
+
+  el.innerHTML = `<div class="cr-teklif-card">
+    <div style="font-size:20px">📦</div>
+    <div class="cr-teklif-item" style="flex:2;min-width:140px">
+      <div class="cr-teklif-label">Program</div>
+      <div class="cr-teklif-value">${escHtml(programName)}</div>
+    </div>
+    ${monthlyPay ? `<div class="cr-teklif-item">
+      <div class="cr-teklif-label">Aylık Ödeme</div>
+      <div class="cr-teklif-value">₺${Number(monthlyPay).toLocaleString('tr-TR')}</div>
+    </div>` : ''}
+    <div class="cr-teklif-item">
+      <div class="cr-teklif-label">Başlangıç</div>
+      <div class="cr-teklif-value" style="font-size:13px">${fmtD(startDate)}</div>
+    </div>
+    <div class="cr-teklif-item">
+      <div class="cr-teklif-label">Bitiş</div>
+      <div class="cr-teklif-value" style="font-size:13px">${fmtD(endDate)}</div>
+    </div>
+    <div class="cr-teklif-item">
+      <div class="cr-teklif-label">Kalan</div>
+      <div class="cr-teklif-value" style="color:${dcolor}">${dlabel}</div>
+    </div>
+    <div class="cr-teklif-item">
+      <div class="cr-teklif-label">Durum</div>
+      <div class="cr-teklif-value" style="color:${statusColor}">${statusLabel}</div>
+    </div>
+  </div>`;
 }
 
 function renderCRStats(){
@@ -4991,24 +6177,49 @@ function renderCRTab(){
         <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(52,199,89,0.1);color:#34c759">${m.status||'—'}</span>
       </div>`).join('')+'</div>';
   } else if(crTab==='tasks'){
+    // Admin: Ödev atama ve inceleme
     const email=document.getElementById('cr-client-select').value;
+    const odevStatusBadge = s => {
+      if(s==='atanmis') return `<span class="odev-status odev-status-atanmis"><span class="odev-badge-dot"></span>Atandı</span>`;
+      if(s==='inceleniyor') return `<span class="odev-status odev-status-inceleniyor"><span class="odev-badge-dot"></span>İnceleniyor</span>`;
+      if(s==='admin_onaylandi') return `<span class="odev-status odev-status-onaylandi"><span class="odev-badge-dot"></span>Onaylandı</span>`;
+      if(s==='revize_gerekli') return `<span class="odev-status odev-status-revize"><span class="odev-badge-dot"></span>Revize Gerekli</span>`;
+      return `<span class="odev-status odev-status-atanmis"><span class="odev-badge-dot"></span>Atandı</span>`;
+    };
+    const todayStr = new Date().toISOString().slice(0,10);
     el.innerHTML=`<div style="padding:16px">
-      <div style="background:var(--color-bg-secondary);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #f0dfc0">
-        <div style="font-size:12px;font-weight:700;color:#c47c3a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">+ Yeni Görev Ekle</div>
-        <input id="cr-task-title" class="form-input" placeholder="Görev başlığı..." style="margin-bottom:8px;padding:8px 12px;font-size:13px" />
-        <textarea id="cr-task-note" class="form-input" placeholder="Not / açıklama (opsiyonel)..." style="min-height:60px;margin-bottom:10px;font-size:13px;resize:none"></textarea>
-        <button class="btn btn-primary" style="font-size:13px;padding:8px 20px;border-radius:10px" onclick="addCRTask('${email}')">Ekle</button>
+      <div style="background:var(--color-bg-secondary);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid rgba(74,158,255,0.2)">
+        <div style="font-size:12px;font-weight:700;color:#4a9eff;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">+ Yeni Ödev Ata</div>
+        <input id="cr-task-title" class="form-input" placeholder="Ödev başlığı..." style="margin-bottom:8px;padding:8px 12px;font-size:13px" />
+        <textarea id="cr-task-note" class="form-input" placeholder="Açıklama / talimat (opsiyonel)..." style="min-height:60px;margin-bottom:8px;font-size:13px;resize:none"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <label style="font-size:12px;color:var(--color-text-muted);white-space:nowrap">Son tarih:</label>
+          <input type="date" id="cr-task-due" class="form-input" style="width:auto;padding:6px 10px;font-size:13px" value="${todayStr}" />
+        </div>
+        <button class="btn btn-primary" style="font-size:13px;padding:8px 20px;border-radius:10px" onclick="addCROdev('${escHtml(email)}')">Ata</button>
       </div>
-      ${!crData.tasks.length?'<div class="empty" style="padding:20px">Henüz görev yok</div>':
-        crData.tasks.map(t=>`
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--color-divider)">
-          <div style="width:20px;height:20px;border-radius:6px;border:2px solid ${t.done?'var(--color-green)':'#e8e4df'};background:${t.done?'var(--color-green)':'transparent'};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">${t.done?'✓':''}</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:500;${t.done?'text-decoration:line-through;color:var(--color-text-muted)':''}">${t.title}</div>
-            ${t.note?`<div style="font-size:12px;color:var(--color-text-muted);margin-top:4px">📝 ${t.note}</div>`:''}
+      ${!crData.tasks.length?'<div class="empty" style="padding:20px">Henüz ödev atanmadı</div>':
+        crData.tasks.slice().reverse().map(t=>`
+        <div style="padding:16px 0;border-bottom:1px solid var(--color-divider)">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:500;margin-bottom:4px">${escHtml(t.title)}</div>
+              ${t.description?`<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:4px">📝 ${escHtml(t.description)}</div>`:''}
+              ${t.due_date?`<div style="font-size:11px;color:var(--color-text-muted)">📅 Son tarih: ${t.due_date}</div>`:''}
+              ${t.admin_note?`<div style="font-size:12px;color:var(--color-amber);margin-top:4px;padding:6px 10px;background:rgba(224,165,83,0.08);border-radius:6px">💬 ${escHtml(t.admin_note)}</div>`:''}
+              ${t.user_completed_at?`<div style="font-size:11px;color:var(--color-text-muted);margin-top:4px">✅ Kullanıcı teslim etti</div>`:''}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+              ${odevStatusBadge(t.status||'atanmis')}
+              <button onclick="deleteCROdev(${t.id},'${escHtml(email)}')" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:16px;padding:0;line-height:1" title="Sil">🗑</button>
+            </div>
           </div>
-          <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:${t.done?'rgba(52,199,89,0.1)':'rgba(0,113,227,0.08)'};color:${t.done?'var(--color-green)':'#0071e3'};white-space:nowrap">${t.done?'Tamamlandı':'Bekliyor'}</span>
-          <button onclick="deleteCRTask(${t.id},'${email}')" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:18px;padding:0 4px;line-height:1">×</button>
+          ${t.status==='inceleniyor'?`
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:8px">
+            <span style="font-size:12px;color:var(--color-text-muted);font-weight:500">İncele:</span>
+            <button class="odev-approve-btn" onclick="adminReviewOdev(${t.id},'onay','${escHtml(email)}')">✓ Onayla</button>
+            <button class="odev-revize-btn" onclick="adminReviewOdev(${t.id},'revize','${escHtml(email)}')">↩ Revize İste</button>
+          </div>` : ''}
         </div>`).join('')
       }
     </div>`;
@@ -5017,25 +6228,102 @@ function renderCRTab(){
   }
 }
 
-async function addCRTask(email){
+async function addCROdev(email){
   const title=document.getElementById('cr-task-title').value.trim();
-  if(!title){toast('Görev başlığı gir');return;}
-  const note=document.getElementById('cr-task-note').value.trim();
-  const {data,error}=await sb.from('tasks').insert({user_id:email,title,note,done:false}).select().single();
+  if(!title){toast('Ödev başlığı gir');return;}
+  const description=document.getElementById('cr-task-note').value.trim();
+  const due_date=document.getElementById('cr-task-due').value||null;
+  const {data,error}=await sb.from('homework_assignments').insert({user_id:email,title,description,due_date,status:'atanmis'}).select().single();
   if(error){toast('❌ Hata: '+error.message);return;}
   crData.tasks.push(data);
   document.getElementById('cr-task-title').value='';
   document.getElementById('cr-task-note').value='';
   renderCRTab();
-  toast('✅ Görev eklendi!');
+  toast('✅ Ödev atandı!');
 }
 
-async function deleteCRTask(id,email){
-  if(!confirm('Bu görevi silmek istiyor musun?'))return;
+async function deleteCROdev(id,email){
+  if(!confirm('Bu ödevi silmek istiyor musun?'))return;
   crData.tasks=crData.tasks.filter(x=>x.id!==id);
-  await sb.from('tasks').delete().eq('id',id);
+  await sb.from('homework_assignments').delete().eq('id',id);
   renderCRTab();
-  toast('Görev silindi');
+  toast('Ödev silindi');
+}
+
+async function adminReviewOdev(id, action, email){
+  const newStatus = action==='onay' ? 'admin_onaylandi' : 'revize_gerekli';
+  let adminNote = '';
+  if(action==='revize'){
+    adminNote = prompt('Revize notu (opsiyonel):') || '';
+  }
+  const payload = {status: newStatus, admin_reviewed_at: new Date().toISOString()};
+  if(adminNote) payload.admin_note = adminNote;
+  const {error} = await sb.from('homework_assignments').update(payload).eq('id',id);
+  if(error){toast('❌ '+error.message);return;}
+  const idx = crData.tasks.findIndex(x=>x.id===id);
+  if(idx>=0) crData.tasks[idx] = {...crData.tasks[idx], ...payload};
+  renderCRTab();
+  toast(action==='onay' ? '✅ Ödev onaylandı!' : '↩ Revize istendi');
+}
+
+// ===== ÖDEVLER (Kullanıcı Sayfası) =====
+let odevler = [];
+
+async function loadOdevler(){
+  if(!currentUser||currentUser.role==='admin') return;
+  const email = currentUser.email;
+  const {data, error} = await sb.from('homework_assignments').select('*').eq('user_id', email).order('created_at');
+  odevler = data || [];
+  renderOdevler();
+}
+
+function odevStatusBadgeUser(s){
+  if(s==='atanmis') return `<span class="odev-status odev-status-atanmis"><span class="odev-badge-dot"></span>Atandı</span>`;
+  if(s==='inceleniyor') return `<span class="odev-status odev-status-inceleniyor"><span class="odev-badge-dot"></span>İnceleniyor</span>`;
+  if(s==='admin_onaylandi') return `<span class="odev-status odev-status-onaylandi"><span class="odev-badge-dot"></span>Tamamlandı ✓</span>`;
+  if(s==='revize_gerekli') return `<span class="odev-status odev-status-revize"><span class="odev-badge-dot"></span>Revize Gerekli</span>`;
+  return `<span class="odev-status odev-status-atanmis"><span class="odev-badge-dot"></span>Atandı</span>`;
+}
+
+function renderOdevler(){
+  const list = document.getElementById('odev-list');
+  const empty = document.getElementById('odev-empty');
+  if(!list) return;
+  if(!odevler.length){
+    list.innerHTML=''; empty.style.display='block'; list.style.display='none'; return;
+  }
+  empty.style.display='none'; list.style.display='flex';
+  list.innerHTML = odevler.slice().reverse().map(o => {
+    const canComplete = o.status==='atanmis' || o.status==='revize_gerekli';
+    const doneAlready = o.status==='inceleniyor'||o.status==='admin_onaylandi';
+    return `<div class="odev-card">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <div style="font-size:15px;font-weight:600">${escHtml(o.title)}</div>
+          ${odevStatusBadgeUser(o.status||'atanmis')}
+        </div>
+        ${o.description?`<div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:6px">${escHtml(o.description)}</div>`:''}
+        ${o.due_date?`<div style="font-size:12px;color:var(--color-text-muted)">📅 Son tarih: ${o.due_date}</div>`:''}
+        ${o.admin_note?`<div style="margin-top:8px;padding:8px 12px;background:rgba(224,165,83,0.08);border:1px solid rgba(224,165,83,0.2);border-radius:8px;font-size:13px;color:var(--color-amber)">💬 Koç notu: ${escHtml(o.admin_note)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0">
+        ${doneAlready ? `<div class="odev-done-check">✓</div>` :
+          canComplete ? `<button class="odev-complete-btn" onclick="userCompleteOdev(${o.id})">Tamamladım</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function userCompleteOdev(id){
+  const {error} = await sb.from('homework_assignments').update({
+    status: 'inceleniyor',
+    user_completed_at: new Date().toISOString()
+  }).eq('id', id);
+  if(error){toast('❌ '+error.message);return;}
+  const idx = odevler.findIndex(x=>x.id===id);
+  if(idx>=0) odevler[idx] = {...odevler[idx], status:'inceleniyor', user_completed_at: new Date().toISOString()};
+  renderOdevler();
+  toast('✅ Ödev koça gönderildi! İnceleniyor.');
 }
 
 function renderUsers(){
@@ -6972,8 +8260,8 @@ function connectInstagram() {
     'pages_read_engagement',
     'instagram_basic',
     // 'instagram_manage_insights' — requires Meta App Review (Advanced Access).
-    // Enable in Meta Developer Console → Add Product → Instagram → Permissions,
-    // then uncomment this line once approved.
+    // Enable in Meta Developer Console → Add Products → Instagram → Permissions
+    // only after your app has been approved for Advanced Access.
   ].join(',');
 
   const oauthUrl =
@@ -7341,6 +8629,270 @@ async function loadIgDailyKPIs() {
   section.style.display = '';
 }
 
+
+// ============================================================
+//  IMPLEMENTATION CHECKLIST
+// ============================================================
+/*
+  Required Supabase tables (run once in SQL editor):
+
+  create table program_phases (
+    id uuid primary key default gen_random_uuid(),
+    title text not null,
+    order_index int not null default 0
+  );
+  -- Example rows:
+  -- insert into program_phases (title, order_index) values
+  --   ('Oryantasyon, Vizyon ve Model', 1),
+  --   ('Genel Kurulumlar', 2),
+  --   ('İçerik Ekosistemi', 3),
+  --   ('Satış ve Rakamlar', 4);
+
+  create table program_weeks (
+    id uuid primary key default gen_random_uuid(),
+    phase_id uuid references program_phases(id) on delete cascade,
+    title text not null,
+    order_index int not null default 0
+  );
+
+  create table program_tasks (
+    id uuid primary key default gen_random_uuid(),
+    week_id uuid references program_weeks(id) on delete cascade,
+    title text not null,
+    level text,
+    outcome text,
+    roadmap text,
+    url text,
+    order_index int not null default 0
+  );
+
+  create table program_task_progress (
+    id uuid primary key default gen_random_uuid(),
+    user_id text not null,              -- matches currentUser.email (custom auth)
+    task_id uuid references program_tasks(id) on delete cascade,
+    status text not null default 'not_started',
+    updated_at timestamptz default now(),
+    unique(user_id, task_id)
+  );
+  -- RLS: enable row level security and add policy so users can only read/write their own rows
+  -- alter table program_task_progress enable row level security;
+  -- (policy via service role or trusted check on user_id = current email)
+*/
+
+// ── State ─────────────────────────────────────────────────────
+const implState = {
+  phases: [],    // [{id, title, order_index}]
+  weeks: [],     // [{id, phase_id, title, order_index}]
+  tasks: [],     // [{id, week_id, title, level, outcome, roadmap, url, order_index}]
+  progress: {},  // { task_id: status }
+  loaded: false,
+};
+
+// ── Supabase helpers ──────────────────────────────────────────
+// Shared structure (phases/weeks/tasks) is admin-defined and read-only for users.
+// Only program_task_progress is user-specific — identified by currentUser.email,
+// matching the same user_id convention used across all other tables in this app.
+
+async function implLoadAll() {
+  const userEmail = currentUser?.email;
+  if (!userEmail) return;
+
+  const [mRes, wRes, tRes, pRes] = await Promise.all([
+    // Shared program structure — same for all users, admin-managed
+    sb.from('program_phases').select('*').order('order_index'),
+    sb.from('program_weeks').select('*').order('order_index'),
+    sb.from('program_tasks').select('*').order('order_index'),
+    // User-specific progress — isolated per user, never shared
+    sb.from('program_task_progress').select('task_id,status').eq('user_id', userEmail),
+  ]);
+
+  implState.phases   = mRes.data ?? [];
+  implState.weeks    = wRes.data ?? [];
+  implState.tasks    = tRes.data ?? [];
+  implState.progress = {};
+  for (const r of (pRes.data ?? [])) implState.progress[r.task_id] = r.status;
+  implState.loaded   = true;
+}
+
+async function implSetStatus(taskId, status) {
+  const userEmail = currentUser?.email;
+  if (!userEmail) return;
+  // Optimistic update — reflect in UI immediately, then persist
+  implState.progress[taskId] = status;
+  implRender();
+  // Writes only to this user's own progress row — other users unaffected
+  await sb.from('program_task_progress').upsert(
+    { user_id: userEmail, task_id: taskId, status, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,task_id' }
+  );
+}
+
+// ── Progress calc ─────────────────────────────────────────────
+function implTaskStatus(taskId) {
+  return implState.progress[taskId] ?? 'not_started';
+}
+
+function implCalcProgress(taskIds) {
+  if (!taskIds.length) return { done: 0, total: 0, pct: 0 };
+  const done = taskIds.filter(id => implTaskStatus(id) === 'done').length;
+  return { done, total: taskIds.length, pct: Math.round(done / taskIds.length * 100) };
+}
+
+// ── Render ────────────────────────────────────────────────────
+function implStatusIcon(status) {
+  if (status === 'done') {
+    return `<div class="impl-task-status done" title="Tamamlandı">
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#4caf81" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
+    </div>`;
+  }
+  if (status === 'in_progress') {
+    return `<div class="impl-task-status in_progress" title="Devam ediyor"></div>`;
+  }
+  return `<div class="impl-task-status not_started" title="Başlanmadı"></div>`;
+}
+
+function implNextStatus(s) {
+  return s === 'not_started' ? 'in_progress' : s === 'in_progress' ? 'done' : 'not_started';
+}
+
+function implBadge(val, cls) {
+  if (!val) return '';
+  return `<span class="impl-badge ${cls}">${val}</span>`;
+}
+
+function implRenderTask(task) {
+  const status = implTaskStatus(task.id);
+  const isDone = status === 'done';
+  const urlHtml = task.url
+    ? `<div class="impl-task-url"><a href="${task.url}" target="_blank" rel="noopener">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 2h5v5M8 8l6-6"/></svg>
+        ${task.url.replace(/^https?:\/\//, '').slice(0, 22)}…
+       </a></div>`
+    : '<div></div>';
+  return `<div class="impl-task">
+    <div onclick="implCycleStatus('${task.id}')" style="display:flex;align-items:center">${implStatusIcon(status)}</div>
+    <div class="impl-task-name${isDone ? ' done-text' : ''}">${task.title}</div>
+    <div>${implBadge(task.level, 'impl-badge-level')}</div>
+    <div>${implBadge(task.outcome, 'impl-badge-outcome')}</div>
+    <div>${implBadge(task.roadmap, 'impl-badge-roadmap')}</div>
+    ${urlHtml}
+  </div>`;
+}
+
+function implRenderWeek(week, monthIdx, weekIdx) {
+  const tasks = implState.tasks.filter(t => t.week_id === week.id);
+  const taskIds = tasks.map(t => t.id);
+  const { done, total } = implCalcProgress(taskIds);
+  const wKey = `impl-w-${week.id}`;
+  const bodyId = `impl-wb-${week.id}`;
+
+  const tasksHtml = tasks.length
+    ? `<div class="impl-tasks-header">
+        <span></span><span>Görev</span><span>Seviye</span><span>Çıktı</span><span>Yol Haritası</span><span>URL</span>
+       </div>
+       ${tasks.map(t => implRenderTask(t)).join('')}`
+    : `<div style="padding:12px 18px 12px 48px;font-size:12px;color:rgba(255,255,255,0.2)">Bu hafta için henüz görev tanımlanmamış.</div>`;
+
+  return `<div class="impl-week" id="${wKey}">
+    <div class="impl-week-header" onclick="implToggleWeek('${week.id}')">
+      <svg class="impl-week-chevron" id="impl-wc-${week.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      <span class="impl-week-title">${week.title}</span>
+      <span class="impl-week-count">${done}/${total} tamamlandı</span>
+    </div>
+    <div class="impl-week-body" id="${bodyId}">${tasksHtml}</div>
+  </div>`;
+}
+
+function implRenderPhase(phase, idx) {
+  const weeks = implState.weeks.filter(w => w.phase_id === phase.id);
+  const allTaskIds = implState.tasks
+    .filter(t => weeks.some(w => w.id === t.week_id))
+    .map(t => t.id);
+  const { done, total, pct } = implCalcProgress(allTaskIds);
+  const bodyId = `impl-mb-${phase.id}`;
+  const phaseNum = idx + 1;
+  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--color-brand);opacity:0.75;flex-shrink:0">Faz ${phaseNum}</span><span style="color:rgba(255,255,255,0.2);margin:0 6px;font-size:11px">·</span>`;
+
+  return `<div class="impl-phase">
+    <div class="impl-phase-header" onclick="implTogglePhase('${phase.id}')">
+      <svg class="impl-phase-chevron" id="impl-mc-${phase.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      <span class="impl-phase-title">${phaseLabel}${phase.title}</span>
+      <div class="impl-phase-meta">
+        <span class="impl-phase-prog-text">${done}/${total}</span>
+        <div class="impl-phase-bar-wrap"><div class="impl-phase-bar-fill" style="width:${pct}%"></div></div>
+        <span class="impl-phase-prog-text">${pct}%</span>
+      </div>
+    </div>
+    <div class="impl-phase-body" id="${bodyId}">
+      ${weeks.map((w, wi) => implRenderWeek(w, idx, wi)).join('')}
+    </div>
+  </div>`;
+}
+
+function implRenderOverall() {
+  const allIds = implState.tasks.map(t => t.id);
+  const { done, total, pct } = implCalcProgress(allIds);
+  const bar = document.getElementById('impl-progress-bar');
+  const sub = document.getElementById('impl-progress-sub');
+  const pctEl = document.getElementById('impl-progress-pct');
+  if (bar)   bar.style.width = pct + '%';
+  if (sub)   sub.textContent = `${done} / ${total} görev tamamlandı`;
+  if (pctEl) pctEl.textContent = `%${pct}`;
+  if (bar) bar.style.background = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-amber)' : 'var(--color-accent)';
+}
+
+function implRender() {
+  implRenderOverall();
+  const list = document.getElementById('impl-list');
+  if (!list) return;
+  if (!implState.phases.length) {
+    list.innerHTML = `<div style="padding:48px 24px;text-align:center">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 14px;display:block"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg>
+      <div style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.3);margin-bottom:6px">Bu program için henüz plan tanımlanmamış</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.18)">Program şablonu admin tarafından oluşturulduğunda burada görünecek</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = implState.phases.map((p, i) => implRenderPhase(p, i)).join('');
+}
+
+// ── Toggle handlers ───────────────────────────────────────────
+function implTogglePhase(phaseId) {
+  const body = document.getElementById(`impl-mb-${phaseId}`);
+  const chev = document.getElementById(`impl-mc-${phaseId}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+function implToggleWeek(weekId) {
+  const body = document.getElementById(`impl-wb-${weekId}`);
+  const chev = document.getElementById(`impl-wc-${weekId}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.classList.toggle('open', open);
+}
+
+function implCycleStatus(taskId) {
+  const current = implTaskStatus(taskId);
+  const next = implNextStatus(current);
+  implSetStatus(taskId, next);
+}
+
+// ── Entry point ───────────────────────────────────────────────
+async function loadImplementationPage() {
+  const list = document.getElementById('impl-list');
+  if (list) list.innerHTML = `<div class="impl-loading">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    Veriler yükleniyor…
+  </div>`;
+  try {
+    await implLoadAll();
+    implRender();
+  } catch(e) {
+    if (list) list.innerHTML = `<div style="padding:24px;color:var(--color-red);font-size:13px">Yüklenemedi: ${e.message}</div>`;
+  }
+}
 </script>
 
 </body>
