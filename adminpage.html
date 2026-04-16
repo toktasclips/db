@@ -2533,6 +2533,7 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="tab active" onclick="setCRTab('daily',this)">Günlük Girişler</div>
           <div class="tab" onclick="setCRTab('goals',this)">Hedefler</div>
           <div class="tab" onclick="setCRTab('milestones',this)">Milestonelar</div>
+          <div class="tab" onclick="setCRTab('client-teklif',this)">💼 Teklifler</div>
           <div class="tab" onclick="setCRTab('tasks',this)">📋 Ödevler</div>
         </div>
         <div class="card">
@@ -5990,7 +5991,7 @@ async function deleteUser(id){
 }
 
 // ===== MÜŞTERİ RAPORLARI =====
-let crData={daily:[],goals:[],milestones:[],tasks:[]};
+let crData={daily:[],goals:[],milestones:[],tasks:[],clientTeklif:[]};
 let crChart=null;
 let crMetric='takipci';
 let crTab='daily';
@@ -6035,16 +6036,18 @@ async function loadClientReport(email){
   document.getElementById('cr-empty').style.display='none';
   document.getElementById('cr-content').style.display='block';
   // Supabase'den bu müşterinin verilerini çek
-  const [daily,goals,milestones,homeworks]=await Promise.all([
+  const [daily,goals,milestones,homeworks,clientTeklif]=await Promise.all([
     sb.from('daily_entries').select('*').eq('user_id',email).order('entry_date'),
     sb.from('goals').select('*').eq('user_id',email).order('created_at'),
     sb.from('milestones').select('*').eq('user_id',email).order('created_at'),
     sb.from('homework_assignments').select('*').eq('user_id',email).order('created_at'),
+    sb.from('client_teklif').select('*').eq('user_id',email).order('created_at'),
   ]);
   crData.daily=daily.data||[];
   crData.goals=goals.data||[];
   crData.milestones=milestones.data||[];
   crData.tasks=homeworks.data||[];
+  crData.clientTeklif=clientTeklif.data||[];
   renderCRTeklif(email);
   renderCRStats();
   buildCRChart();
@@ -6078,6 +6081,8 @@ function renderCRTeklif(email){
   const dlabel = days===null ? '—' : days < 0 ? 'Süresi doldu' : days===0 ? 'Bugün bitiyor' : days+' gün kaldı';
   const statusLabel = days===null ? 'Aktif' : days<0 ? 'Sona Erdi' : days<=7 ? 'Bitiyor' : 'Aktif';
   const statusColor = days===null||days>7 ? 'var(--color-green)' : days<=0 ? 'var(--color-red)' : 'var(--color-amber)';
+  const remainingMonths = (days !== null && days > 0) ? Math.ceil(days / 30) : 0;
+  const remainingTotal = monthlyPay && remainingMonths > 0 ? monthlyPay * remainingMonths : 0;
 
   el.innerHTML = `<div class="cr-teklif-card">
     <div style="font-size:20px">📦</div>
@@ -6089,6 +6094,11 @@ function renderCRTeklif(email){
     ${monthlyPay ? `<div class="cr-teklif-item">
       <div class="cr-teklif-label">Aylık Ödeme</div>
       <div class="cr-teklif-value">₺${Number(monthlyPay).toLocaleString('tr-TR')}</div>
+    </div>` : ''}
+    ${remainingTotal ? `<div class="cr-teklif-item">
+      <div class="cr-teklif-label">Kalan Ödeme</div>
+      <div class="cr-teklif-value" style="color:var(--color-amber)">₺${Number(remainingTotal).toLocaleString('tr-TR')}</div>
+      <div style="font-size:11px;color:var(--color-text-muted)">${remainingMonths} ay × ₺${Number(monthlyPay).toLocaleString('tr-TR')}</div>
     </div>` : ''}
     <div class="cr-teklif-item">
       <div class="cr-teklif-label">Başlangıç</div>
@@ -6190,6 +6200,51 @@ function renderCRTab(){
         <div style="flex:1"><div style="font-size:14px;font-weight:500">${m.title}</div><div style="font-size:12px;color:var(--color-text-muted)">${m.date||''}</div></div>
         <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(52,199,89,0.1);color:#34c759">${m.status||'—'}</span>
       </div>`).join('')+'</div>';
+  } else if(crTab==='client-teklif'){
+    const email=document.getElementById('cr-client-select').value;
+    const statusBadge = s => {
+      const map = {aktif:'background:rgba(76,175,129,0.15);color:#4caf81', pasif:'background:rgba(107,105,99,0.2);color:#9b9a97', taslak:'background:rgba(74,158,255,0.12);color:#4a9eff'};
+      const label = {aktif:'Aktif', pasif:'Pasif', taslak:'Taslak'};
+      return `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;${map[s]||map.taslak}">${label[s]||'Taslak'}</span>`;
+    };
+    el.innerHTML=`<div style="padding:16px">
+      <div style="background:var(--color-bg-secondary);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid rgba(76,175,129,0.2)">
+        <div style="font-size:12px;font-weight:700;color:#4caf81;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">+ Yeni Teklif Ekle</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <input id="ct-title" class="form-input" placeholder="Teklif adı (örn: 3 Aylık Koçluk)" style="padding:8px 12px;font-size:13px" />
+          <input id="ct-price" class="form-input" placeholder="Fiyat (₺)" type="number" style="padding:8px 12px;font-size:13px" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <input id="ct-duration" class="form-input" placeholder="Süre (örn: 3 Ay, 6 Hafta)" style="padding:8px 12px;font-size:13px" />
+          <select id="ct-status" class="form-input form-select" style="padding:8px 12px;font-size:13px">
+            <option value="aktif">Aktif</option>
+            <option value="taslak">Taslak</option>
+            <option value="pasif">Pasif</option>
+          </select>
+        </div>
+        <textarea id="ct-desc" class="form-input" placeholder="Açıklama / içerik (opsiyonel)..." style="min-height:60px;margin-bottom:10px;font-size:13px;resize:none"></textarea>
+        <button class="btn btn-primary" style="font-size:13px;padding:8px 20px;border-radius:10px;background:rgba(76,175,129,0.15);color:#4caf81;border:1px solid rgba(76,175,129,0.3)" onclick="addClientTeklif('${escHtml(email)}')">Ekle</button>
+      </div>
+      ${!crData.clientTeklif.length ? '<div class="empty" style="padding:20px">Henüz teklif eklenmedi</div>' :
+        crData.clientTeklif.slice().reverse().map(t=>`
+        <div style="padding:16px 0;border-bottom:1px solid var(--color-divider)">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:6px">
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+                <div style="font-size:15px;font-weight:600">${escHtml(t.title)}</div>
+                ${statusBadge(t.status||'taslak')}
+              </div>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px">
+                ${t.price ? `<span style="font-size:14px;font-weight:600;color:var(--color-green)">₺${Number(t.price).toLocaleString('tr-TR')}</span>` : ''}
+                ${t.duration ? `<span style="font-size:13px;color:var(--color-text-muted)">⏱ ${escHtml(t.duration)}</span>` : ''}
+              </div>
+              ${t.description ? `<div style="font-size:13px;color:var(--color-text-secondary)">${escHtml(t.description)}</div>` : ''}
+            </div>
+            <button onclick="deleteClientTeklif(${t.id},'${escHtml(email)}')" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:16px;padding:0;flex-shrink:0" title="Sil">🗑</button>
+          </div>
+        </div>`).join('')
+      }
+    </div>`;
   } else if(crTab==='tasks'){
     // Admin: Ödev atama ve inceleme
     const email=document.getElementById('cr-client-select').value;
@@ -6338,6 +6393,33 @@ async function userCompleteOdev(id){
   if(idx>=0) odevler[idx] = {...odevler[idx], status:'inceleniyor', user_completed_at: new Date().toISOString()};
   renderOdevler();
   toast('✅ Ödev koça gönderildi! İnceleniyor.');
+}
+
+// ===== MÜŞTERİ TEKLİFLERİ (admin yönetir) =====
+async function addClientTeklif(email){
+  const title = document.getElementById('ct-title').value.trim();
+  if(!title){toast('Teklif adı gir');return;}
+  const price = parseFloat(document.getElementById('ct-price').value)||0;
+  const duration = document.getElementById('ct-duration').value.trim();
+  const description = document.getElementById('ct-desc').value.trim();
+  const status = document.getElementById('ct-status').value;
+  const {data,error} = await sb.from('client_teklif').insert({user_id:email,title,price,duration,description,status}).select().single();
+  if(error){toast('❌ '+error.message);return;}
+  crData.clientTeklif.push(data);
+  document.getElementById('ct-title').value='';
+  document.getElementById('ct-price').value='';
+  document.getElementById('ct-duration').value='';
+  document.getElementById('ct-desc').value='';
+  renderCRTab();
+  toast('✅ Teklif eklendi!');
+}
+
+async function deleteClientTeklif(id,email){
+  if(!confirm('Bu teklifi silmek istiyor musun?'))return;
+  crData.clientTeklif=crData.clientTeklif.filter(x=>x.id!==id);
+  await sb.from('client_teklif').delete().eq('id',id);
+  renderCRTab();
+  toast('Teklif silindi');
 }
 
 function renderUsers(){
