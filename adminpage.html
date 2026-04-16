@@ -3374,11 +3374,54 @@ select option { background: #232323; color: #e8e8e6; }
 </div>
 
 <div class="modal-bg" id="modal-add-user">
-  <div class="modal" style="width:420px">
+  <div class="modal" style="width:480px">
     <div class="modal-head"><div class="modal-title">Yeni Kullanıcı</div><button class="modal-close" onclick="closeModal('modal-add-user')">✕</button></div>
-    <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya" /></div>
-    <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com" /></div>
+
+    <!-- Temel bilgiler -->
+    <div class="two-form">
+      <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya" /></div>
+      <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com" /></div>
+    </div>
     <div class="form-group"><label class="form-label">Şifre *</label><input class="form-input" id="u-password" type="password" placeholder="En az 6 karakter" /></div>
+
+    <!-- Teklif & program -->
+    <div style="height:1px;background:var(--color-border);margin:4px 0 12px"></div>
+    <div class="form-group">
+      <label class="form-label">Katıldığı Teklif</label>
+      <select class="form-input form-select" id="u-offer" onchange="updateUserFormPreview()">
+        <option value="">— Teklif seç —</option>
+      </select>
+    </div>
+    <div class="two-form">
+      <div class="form-group">
+        <label class="form-label">Başlangıç Tarihi</label>
+        <input class="form-input" type="date" id="u-start" onchange="updateUserFormPreview()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Aylık Ödeme (₺)</label>
+        <input class="form-input" type="number" id="u-monthly" placeholder="0" min="0" />
+      </div>
+    </div>
+
+    <!-- Otomatik hesaplanan özet -->
+    <div id="u-preview" style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--color-border);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-muted);margin-bottom:10px">Program Özeti</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Süre</div>
+          <div id="u-prev-dur" style="font-size:14px;font-weight:600;color:var(--color-text-primary)">—</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Bitiş</div>
+          <div id="u-prev-end" style="font-size:14px;font-weight:600;color:var(--color-text-primary)">—</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:3px">Kalan Gün</div>
+          <div id="u-prev-rem" style="font-size:14px;font-weight:600">—</div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-add-user')">İptal</button>
       <button class="btn btn-primary" onclick="addUser()">Ekle</button>
@@ -4720,7 +4763,11 @@ function deleteCurrentMs(){
 }
 
 // ===== MODALS =====
-function openModal(id){document.getElementById(id).classList.add('open');if(id==='modal-add-goal')initCal();}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-add-goal') initCal();
+  if(id==='modal-add-user') populateUserTeklifSelect();
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
@@ -5150,12 +5197,95 @@ function doLogout(){
   document.getElementById('login-password').value = '';
 }
 
+/* ---- Kullanıcı Ekle helpers ---- */
+function offerToDays(o) {
+  if(!o || !o.duration_value) return null;
+  const v = parseInt(o.duration_value);
+  const u = (o.duration_unit || 'Ay').trim();
+  if(u === 'Gün')   return v;
+  if(u === 'Hafta') return v * 7;
+  if(u === 'Ay')    return v * 30;
+  if(u === 'Yıl')   return v * 365;
+  return null;
+}
+
+function populateUserTeklifSelect() {
+  const sel = document.getElementById('u-offer'); if(!sel) return;
+  const opts = state.offers.map(o =>
+    `<option value="${o.id}" data-price="${o.price||0}" data-dur-val="${o.duration_value||''}" data-dur-unit="${o.duration_unit||'Ay'}" data-name="${escHtml(o.name)}">${escHtml(o.name)}${o.duration_value ? ' · '+o.duration_value+' '+o.duration_unit : ''}</option>`
+  ).join('');
+  sel.innerHTML = '<option value="">— Teklif seç —</option>' + opts;
+  // today as default start_date
+  const sd = document.getElementById('u-start');
+  if(sd && !sd.value) sd.value = new Date().toISOString().slice(0,10);
+  updateUserFormPreview();
+}
+
+function updateUserFormPreview() {
+  const sel = document.getElementById('u-offer');
+  const sdEl = document.getElementById('u-start');
+  const prevEl = document.getElementById('u-preview');
+  const monthlyEl = document.getElementById('u-monthly');
+  if(!sel || !sdEl || !prevEl) return;
+
+  const opt = sel.options[sel.selectedIndex];
+  const offerId = sel.value;
+  if(!offerId) { prevEl.style.display='none'; return; }
+
+  const o = state.offers.find(x => String(x.id) === String(offerId));
+  if(!o) { prevEl.style.display='none'; return; }
+
+  const days = offerToDays(o);
+  const startStr = sdEl.value;
+
+  // Auto-fill monthly payment from offer price / duration months
+  if(monthlyEl && !monthlyEl._userEdited) {
+    const months = o.duration_unit==='Ay' ? (o.duration_value||1) :
+                   o.duration_unit==='Yıl' ? (o.duration_value||1)*12 : null;
+    if(months && o.price) monthlyEl.value = Math.round(o.price / months);
+    else if(o.price) monthlyEl.value = o.price;
+  }
+  monthlyEl.addEventListener('input', () => { monthlyEl._userEdited = true; }, {once:true});
+
+  // Duration label
+  const durLabel = o.duration_value ? o.duration_value + ' ' + (o.duration_unit||'Ay') : '—';
+  document.getElementById('u-prev-dur').textContent = durLabel;
+
+  if(days && startStr) {
+    const start = new Date(startStr + 'T00:00:00');
+    const end = new Date(start.getTime() + days * 86400000);
+    const endStr = end.toLocaleDateString('tr-TR', {day:'2-digit', month:'short', year:'numeric'});
+    document.getElementById('u-prev-end').textContent = endStr;
+
+    const rem = remainingDays(end.toISOString().slice(0,10));
+    const remEl = document.getElementById('u-prev-rem');
+    remEl.textContent = remainingDaysLabel(rem);
+    remEl.style.color = remainingDaysColor(rem);
+  } else {
+    document.getElementById('u-prev-end').textContent = '—';
+    document.getElementById('u-prev-rem').textContent = '—';
+  }
+
+  prevEl.style.display = 'block';
+}
+
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
   const password = document.getElementById('u-password').value;
   if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
   if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
+
+  // Offer / program bilgileri
+  const offerId = document.getElementById('u-offer').value;
+  const offer = offerId ? state.offers.find(x => String(x.id)===String(offerId)) : null;
+  const startStr = document.getElementById('u-start').value || new Date().toISOString().slice(0,10);
+  const monthlyPay = parseFloat(document.getElementById('u-monthly').value) || (offer ? offer.price||0 : 0);
+  const durationDays = offer ? offerToDays(offer) : null;
+  const endDate = (durationDays && startStr)
+    ? new Date(new Date(startStr+'T00:00:00').getTime() + durationDays*86400000).toISOString().slice(0,10)
+    : null;
+  const programName = offer ? offer.name : '';
 
   // Supabase'de zaten var mı kontrol et
   const {data:existing} = await sb.from('users').select('id').eq('email',email);
@@ -5167,17 +5297,45 @@ async function addUser(){
   if(!users) users=[];
   users.push({id:data.id,name,email,password});
 
-  // 2. Clients tablosuna da ekle
-  const row={name,type:'',status:'Yeni',email,phone:'',social:null,sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
-  const {data:cd,error:ce}=await sb.from('clients').insert(row).select().single();
-  if(!ce&&cd){
-    state.clients.push({id:+cd.id,_new:false,name,type:'',status:'Yeni',email,phone:'',social:'',sessions:0,remainingSessions:0,programEnd:'',startDate:'',program:'',health:5,notes:[],start:''});
+  // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
+  const clientRow = {
+    name, email, type: offer?.category||'', status:'Aktif',
+    phone:'', social:null, sessions:0, remaining_sessions:0,
+    program: programName||null,
+    start_date: startStr||null,
+    program_end: endDate||null,
+    health: 8, notes: [],
+    user_id: currentUser?.email||null
+  };
+  const {data:cd, error:ce} = await sb.from('clients').insert(clientRow).select().single();
+  if(!ce && cd) {
+    state.clients.push({
+      id:+cd.id, _new:false, name, email,
+      type: clientRow.type, status:'Aktif',
+      phone:'', social:'', sessions:0, remainingSessions:0,
+      programEnd: endDate||'', startDate: startStr||'',
+      program: programName, health:8, notes:[], start:startStr||''
+    });
   }
 
+  // 3. Customers tablosuna ekle (MRR kaynağı)
+  const customerRow = {
+    name, email, program: programName||'',
+    monthly_payment: monthlyPay,
+    start_date: startStr||null,
+    end_date: endDate||null,
+    status: 'Aktif', notes: ''
+  };
+  const newCustId = await insertMusteriSB(customerRow);
+  musteriler.push({ id: newCustId, ...customerRow });
+
   closeModal('modal-add-user');
-  ['u-name','u-email','u-password'].forEach(id => document.getElementById(id).value = '');
+  const prevEl = document.getElementById('u-preview'); if(prevEl) prevEl.style.display='none';
+  ['u-name','u-email','u-password','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
+  document.getElementById('u-offer').value='';
   toast('✅ '+name+' eklendi!');
   renderUsers(); renderHealthPage(); renderStats();
+  renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
 }
 
 async function deleteUser(id){
