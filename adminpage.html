@@ -1803,6 +1803,24 @@ select option { background: #232323; color: #e8e8e6; }
 }
 
 /* ============================================================
+   GÜNCELLEMELER — CHANGELOG
+   ============================================================ */
+.cl-group { margin-bottom:6px; }
+.cl-date-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--color-text-muted); padding:6px 0 8px; }
+.cl-entry { background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px; }
+.cl-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.cl-icon-new  { background:rgba(74,158,255,0.12); }
+.cl-icon-fix  { background:rgba(76,175,129,0.12); }
+.cl-icon-imp  { background:rgba(224,165,83,0.12); }
+.cl-body { flex:1; min-width:0; }
+.cl-title { font-size:13.5px; font-weight:600; color:var(--color-text-primary); margin-bottom:3px; }
+.cl-desc  { font-size:12px; color:var(--color-text-muted); line-height:1.5; }
+.cl-tag { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:2px 7px; border-radius:20px; margin-bottom:5px; }
+.cl-tag-new { background:rgba(74,158,255,0.12); color:#4a9eff; }
+.cl-tag-fix { background:rgba(76,175,129,0.12); color:#4caf81; }
+.cl-tag-imp { background:rgba(224,165,83,0.12); color:#e0a553; }
+
+/* ============================================================
    MÜŞTERİ YÖNETİMİ — CHECK-IN BOARD
    ============================================================ */
 .cm-board { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; align-items:start; }
@@ -1928,6 +1946,10 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="nav-item" onclick="go('implementation',this)">
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3"/><path d="M3 4.5h10" stroke-width="1"/></svg>
       Uygulama Planı
+    </div>
+    <div class="nav-item" onclick="go('guncellemeler',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2 2"/></svg>
+      Güncellemeler
     </div>
     <div class="nav-item" onclick="go('reports',this)">
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V9M6 13V6M9 13V8M12 13V4"/></svg>
@@ -2324,6 +2346,17 @@ select option { background: #232323; color: #e8e8e6; }
 
         </div>
       </div>
+    </div>
+
+    <!-- ===== GÜNCELLEMELER ===== -->
+    <div class="page" id="page-guncellemeler">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Güncellemeler</div>
+          <div class="page-sub">Platforma eklenen yeni özellikler ve geliştirmeler</div>
+        </div>
+      </div>
+      <div id="cl-list" style="max-width:680px;display:flex;flex-direction:column;gap:8px"></div>
     </div>
 
     <!-- ===== RAPORLAR ===== -->
@@ -3958,6 +3991,7 @@ function go(id,el){
   if(id==='instagram') setTimeout(loadInstagramPage, 50);
   if(id==='implementation') setTimeout(loadImplementationPage, 50);
   if(id==='musteri-yonetimi') setTimeout(loadMusteriYonetimi, 50);
+  if(id==='guncellemeler') setTimeout(renderGuncellemeler, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -5475,6 +5509,67 @@ async function addUser(){
   toast('✅ '+name+' eklendi!');
   renderUsers(); renderHealthPage(); renderStats();
   renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
+}
+
+/* ================================================================
+   GÜNCELLEMELER — CHANGELOG
+   ================================================================ */
+const CHANGELOG = [
+  {
+    date: '2026-04-16',
+    entries: [
+      { type:'new', icon:'🗂️', title:'Müşteri Yönetimi sayfası eklendi', desc:'Günlük kontrol panosu: kimi ne zaman takip etmen gerektiğini 3 sütunda görüyorsun. Geciken / Yaklaşan / Kontrol Edildi.' },
+      { type:'imp', icon:'🔍', title:'Müşteri Sağlığı\'na arama eklendi', desc:'Müşteri listesinde anlık isim arama — büyük listelerde hızlıca kişiyi bulabilirsin.' },
+      { type:'imp', icon:'📊', title:'Kullanıcı eklenince günlük rapora otomatik düşüyor', desc:'Kullanıcı Ekle\'den birini kaydettiğinde o günün satışı ve notu otomatik olarak Raporlar\'a ekleniyor.' },
+      { type:'new', icon:'🔗', title:'Kullanıcı Ekle tam entegre sisteme bağlandı', desc:'Artık kullanıcı eklerken teklif seçebiliyorsun. Süre, bitiş tarihi ve kalan gün otomatik hesaplanıyor. Müşteri Sağlığı ve MRR\'a tek seferde yansıyor.' },
+    ]
+  },
+  {
+    date: '2026-04-15',
+    entries: [
+      { type:'new', icon:'⏳', title:'Kalan gün kartı ve erişim kontrolü eklendi', desc:'Kullanıcı girişinde program bitiş tarihi ve kalan gün görünüyor. Süresi dolan kullanıcılara otomatik blok ekranı gösteriliyor.' },
+      { type:'new', icon:'✅', title:'Uygulama Planı sayfası eklendi', desc:'Faz bazlı program takip sistemi: 4 faz, haftalar ve görevler. Her görevin durumunu Başlanmadı / Devam Ediyor / Tamamlandı olarak işaretleyebilirsin.' },
+      { type:'imp', icon:'✨', title:'Sidebar yenilendi', desc:'Tüm menü ikonları SVG\'ye çevrildi. Daha temiz, daha hızlı, retina uyumlu.' },
+    ]
+  },
+  {
+    date: '2026-04-14',
+    entries: [
+      { type:'new', icon:'⚡', title:'Güncel Aktiviteler akışı eklendi', desc:'Ana sayfada günün satışlarını, notları ve kazanımları canlı olarak gösteren aktivite akışı.' },
+      { type:'new', icon:'🏆', title:'Kazanımlar rozet sistemi güncellendi', desc:'5 seviyeli rozet sistemi: Hayatta Kalan\'dan Unicorn\'a. Her rozet belirli bir gelir eşiğini aştığında açılıyor.' },
+    ]
+  },
+  {
+    date: '2026-03-23',
+    entries: [
+      { type:'fix', icon:'🔒', title:'Güvenlik ve veri izolasyonu sağlandı', desc:'Her kullanıcı yalnızca kendi verisini görüyor. Güvenlik açıkları ve veri karışıklıkları giderildi.' },
+    ]
+  },
+];
+
+function renderGuncellemeler() {
+  const el = document.getElementById('cl-list'); if(!el) return;
+  el.innerHTML = CHANGELOG.map(group => {
+    const d = new Date(group.date + 'T00:00:00');
+    const dateStr = d.toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
+    const entries = group.entries.map(e => {
+      const tagClass = e.type==='new' ? 'cl-tag-new' : e.type==='fix' ? 'cl-tag-fix' : 'cl-tag-imp';
+      const tagLabel = e.type==='new' ? 'Yeni' : e.type==='fix' ? 'Düzeltme' : 'İyileştirme';
+      const iconClass = e.type==='new' ? 'cl-icon-new' : e.type==='fix' ? 'cl-icon-fix' : 'cl-icon-imp';
+      return `<div class="cl-entry">
+        <div class="cl-icon ${iconClass}">${e.icon}</div>
+        <div class="cl-body">
+          <span class="cl-tag ${tagClass}">${tagLabel}</span>
+          <div class="cl-title">${e.title}</div>
+          <div class="cl-desc">${e.desc}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="cl-group">
+      <div class="cl-date-label">${dateStr}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${entries}</div>
+    </div>`;
+  }).join('');
 }
 
 /* ================================================================
