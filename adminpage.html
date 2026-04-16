@@ -5274,9 +5274,10 @@ async function recordSaleInDaily(name, programName, amount) {
   const adminEmail = currentUser?.email || '';
   const noteText = programName ? `${name} – ${programName}` : name;
 
-  const { data: existing } = await sb.from('daily_entries')
-    .select('*').eq('entry_date', today).eq('user_id', adminEmail)
-    .maybeSingle();
+  const { data: rows } = await sb.from('daily_entries')
+    .select('*').eq('entry_date', today).eq('user_id', adminEmail);
+
+  const existing = rows && rows.length > 0 ? rows[0] : null;
 
   if(existing) {
     const newAlinan = (existing.alinan||0) + amount;
@@ -5284,6 +5285,7 @@ async function recordSaleInDaily(name, programName, amount) {
     await sb.from('daily_entries').update({ alinan: newAlinan, win: newWin }).eq('id', existing.id);
     const local = state.daily.find(d => String(d.id) === String(existing.id));
     if(local) { local.alinan = newAlinan; local.win = newWin; }
+    else { state.daily.unshift({ id:existing.id, date:today, dateShort:today, mood:existing.mood||'🙂', takipci:existing.takipci||0, mail:existing.mail||0, icerik:existing.icerik||0, reklam:existing.reklam||0, tpm:existing.tpm||0, hotlist:existing.hotlist||0, musteri:existing.musteri||0, teklif:existing.teklif||0, alinan:newAlinan, anlasma:existing.anlasma||0, yorum:existing.yorum||'', win:newWin }); }
   } else {
     const entry = {
       dateShort: today, mood:'🙂', takipci:0, mail:0, icerik:0,
