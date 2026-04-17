@@ -5837,13 +5837,6 @@ function showApp(){
   render();
   setTimeout(() => buildChart(data6ay), 100);
   initCal();
-
-  // Non-admin kullanıcılar direkt Mesajlar sayfasına git
-  if(currentUser.role !== 'admin'){
-    const navEl = document.getElementById('nav-mesajlar');
-    go('mesajlar', navEl);
-  }
-
   loadFromSupabase().then(() => {
     render();
     loadSalesTicker();
