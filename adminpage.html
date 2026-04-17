@@ -9064,201 +9064,170 @@ async function loadIgDailyKPIs() {
 /*
   Required Supabase tables (run once in SQL editor):
 
-  create table program_phases (
+  -- program_phases: id, title, order_index (already exists)
+  -- program_tasks: id, phase_id, title, description, order_index, is_visible
+  --   NOTE: program_tasks now references program_phases directly (no weeks layer).
+  --   Run migration if upgrading from week-based schema:
+  --     alter table program_tasks add column if not exists phase_id uuid references program_phases(id) on delete cascade;
+  --     alter table program_tasks add column if not exists description text;
+  --     alter table program_tasks add column if not exists is_visible boolean not null default true;
+  -- program_task_progress: id, user_id (email), task_id, status ('done'|'undone'), updated_at
+  --   unique(user_id, task_id)
+
+  create table if not exists program_phases (
     id uuid primary key default gen_random_uuid(),
     title text not null,
     order_index int not null default 0
   );
-  -- Example rows:
   -- insert into program_phases (title, order_index) values
   --   ('Oryantasyon, Vizyon ve Model', 1),
   --   ('Genel Kurulumlar', 2),
   --   ('İçerik Ekosistemi', 3),
   --   ('Satış ve Rakamlar', 4);
 
-  create table program_weeks (
+  create table if not exists program_tasks (
     id uuid primary key default gen_random_uuid(),
     phase_id uuid references program_phases(id) on delete cascade,
     title text not null,
-    order_index int not null default 0
+    description text,
+    order_index int not null default 0,
+    is_visible boolean not null default true
   );
 
-  create table program_tasks (
+  create table if not exists program_task_progress (
     id uuid primary key default gen_random_uuid(),
-    week_id uuid references program_weeks(id) on delete cascade,
-    title text not null,
-    level text,
-    outcome text,
-    roadmap text,
-    url text,
-    order_index int not null default 0
-  );
-
-  create table program_task_progress (
-    id uuid primary key default gen_random_uuid(),
-    user_id text not null,              -- matches currentUser.email (custom auth)
+    user_id text not null,
     task_id uuid references program_tasks(id) on delete cascade,
-    status text not null default 'not_started',
+    status text not null default 'undone',
     updated_at timestamptz default now(),
     unique(user_id, task_id)
   );
-  -- RLS: enable row level security and add policy so users can only read/write their own rows
-  -- alter table program_task_progress enable row level security;
-  -- (policy via service role or trusted check on user_id = current email)
 */
 
 // ── State ─────────────────────────────────────────────────────
 const implState = {
   phases: [],    // [{id, title, order_index}]
-  weeks: [],     // [{id, phase_id, title, order_index}]
-  tasks: [],     // [{id, week_id, title, level, outcome, roadmap, url, order_index}]
-  progress: {},  // { task_id: status }
+  tasks: [],     // [{id, phase_id, title, description, order_index, is_visible}]
+  progress: {},  // { task_id: 'done'|'undone' }
   loaded: false,
 };
 
 // ── Supabase helpers ──────────────────────────────────────────
-// Shared structure (phases/weeks/tasks) is admin-defined and read-only for users.
-// Only program_task_progress is user-specific — identified by currentUser.email,
-// matching the same user_id convention used across all other tables in this app.
+// Shared structure (phases/tasks) is admin-defined; read-only for regular users.
+// Only program_task_progress is user-specific — keyed by currentUser.email.
 
 async function implLoadAll() {
   const userEmail = currentUser?.email;
   if (!userEmail) return;
 
-  const [mRes, wRes, tRes, pRes] = await Promise.all([
-    // Shared program structure — same for all users, admin-managed
+  const [phRes, tRes, pRes] = await Promise.all([
     sb.from('program_phases').select('*').order('order_index'),
-    sb.from('program_weeks').select('*').order('order_index'),
     sb.from('program_tasks').select('*').order('order_index'),
-    // User-specific progress — isolated per user, never shared
     sb.from('program_task_progress').select('task_id,status').eq('user_id', userEmail),
   ]);
 
-  implState.phases   = mRes.data ?? [];
-  implState.weeks    = wRes.data ?? [];
+  implState.phases   = phRes.data ?? [];
   implState.tasks    = tRes.data ?? [];
   implState.progress = {};
   for (const r of (pRes.data ?? [])) implState.progress[r.task_id] = r.status;
   implState.loaded   = true;
 }
 
-async function implSetStatus(taskId, status) {
+async function implToggleTask(taskId) {
   const userEmail = currentUser?.email;
   if (!userEmail) return;
-  // Optimistic update — reflect in UI immediately, then persist
-  implState.progress[taskId] = status;
-  implRender();
-  // Writes only to this user's own progress row — other users unaffected
+  const current = implState.progress[taskId] ?? 'undone';
+  const next = current === 'done' ? 'undone' : 'done';
+  // Optimistic update
+  implState.progress[taskId] = next;
+  // Re-render just progress numbers without full rebuild to keep DOM stable
+  implRenderOverall();
+  implRefreshPhaseProgress();
+  // Persist — writes only to this user's own progress row
   await sb.from('program_task_progress').upsert(
-    { user_id: userEmail, task_id: taskId, status, updated_at: new Date().toISOString() },
+    { user_id: userEmail, task_id: taskId, status: next, updated_at: new Date().toISOString() },
     { onConflict: 'user_id,task_id' }
   );
 }
 
 // ── Progress calc ─────────────────────────────────────────────
-function implTaskStatus(taskId) {
-  return implState.progress[taskId] ?? 'not_started';
-}
-
 function implCalcProgress(taskIds) {
   if (!taskIds.length) return { done: 0, total: 0, pct: 0 };
-  const done = taskIds.filter(id => implTaskStatus(id) === 'done').length;
+  const done = taskIds.filter(id => (implState.progress[id] ?? 'undone') === 'done').length;
   return { done, total: taskIds.length, pct: Math.round(done / taskIds.length * 100) };
 }
 
+function implVisibleTasksForPhase(phaseId) {
+  return implState.tasks.filter(t => t.phase_id === phaseId && t.is_visible !== false);
+}
+
 // ── Render ────────────────────────────────────────────────────
-function implStatusIcon(status) {
-  if (status === 'done') {
-    return `<div class="impl-task-status done" title="Tamamlandı">
-      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#4caf81" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
-    </div>`;
-  }
-  if (status === 'in_progress') {
-    return `<div class="impl-task-status in_progress" title="Devam ediyor"></div>`;
-  }
-  return `<div class="impl-task-status not_started" title="Başlanmadı"></div>`;
-}
-
-function implNextStatus(s) {
-  return s === 'not_started' ? 'in_progress' : s === 'in_progress' ? 'done' : 'not_started';
-}
-
-function implBadge(val, cls) {
-  if (!val) return '';
-  return `<span class="impl-badge ${cls}">${val}</span>`;
-}
-
-function implRenderTask(task) {
-  const status = implTaskStatus(task.id);
-  const isDone = status === 'done';
-  const urlHtml = task.url
-    ? `<div class="impl-task-url"><a href="${task.url}" target="_blank" rel="noopener">
-        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9M9 2h5v5M8 8l6-6"/></svg>
-        ${task.url.replace(/^https?:\/\//, '').slice(0, 22)}…
-       </a></div>`
-    : '<div></div>';
-  return `<div class="impl-task">
-    <div onclick="implCycleStatus('${task.id}')" style="display:flex;align-items:center">${implStatusIcon(status)}</div>
-    <div class="impl-task-name${isDone ? ' done-text' : ''}">${task.title}</div>
-    <div>${implBadge(task.level, 'impl-badge-level')}</div>
-    <div>${implBadge(task.outcome, 'impl-badge-outcome')}</div>
-    <div>${implBadge(task.roadmap, 'impl-badge-roadmap')}</div>
-    ${urlHtml}
-  </div>`;
-}
-
-function implRenderWeek(week, monthIdx, weekIdx) {
-  const tasks = implState.tasks.filter(t => t.week_id === week.id);
-  const taskIds = tasks.map(t => t.id);
-  const { done, total } = implCalcProgress(taskIds);
-  const wKey = `impl-w-${week.id}`;
-  const bodyId = `impl-wb-${week.id}`;
-
-  const tasksHtml = tasks.length
-    ? `<div class="impl-tasks-header">
-        <span></span><span>Görev</span><span>Seviye</span><span>Çıktı</span><span>Yol Haritası</span><span>URL</span>
-       </div>
-       ${tasks.map(t => implRenderTask(t)).join('')}`
-    : `<div style="padding:12px 18px 12px 48px;font-size:12px;color:rgba(255,255,255,0.2)">Bu hafta için henüz görev tanımlanmamış.</div>`;
-
-  return `<div class="impl-week" id="${wKey}">
-    <div class="impl-week-header" onclick="implToggleWeek('${week.id}')">
-      <svg class="impl-week-chevron" id="impl-wc-${week.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
-      <span class="impl-week-title">${week.title}</span>
-      <span class="impl-week-count">${done}/${total} tamamlandı</span>
+function implRenderTaskRow(task) {
+  const isDone = (implState.progress[task.id] ?? 'undone') === 'done';
+  const isAdmin = currentUser?.role === 'admin';
+  const cbClass = isDone ? 'impl-task-cb checked' : 'impl-task-cb';
+  const titleClass = isDone ? 'impl-task-row-title done-text' : 'impl-task-row-title';
+  const descHtml = task.description
+    ? `<div class="impl-task-row-desc">${task.description}</div>`
+    : '';
+  const adminBtns = isAdmin
+    ? `<div class="impl-task-admin-btns">
+        <button class="impl-task-admin-btn" onclick="openImplTaskModal('${task.phase_id}','${task.id}')" title="Düzenle">düzenle</button>
+        <button class="impl-task-admin-btn danger" onclick="deleteImplTask('${task.id}')" title="Sil">sil</button>
+      </div>`
+    : '';
+  return `<div class="impl-task-row" id="impl-tr-${task.id}">
+    <div class="impl-task-cb-wrap" onclick="implToggleTask('${task.id}')">
+      <div class="${cbClass}" id="impl-cb-${task.id}">
+        <svg class="impl-task-cb-icon" width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#4caf81" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+      </div>
     </div>
-    <div class="impl-week-body" id="${bodyId}">${tasksHtml}</div>
+    <div class="impl-task-main">
+      <div class="${titleClass}">${task.title}</div>
+      ${descHtml}
+    </div>
+    ${adminBtns}
   </div>`;
 }
 
 function implRenderPhase(phase, idx) {
-  const weeks = implState.weeks.filter(w => w.phase_id === phase.id);
-  const allTaskIds = implState.tasks
-    .filter(t => weeks.some(w => w.id === t.week_id))
-    .map(t => t.id);
-  const { done, total, pct } = implCalcProgress(allTaskIds);
+  const tasks = implVisibleTasksForPhase(phase.id);
+  const taskIds = tasks.map(t => t.id);
+  const { done, total, pct } = implCalcProgress(taskIds);
   const bodyId = `impl-mb-${phase.id}`;
-  const phaseNum = idx + 1;
-  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--color-brand);opacity:0.75;flex-shrink:0">Faz ${phaseNum}</span><span style="color:rgba(255,255,255,0.2);margin:0 6px;font-size:11px">·</span>`;
+  const isAdmin = currentUser?.role === 'admin';
+  const phaseLabel = `<span style="font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--color-brand);opacity:0.75;flex-shrink:0">Faz ${idx + 1}</span><span style="color:rgba(255,255,255,0.2);margin:0 6px;font-size:11px">·</span>`;
 
-  return `<div class="impl-phase">
+  const tasksHtml = tasks.length
+    ? tasks.map(t => implRenderTaskRow(t)).join('')
+    : `<div style="padding:12px 16px 12px 48px;font-size:12px;color:rgba(255,255,255,0.2)">Bu faz için henüz görev tanımlanmamış.</div>`;
+
+  const addBtnHtml = isAdmin
+    ? `<button class="impl-add-task-btn" onclick="openImplTaskModal('${phase.id}',null)">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+        Görev Ekle
+       </button>`
+    : '';
+
+  return `<div class="impl-phase" id="impl-phase-${phase.id}">
     <div class="impl-phase-header" onclick="implTogglePhase('${phase.id}')">
       <svg class="impl-phase-chevron" id="impl-mc-${phase.id}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
       <span class="impl-phase-title">${phaseLabel}${phase.title}</span>
-      <div class="impl-phase-meta">
+      <div class="impl-phase-meta" id="impl-phase-meta-${phase.id}">
         <span class="impl-phase-prog-text">${done}/${total}</span>
         <div class="impl-phase-bar-wrap"><div class="impl-phase-bar-fill" style="width:${pct}%"></div></div>
         <span class="impl-phase-prog-text">${pct}%</span>
       </div>
     </div>
     <div class="impl-phase-body" id="${bodyId}">
-      ${weeks.map((w, wi) => implRenderWeek(w, idx, wi)).join('')}
+      ${tasksHtml}
+      ${addBtnHtml}
     </div>
   </div>`;
 }
 
 function implRenderOverall() {
-  const allIds = implState.tasks.map(t => t.id);
+  const allIds = implState.tasks.filter(t => t.is_visible !== false).map(t => t.id);
   const { done, total, pct } = implCalcProgress(allIds);
   const bar = document.getElementById('impl-progress-bar');
   const sub = document.getElementById('impl-progress-sub');
@@ -9266,7 +9235,40 @@ function implRenderOverall() {
   if (bar)   bar.style.width = pct + '%';
   if (sub)   sub.textContent = `${done} / ${total} görev tamamlandı`;
   if (pctEl) pctEl.textContent = `%${pct}`;
-  if (bar) bar.style.background = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-amber)' : 'var(--color-accent)';
+  if (bar)   bar.style.background = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-amber)' : 'var(--color-accent)';
+}
+
+function implRefreshPhaseProgress() {
+  // Update only progress numbers inside each phase header — avoids rebuilding the whole list
+  for (const phase of implState.phases) {
+    const metaEl = document.getElementById(`impl-phase-meta-${phase.id}`);
+    if (!metaEl) continue;
+    const tasks = implVisibleTasksForPhase(phase.id);
+    const { done, total, pct } = implCalcProgress(tasks.map(t => t.id));
+    metaEl.innerHTML = `<span class="impl-phase-prog-text">${done}/${total}</span>
+      <div class="impl-phase-bar-wrap"><div class="impl-phase-bar-fill" style="width:${pct}%"></div></div>
+      <span class="impl-phase-prog-text">${pct}%</span>`;
+  }
+  // Also update individual checkbox states in the DOM
+  for (const [taskId, status] of Object.entries(implState.progress)) {
+    const cb = document.getElementById(`impl-cb-${taskId}`);
+    if (!cb) continue;
+    if (status === 'done') {
+      cb.classList.add('checked');
+      const row = document.getElementById(`impl-tr-${taskId}`);
+      if (row) {
+        const titleEl = row.querySelector('.impl-task-row-title');
+        if (titleEl) { titleEl.classList.add('done-text'); }
+      }
+    } else {
+      cb.classList.remove('checked');
+      const row = document.getElementById(`impl-tr-${taskId}`);
+      if (row) {
+        const titleEl = row.querySelector('.impl-task-row-title');
+        if (titleEl) { titleEl.classList.remove('done-text'); }
+      }
+    }
+  }
 }
 
 function implRender() {
@@ -9284,7 +9286,7 @@ function implRender() {
   list.innerHTML = implState.phases.map((p, i) => implRenderPhase(p, i)).join('');
 }
 
-// ── Toggle handlers ───────────────────────────────────────────
+// ── Toggle phase expand/collapse ──────────────────────────────
 function implTogglePhase(phaseId) {
   const body = document.getElementById(`impl-mb-${phaseId}`);
   const chev = document.getElementById(`impl-mc-${phaseId}`);
@@ -9293,18 +9295,83 @@ function implTogglePhase(phaseId) {
   if (chev) chev.classList.toggle('open', open);
 }
 
-function implToggleWeek(weekId) {
-  const body = document.getElementById(`impl-wb-${weekId}`);
-  const chev = document.getElementById(`impl-wc-${weekId}`);
-  if (!body) return;
-  const open = body.classList.toggle('open');
-  if (chev) chev.classList.toggle('open', open);
+// ── Admin: Add/Edit modal ─────────────────────────────────────
+function openImplTaskModal(phaseId, taskId) {
+  const titleEl  = document.getElementById('impl-task-modal-title');
+  const idEl     = document.getElementById('impl-task-id');
+  const phaseEl  = document.getElementById('impl-task-phase-id');
+  const nameEl   = document.getElementById('impl-task-title');
+  const descEl   = document.getElementById('impl-task-desc');
+
+  if (taskId) {
+    // Edit mode
+    const task = implState.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    if (titleEl) titleEl.textContent = 'Görevi Düzenle';
+    if (idEl)    idEl.value    = task.id;
+    if (phaseEl) phaseEl.value = task.phase_id;
+    if (nameEl)  nameEl.value  = task.title;
+    if (descEl)  descEl.value  = task.description ?? '';
+  } else {
+    // Add mode
+    if (titleEl) titleEl.textContent = 'Görev Ekle';
+    if (idEl)    idEl.value    = '';
+    if (phaseEl) phaseEl.value = phaseId;
+    if (nameEl)  nameEl.value  = '';
+    if (descEl)  descEl.value  = '';
+  }
+  openModal('modal-impl-task');
+  setTimeout(() => { if (nameEl) nameEl.focus(); }, 80);
 }
 
-function implCycleStatus(taskId) {
-  const current = implTaskStatus(taskId);
-  const next = implNextStatus(current);
-  implSetStatus(taskId, next);
+async function saveImplTask() {
+  const idEl    = document.getElementById('impl-task-id');
+  const phaseEl = document.getElementById('impl-task-phase-id');
+  const nameEl  = document.getElementById('impl-task-title');
+  const descEl  = document.getElementById('impl-task-desc');
+
+  const title       = (nameEl?.value ?? '').trim();
+  const description = (descEl?.value ?? '').trim() || null;
+  const phase_id    = phaseEl?.value ?? '';
+
+  if (!title) { if (nameEl) nameEl.focus(); return; }
+
+  const taskId = idEl?.value ?? '';
+
+  if (taskId) {
+    // Update existing task
+    const { error } = await sb.from('program_tasks')
+      .update({ title, description })
+      .eq('id', taskId);
+    if (!error) {
+      const t = implState.tasks.find(t => t.id === taskId);
+      if (t) { t.title = title; t.description = description; }
+    }
+  } else {
+    // Insert new task
+    const maxOrder = implState.tasks
+      .filter(t => t.phase_id === phase_id)
+      .reduce((m, t) => Math.max(m, t.order_index ?? 0), 0);
+    const { data, error } = await sb.from('program_tasks')
+      .insert({ phase_id, title, description, order_index: maxOrder + 1, is_visible: true })
+      .select()
+      .single();
+    if (!error && data) {
+      implState.tasks.push(data);
+    }
+  }
+
+  closeModal('modal-impl-task');
+  implRender();
+}
+
+async function deleteImplTask(taskId) {
+  if (!confirm('Bu görevi silmek istediğinizden emin misiniz?')) return;
+  const { error } = await sb.from('program_tasks').delete().eq('id', taskId);
+  if (!error) {
+    implState.tasks = implState.tasks.filter(t => t.id !== taskId);
+    implRender();
+  }
 }
 
 // ── Entry point ───────────────────────────────────────────────
