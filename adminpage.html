@@ -1789,6 +1789,44 @@ select option { background: #232323; color: #e8e8e6; }
   border-top: 1px solid rgba(255,255,255,0.04);
 }
 .impl-tasks-header span { font-size: 10px; font-weight: 600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* New flat task row (phase → tasks directly, no weeks layer) */
+.impl-task-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 16px 9px 48px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.1s;
+}
+.impl-task-row:hover { background: rgba(255,255,255,0.02); }
+.impl-task-row:hover .impl-task-admin-btns { opacity: 1; }
+.impl-task-cb-wrap { flex-shrink:0; margin-top:1px; cursor:pointer; }
+.impl-task-cb {
+  width:17px; height:17px; border-radius:4px; border:2px solid rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  transition: border-color 0.15s, background 0.15s; cursor:pointer; flex-shrink:0;
+}
+.impl-task-cb.checked { border-color:#4caf81; background:rgba(76,175,129,0.15); }
+.impl-task-cb-icon { display:none; }
+.impl-task-cb.checked .impl-task-cb-icon { display:block; }
+.impl-task-main { flex:1; min-width:0; }
+.impl-task-row-title { font-size:13px; color:var(--color-text-primary); line-height:1.4; }
+.impl-task-row-title.done-text { color:var(--color-text-muted); text-decoration:line-through; }
+.impl-task-row-desc { font-size:11.5px; color:var(--color-text-muted); margin-top:2px; line-height:1.4; }
+.impl-task-admin-btns { display:flex; gap:6px; flex-shrink:0; opacity:0; transition:opacity 0.15s; align-self:center; }
+.impl-task-admin-btn {
+  font-size:11px; color:var(--color-text-muted); background:none; border:none; cursor:pointer;
+  padding:2px 6px; border-radius:4px; transition:color 0.15s, background 0.15s;
+}
+.impl-task-admin-btn:hover { color:var(--color-text-primary); background:rgba(255,255,255,0.06); }
+.impl-task-admin-btn.danger:hover { color:#e05555; background:rgba(224,85,85,0.08); }
+.impl-add-task-btn {
+  display:flex; align-items:center; gap:6px; font-size:12px; color:var(--color-text-muted);
+  background:none; border:1px dashed rgba(255,255,255,0.1); border-radius:8px;
+  margin:10px 16px 10px 48px; padding:7px 12px; cursor:pointer; transition:all 0.15s;
+  width:calc(100% - 64px);
+}
+.impl-add-task-btn:hover { color:var(--color-text-primary); border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.03); }
+
 .ig-info-box {
   background: rgba(193,100,200,0.06); border: 1px solid rgba(193,100,200,0.15);
   border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 16px;
@@ -3379,6 +3417,32 @@ select option { background: #232323; color: #e8e8e6; }
         <div class="impl-loading">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
           Veriler yükleniyor…
+        </div>
+      </div>
+    </div>
+
+    <!-- Implementation Task Add/Edit Modal -->
+    <div class="modal-bg" id="modal-impl-task" onclick="if(event.target===this)closeModal('modal-impl-task')">
+      <div class="modal" style="max-width:480px">
+        <div class="modal-head">
+          <div class="modal-title" id="impl-task-modal-title">Görev Ekle</div>
+          <button class="modal-close" onclick="closeModal('modal-impl-task')">✕</button>
+        </div>
+        <input type="hidden" id="impl-task-id"/>
+        <input type="hidden" id="impl-task-phase-id"/>
+        <div class="form-group">
+          <label class="form-label">Görev Başlığı</label>
+          <input class="form-input" id="impl-task-title" placeholder="Görev başlığı..."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Açıklama (opsiyonel)</label>
+          <textarea class="form-input" id="impl-task-desc" rows="2" style="resize:none" placeholder="Kısa açıklama..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <div style="display:flex;gap:8px;margin-left:auto">
+            <button class="btn btn-ghost" onclick="closeModal('modal-impl-task')">İptal</button>
+            <button class="btn btn-primary" onclick="saveImplTask()">Kaydet</button>
+          </div>
         </div>
       </div>
     </div>
