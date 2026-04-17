@@ -1909,6 +1909,35 @@ select option { background: #232323; color: #e8e8e6; }
 .cr-teklif-label { font-size:11px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.4px; }
 .cr-teklif-value { font-size:15px; font-weight:600; color:var(--color-text-primary); }
 
+/* ===== CLASSROOM / EĞİTİM ===== */
+.egitim-card { background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:14px; overflow:hidden; cursor:pointer; transition:border-color .15s, transform .12s; }
+.egitim-card:hover { border-color:var(--color-accent); transform:translateY(-2px); }
+.egitim-card-cover { height:128px; background:linear-gradient(135deg,#1a2a3a 0%,#0d1a26 100%); display:flex; align-items:center; justify-content:center; font-size:40px; position:relative; }
+.egitim-card-body { padding:16px; }
+.egitim-card-title { font-size:14px; font-weight:600; color:var(--color-text-primary); margin-bottom:5px; line-height:1.35; }
+.egitim-card-desc { font-size:12px; color:var(--color-text-muted); margin-bottom:12px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.egitim-card-bar-bg { height:4px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
+.egitim-card-bar-fill { height:100%; border-radius:99px; background:var(--color-accent); transition:width .4s; }
+.egitim-card-meta { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color:var(--color-text-muted); }
+.egitim-add-card { background:transparent; border:1px dashed rgba(255,255,255,0.12); border-radius:14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:192px; transition:border-color .15s, background .15s; color:var(--color-text-muted); }
+.egitim-add-card:hover { border-color:var(--color-accent); background:rgba(74,158,255,0.04); color:var(--color-accent); }
+.egitim-locked-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; font-size:22px; }
+.egitim-detail-wrap { display:flex; gap:0; margin:-24px; height:calc(100vh - 56px); overflow:hidden; }
+.egitim-nav-panel { width:272px; min-width:272px; border-right:1px solid var(--color-border); overflow-y:auto; background:var(--color-bg); display:flex; flex-direction:column; }
+.egitim-nav-header { padding:16px; border-bottom:1px solid var(--color-divider); }
+.egitim-nav-back { background:none; border:none; color:var(--color-text-muted); cursor:pointer; font-size:12px; padding:0; display:flex; align-items:center; gap:5px; margin-bottom:10px; font-family:inherit; }
+.egitim-nav-back:hover { color:var(--color-text-primary); }
+.egitim-nav-body { flex:1; overflow-y:auto; padding:8px 0; }
+.egitim-topic-hd { padding:8px 16px; font-size:11px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; justify-content:space-between; }
+.egitim-lesson-item { padding:8px 16px 8px 24px; font-size:13px; color:var(--color-text-secondary); cursor:pointer; display:flex; align-items:center; gap:8px; border-left:2px solid transparent; transition:background .1s; }
+.egitim-lesson-item:hover { background:var(--color-surface); color:var(--color-text-primary); }
+.egitim-lesson-item.active { background:var(--color-surface); color:var(--color-text-primary); border-left-color:var(--color-accent); font-weight:500; }
+.egitim-content-panel { flex:1; overflow-y:auto; padding:32px 36px; }
+.egitim-video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; margin-bottom:20px; background:#111; }
+.egitim-video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
+.egitim-sub-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+@media (max-width:700px) { .egitim-detail-wrap { flex-direction:column; height:auto; } .egitim-nav-panel { width:100%; min-width:0; border-right:none; border-bottom:1px solid var(--color-border); max-height:260px; } }
+
 </style>
 <body>
 
@@ -2044,26 +2073,9 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
-    <!-- EĞİTİM ACCORDION -->
-    <div class="nav-group" id="navgroup-egitim">
-      <div class="nav-group-hd" onclick="toggleNavGroup('egitim')">
-        Eğitim
-        <svg class="nav-group-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
-      </div>
-      <div class="nav-group-bd" id="navgroupbd-egitim">
-        <div class="nav-item" onclick="go('egitim',this)">
-          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L2 5l6 3 6-3-6-3z"/><path d="M2 5v5c0 1.5 2.5 3 6 3s6-1.5 6-3V5"/></svg>
-          Dersler
-        </div>
-        <div class="nav-item admin-only" onclick="go('egitim-yonetim',this)">
-          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v2.5l1.5 1.5"/></svg>
-          Eğitim İçerikleri
-        </div>
-        <div class="nav-item admin-only" onclick="go('egitim-onay',this)">
-          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
-          Onay Bekleyenler
-        </div>
-      </div>
+    <div class="nav-item" onclick="go('egitim',this)">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L2 5l6 3 6-3-6-3z"/><path d="M2 5v5c0 1.5 2.5 3 6 3s6-1.5 6-3V5"/></svg>
+      Dersler
     </div>
 
     <div class="nav-divider"></div>
@@ -3304,65 +3316,63 @@ select option { background: #232323; color: #e8e8e6; }
     </div>
 
 
-    <!-- ===== EĞİTİM / CLASSROOM ===== -->
+    <!-- ===== DERSLER / CLASSROOM ===== -->
     <div class="page" id="page-egitim">
-      <div class="page-head">
-        <div>
-          <div class="page-title">📚 Eğitim</div>
-          <div class="page-sub">Modülleri tamamlayarak ilerle</div>
+      <!-- Grid View -->
+      <div id="egitim-grid-view">
+        <div class="page-head" style="margin-bottom:20px">
+          <div>
+            <div class="page-title">📚 Dersler</div>
+            <div class="page-sub">Seviyeni seç, ilerlemeye başla</div>
+          </div>
+          <button class="btn btn-ghost admin-only" style="font-size:12px;gap:6px" id="egitim-onay-toggle-btn" onclick="egitimToggleOnay()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
+            Onay Bekleyenler
+          </button>
+        </div>
+        <div id="egitim-module-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px"></div>
+        <div id="egitim-onay-panel" style="display:none;margin-top:28px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--color-divider);color:var(--color-text-primary)">Onay Bekleyen Gönderimler</div>
+          <div id="egitim-submissions-list"></div>
         </div>
       </div>
-      <div id="egitim-module-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
-      <!-- Ders görünümü (overlay gibi) -->
-      <div id="egitim-lesson-view" style="display:none;margin-top:8px">
-        <button onclick="egitimBack()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:13px;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:6px">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> Geri
-        </button>
-        <div id="egitim-lesson-content"></div>
+      <!-- Classroom Detail View -->
+      <div id="egitim-detail-view" style="display:none">
+        <div class="egitim-detail-wrap">
+          <div class="egitim-nav-panel" id="egitim-nav-panel"></div>
+          <div class="egitim-content-panel" id="egitim-content-panel">
+            <div style="color:var(--color-text-muted);font-size:14px;padding-top:40px;text-align:center">← Sol menüden bir ders seç</div>
+          </div>
+        </div>
       </div>
-      <!-- Modül tamamlama formu -->
-      <div id="egitim-form-view" style="display:none;margin-top:8px;max-width:600px">
-        <button onclick="egitimBack()" style="background:none;border:none;color:var(--color-text-muted);cursor:pointer;font-size:13px;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:6px">
+      <!-- Submission Form View -->
+      <div id="egitim-form-view" style="display:none;max-width:600px">
+        <button onclick="egitimBack()" class="egitim-nav-back" style="margin-bottom:20px;font-size:13px">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> Geri
         </button>
         <div id="egitim-form-content"></div>
       </div>
     </div>
 
-    <!-- ===== EĞİTİM YÖNETİM (admin) ===== -->
-    <div class="page admin-only" id="page-egitim-yonetim">
-      <div class="page-head">
-        <div><div class="page-title">Eğitim İçerikleri</div></div>
-        <button class="btn btn-primary" onclick="openEgitimModulModal()">+ Modül Ekle</button>
-      </div>
-      <div id="egitim-admin-list"></div>
-    </div>
-
-    <!-- ===== EĞİTİM ONAY (admin) ===== -->
-    <div class="page admin-only" id="page-egitim-onay">
-      <div class="page-head">
-        <div><div class="page-title">Onay Bekleyenler</div></div>
-      </div>
-      <div id="egitim-submissions-list"></div>
-    </div>
-
-    <!-- Modül modal -->
+    <!-- Seviye/Modül modal -->
     <div class="modal-bg" id="modal-egitim-modul" onclick="if(event.target===this)closeModal('modal-egitim-modul')">
-      <div class="modal" style="max-width:480px">
+      <div class="modal" style="max-width:460px">
         <div class="modal-hd">
-          <div class="modal-title" id="egitim-modul-modal-title">Yeni Modül</div>
+          <div class="modal-title" id="egitim-modul-modal-title">Yeni Seviye</div>
           <button class="modal-close" onclick="closeModal('modal-egitim-modul')">✕</button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="em-id" />
-          <label class="form-label">Modül Adı</label>
+          <label class="form-label">Seviye / Modül Adı</label>
           <input class="form-input" id="em-title" placeholder="Örn: Seviye 1 — Temel Kavramlar" style="margin-bottom:12px"/>
-          <label class="form-label">Açıklama</label>
-          <textarea class="form-input" id="em-desc" rows="3" style="resize:none;margin-bottom:12px" placeholder="Kısa açıklama..."></textarea>
+          <label class="form-label">Kısa Açıklama</label>
+          <textarea class="form-input" id="em-desc" rows="2" style="resize:none;margin-bottom:12px" placeholder="Bu seviyede neler öğrenilecek?"></textarea>
+          <label class="form-label">Kapak Emoji / İkon</label>
+          <input class="form-input" id="em-icon" placeholder="📚" style="margin-bottom:12px;max-width:80px"/>
           <label class="form-label">Sıra</label>
-          <input class="form-input" id="em-order" type="number" value="1" style="margin-bottom:12px"/>
-          <label class="form-label" style="display:flex;align-items:center;gap:8px">
-            <input type="checkbox" id="em-visible" checked /> Görünür
+          <input class="form-input" id="em-order" type="number" value="1" style="margin-bottom:12px;max-width:100px"/>
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="em-visible" checked /> Yayında
           </label>
         </div>
         <div class="modal-ft">
@@ -3372,21 +3382,21 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
-    <!-- Konu modal -->
+    <!-- Bölüm/Konu modal -->
     <div class="modal-bg" id="modal-egitim-konu" onclick="if(event.target===this)closeModal('modal-egitim-konu')">
-      <div class="modal" style="max-width:420px">
+      <div class="modal" style="max-width:400px">
         <div class="modal-hd">
-          <div class="modal-title" id="egitim-konu-modal-title">Yeni Konu</div>
+          <div class="modal-title" id="egitim-konu-modal-title">Yeni Bölüm</div>
           <button class="modal-close" onclick="closeModal('modal-egitim-konu')">✕</button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="ek-id" />
           <input type="hidden" id="ek-module-id" />
-          <label class="form-label">Konu Adı</label>
-          <input class="form-input" id="ek-title" placeholder="Konu başlığı..." style="margin-bottom:12px"/>
+          <label class="form-label">Bölüm Adı</label>
+          <input class="form-input" id="ek-title" placeholder="Bölüm başlığı..." style="margin-bottom:12px"/>
           <label class="form-label">Sıra</label>
-          <input class="form-input" id="ek-order" type="number" value="1" style="margin-bottom:12px"/>
-          <label class="form-label" style="display:flex;align-items:center;gap:8px">
+          <input class="form-input" id="ek-order" type="number" value="1" style="margin-bottom:12px;max-width:100px"/>
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
             <input type="checkbox" id="ek-visible" checked /> Görünür
           </label>
         </div>
@@ -3399,7 +3409,7 @@ select option { background: #232323; color: #e8e8e6; }
 
     <!-- Ders modal -->
     <div class="modal-bg" id="modal-egitim-ders" onclick="if(event.target===this)closeModal('modal-egitim-ders')">
-      <div class="modal" style="max-width:520px">
+      <div class="modal" style="max-width:500px">
         <div class="modal-hd">
           <div class="modal-title" id="egitim-ders-modal-title">Yeni Ders</div>
           <button class="modal-close" onclick="closeModal('modal-egitim-ders')">✕</button>
@@ -3409,17 +3419,21 @@ select option { background: #232323; color: #e8e8e6; }
           <input type="hidden" id="ed2-topic-id" />
           <label class="form-label">Ders Başlığı</label>
           <input class="form-input" id="ed2-title" placeholder="Ders başlığı..." style="margin-bottom:12px"/>
-          <label class="form-label">Açıklama</label>
-          <textarea class="form-input" id="ed2-desc" rows="3" style="resize:none;margin-bottom:12px" placeholder="Ders içeriği / açıklama..."></textarea>
+          <label class="form-label">Açıklama / Notlar</label>
+          <textarea class="form-input" id="ed2-desc" rows="3" style="resize:none;margin-bottom:12px" placeholder="Ders içeriği..."></textarea>
           <label class="form-label">Video URL (Vimeo / YouTube)</label>
-          <input class="form-input" id="ed2-video" placeholder="https://..." style="margin-bottom:12px"/>
+          <input class="form-input" id="ed2-video" placeholder="https://vimeo.com/..." style="margin-bottom:12px"/>
           <label class="form-label">Kaynak URL</label>
           <input class="form-input" id="ed2-resource" placeholder="https://..." style="margin-bottom:12px"/>
-          <label class="form-label">Sıra</label>
-          <input class="form-input" id="ed2-order" type="number" value="1" style="margin-bottom:12px"/>
-          <label class="form-label" style="display:flex;align-items:center;gap:8px">
-            <input type="checkbox" id="ed2-visible" checked /> Görünür
-          </label>
+          <div style="display:flex;gap:12px;align-items:flex-end">
+            <div style="flex:1">
+              <label class="form-label">Sıra</label>
+              <input class="form-input" id="ed2-order" type="number" value="1"/>
+            </div>
+            <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding-bottom:2px">
+              <input type="checkbox" id="ed2-visible" checked /> Görünür
+            </label>
+          </div>
         </div>
         <div class="modal-ft">
           <button class="btn btn-ghost" onclick="closeModal('modal-egitim-ders')">İptal</button>
@@ -4285,8 +4299,7 @@ function showDailyWelcome(){
 
 const NAV_GROUPS = {
   operasyon: ['musteri-yonetimi','health','musteriler','client-reports','leads'],
-  istakibi:  ['goals','competitors','teklifler'],
-  egitim:    ['egitim','egitim-yonetim','egitim-onay']
+  istakibi:  ['goals','competitors','teklifler']
 };
 
 function toggleNavGroup(name) {
@@ -4329,8 +4342,6 @@ function go(id,el){
   if(id==='barista') setTimeout(loadToolboxItems, 50);
   if(id==='odevler') setTimeout(loadOdevler, 50);
   if(id==='egitim') setTimeout(loadEgitim, 50);
-  if(id==='egitim-yonetim') setTimeout(loadEgitimYonetim, 50);
-  if(id==='egitim-onay') setTimeout(loadEgitimOnay, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -9129,150 +9140,224 @@ let egitimTopics  = [];
 let egitimLessons = [];
 let egitimAccess  = [];
 let egitimSubs    = [];
-let egitimView    = 'modules'; // modules | lesson
+let egitimCurrentModule = null;
+let egitimCurrentLesson = null;
 
 async function loadEgitim() {
   const email = currentUser?.email;
   if (!email) return;
+  const subsQuery = isAdmin
+    ? sb.from('training_module_submissions').select('*').order('created_at', { ascending: false })
+    : sb.from('training_module_submissions').select('*').eq('user_id', email);
   const [mR, tR, lR, aR, sR] = await Promise.all([
     sb.from('training_modules').select('*').order('order_index'),
     sb.from('training_topics').select('*').order('order_index'),
     sb.from('training_lessons').select('*').order('order_index'),
     sb.from('user_module_access').select('*').eq('user_id', email),
-    sb.from('training_module_submissions').select('*').eq('user_id', email),
+    subsQuery,
   ]);
   egitimModules = mR.data || [];
   egitimTopics  = tR.data || [];
   egitimLessons = lR.data || [];
   egitimAccess  = aR.data || [];
   egitimSubs    = sR.data || [];
-  egitimView = 'modules';
-  renderEgitimModules();
+  egitimShowGrid();
 }
 
-function renderEgitimModules() {
-  document.getElementById('egitim-lesson-view').style.display = 'none';
+// ===== VIEW HELPERS =====
+function egitimShowGrid() {
+  document.getElementById('egitim-grid-view').style.display = '';
+  document.getElementById('egitim-detail-view').style.display = 'none';
   document.getElementById('egitim-form-view').style.display = 'none';
+  renderEgitimGrid();
+}
+
+function egitimBack() {
+  if (egitimCurrentModule) {
+    egitimCurrentLesson = null;
+    egitimShowDetail(egitimCurrentModule);
+  } else {
+    egitimCurrentModule = null;
+    egitimShowGrid();
+  }
+}
+
+// ===== GRID VIEW =====
+function renderEgitimGrid() {
   const el = document.getElementById('egitim-module-list');
-  el.style.display = '';
-  const visible = egitimModules.filter(m => m.is_visible !== false);
-  if (!visible.length) { el.innerHTML = '<div class="empty" style="padding:40px">Henüz modül eklenmedi.</div>'; return; }
-  el.innerHTML = visible.map((m, idx) => {
+  const visibleMods = egitimModules.filter(m => isAdmin || m.is_visible !== false);
+  const cards = visibleMods.map((m, idx) => {
     const access = egitimAccess.find(a => a.module_id === m.id);
-    const isFirst = idx === 0;
-    const unlocked = isFirst || (access && access.unlocked);
+    const unlocked = isAdmin || idx === 0 || (access && access.unlocked);
     const completed = access && access.completed;
-    const sub = egitimSubs.find(s => s.module_id === m.id && s.user_id === currentUser.email);
+    const sub = egitimSubs.find(s => s.module_id === m.id && s.user_id === currentUser?.email);
     const subStatus = sub ? sub.status : null;
-    const topics = egitimTopics.filter(t => t.module_id === m.id && t.is_visible !== false);
-    const lessonCount = topics.reduce((n, t) => n + egitimLessons.filter(l => l.topic_id === t.id && l.is_visible !== false).length, 0);
-    let badge = '';
-    if (completed) badge = `<span style="background:rgba(76,175,129,0.15);color:#4caf81;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">✓ Tamamlandı</span>`;
-    else if (subStatus === 'incelemede') badge = `<span style="background:rgba(224,165,83,0.12);color:var(--color-amber);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">⏳ İncelemede</span>`;
-    else if (subStatus === 'revize') badge = `<span style="background:rgba(229,115,115,0.12);color:#e57373;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">↩ Revize Gerekli</span>`;
-    else if (!unlocked) badge = `<span style="background:rgba(107,105,99,0.15);color:var(--color-text-muted);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">🔒 Kilitli</span>`;
-    return `<div onclick="${unlocked ? `openEgitimModule(${m.id})` : ''}" style="background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:14px;padding:22px 20px;cursor:${unlocked ? 'pointer' : 'default'};opacity:${unlocked ? 1 : 0.55};transition:border-color .15s" onmouseover="if(${unlocked})this.style.borderColor='var(--color-accent)'" onmouseout="this.style.borderColor='var(--color-border)'">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px">
-        <div style="font-size:16px;font-weight:700;color:var(--color-text-primary);line-height:1.3">${escHtml(m.title)}</div>
-        ${badge}
+    const topics = egitimTopics.filter(t => t.module_id === m.id && (isAdmin || t.is_visible !== false));
+    const lessonCount = topics.reduce((n,t) => n + egitimLessons.filter(l => l.topic_id === t.id && (isAdmin || l.is_visible !== false)).length, 0);
+    const icon = m.icon || '📚';
+    let statusBadge = '';
+    if (completed) statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(76,175,129,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">✓ Tamam</div>`;
+    else if (subStatus==='incelemede') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(224,165,83,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">⏳ İnceleniyor</div>`;
+    else if (subStatus==='revize') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(229,115,115,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">↩ Revize</div>`;
+    const adminBtns = isAdmin ? `<div style="display:flex;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
+      <button onclick="event.stopPropagation();openEgitimModulModal(${m.id})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-text-muted);padding:2px 6px;font-family:inherit">✏️ Düzenle</button>
+      <button onclick="event.stopPropagation();deleteEgitimModul(${m.id})" style="background:none;border:none;cursor:pointer;font-size:11px;color:#e57373;padding:2px 6px;font-family:inherit">🗑 Sil</button>
+    </div>` : '';
+    return `<div class="egitim-card" onclick="${unlocked?`egitimOpenModule(${m.id})`:'void(0)'}" style="${!unlocked&&!isAdmin?'opacity:0.55;cursor:default;pointer-events:none':''}">
+      <div class="egitim-card-cover">
+        <span>${icon}</span>
+        ${!unlocked&&!isAdmin?'<div class="egitim-locked-overlay">🔒</div>':''}
+        ${statusBadge}
+        ${!m.is_visible&&isAdmin?'<div style="position:absolute;bottom:8px;left:10px;font-size:10px;background:rgba(0,0,0,0.7);color:#aaa;padding:2px 7px;border-radius:6px">Gizli</div>':''}
       </div>
-      ${m.description ? `<div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px;line-height:1.5">${escHtml(m.description)}</div>` : ''}
-      <div style="font-size:12px;color:var(--color-text-muted)">${topics.length} konu · ${lessonCount} ders</div>
+      <div class="egitim-card-body">
+        <div class="egitim-card-title">${escHtml(m.title)}</div>
+        ${m.description?`<div class="egitim-card-desc">${escHtml(m.description)}</div>`:''}
+        <div class="egitim-card-bar-bg"><div class="egitim-card-bar-fill" style="width:${completed?100:0}%"></div></div>
+        <div class="egitim-card-meta"><span>${topics.length} bölüm · ${lessonCount} ders</span>${completed?'<span style="color:#4caf81">Tamamlandı</span>':''}</div>
+        ${adminBtns}
+      </div>
     </div>`;
-  }).join('');
+  });
+  if (isAdmin) {
+    cards.push(`<div class="egitim-add-card" onclick="openEgitimModulModal()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      <span style="font-size:13px;font-weight:500">Yeni Seviye Ekle</span>
+    </div>`);
+  }
+  el.innerHTML = cards.join('');
 }
 
-function openEgitimModule(moduleId) {
-  document.getElementById('egitim-module-list').style.display = 'none';
+// ===== DETAIL VIEW (classroom) =====
+function egitimOpenModule(moduleId) {
+  egitimCurrentModule = moduleId;
+  egitimCurrentLesson = null;
+  egitimShowDetail(moduleId);
+}
+
+function egitimShowDetail(moduleId) {
+  document.getElementById('egitim-grid-view').style.display = 'none';
   document.getElementById('egitim-form-view').style.display = 'none';
-  const lv = document.getElementById('egitim-lesson-view');
-  lv.style.display = '';
+  document.getElementById('egitim-detail-view').style.display = '';
+  renderEgitimNav(moduleId);
+  if (egitimCurrentLesson) {
+    renderEgitimLessonContent(egitimCurrentLesson);
+  } else {
+    renderEgitimModuleIntro(moduleId);
+  }
+}
+
+function renderEgitimNav(moduleId) {
   const m = egitimModules.find(x => x.id === moduleId);
-  const topics = egitimTopics.filter(t => t.module_id === moduleId && t.is_visible !== false);
+  const topics = egitimTopics.filter(t => t.module_id === moduleId && (isAdmin || t.is_visible !== false));
   const access = egitimAccess.find(a => a.module_id === moduleId);
   const completed = access && access.completed;
-  const sub = egitimSubs.find(s => s.module_id === moduleId && s.user_id === currentUser.email);
-  const subStatus = sub ? sub.status : null;
-  let formBtn = '';
-  if (!completed && subStatus !== 'incelemede') {
-    formBtn = `<button class="btn btn-primary" style="margin-top:24px" onclick="openEgitimForm(${moduleId})">Modülü Tamamla →</button>`;
-  } else if (subStatus === 'incelemede') {
-    formBtn = `<div style="margin-top:24px;padding:14px 18px;background:rgba(224,165,83,0.08);border:1px solid rgba(224,165,83,0.2);border-radius:10px;font-size:13px;color:var(--color-amber)">⏳ Formu gönderdin, admin inceliyor…</div>`;
-  } else if (completed) {
-    formBtn = `<div style="margin-top:24px;padding:14px 18px;background:var(--color-green-light);border:1px solid rgba(76,175,129,0.2);border-radius:10px;font-size:13px;color:#4caf81">✓ Bu modülü tamamladın!</div>`;
-  }
-  document.getElementById('egitim-lesson-content').innerHTML = `
-    <div style="margin-bottom:20px">
-      <div style="font-size:20px;font-weight:700;margin-bottom:6px">${escHtml(m.title)}</div>
-      ${m.description ? `<div style="font-size:14px;color:var(--color-text-secondary)">${escHtml(m.description)}</div>` : ''}
-    </div>
-    ${topics.length ? topics.map(t => {
-      const lessons = egitimLessons.filter(l => l.topic_id === t.id && l.is_visible !== false);
-      return `<div style="margin-bottom:20px">
-        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--color-divider)">${escHtml(t.title)}</div>
-        ${lessons.length ? lessons.map(l => `
-          <div onclick="openEgitimLesson(${l.id})" style="padding:12px 14px;background:var(--color-surface);border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--color-surface-hover)'" onmouseout="this.style.background='var(--color-surface)'">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M6.5 5.5l4 2.5-4 2.5V5.5z" fill="currentColor" stroke="none"/></svg>
-            <span style="font-size:13px;font-weight:500">${escHtml(l.title)}</span>
-          </div>`).join('') : '<div style="font-size:12px;color:var(--color-text-muted);padding:8px 0">Ders yok</div>'}
+  const adminTopicBtn = isAdmin ? `<button onclick="openEgitimKonuModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-accent);padding:2px 6px;font-family:inherit">+ Bölüm</button>` : '';
+  let html = `<div class="egitim-nav-header">
+    <button class="egitim-nav-back" onclick="egitimShowGrid()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> Dersler
+    </button>
+    <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);line-height:1.3;margin-bottom:8px">${escHtml(m?.title||'')}</div>
+    <div class="egitim-card-bar-bg"><div class="egitim-card-bar-fill" style="width:${completed?100:0}%"></div></div>
+    ${isAdmin?`<div style="display:flex;gap:4px;margin-top:8px"><button onclick="openEgitimModulModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-text-muted);padding:0;font-family:inherit">✏️ Düzenle</button>${adminTopicBtn}</div>`:''}
+  </div>
+  <div class="egitim-nav-body">`;
+  topics.forEach(t => {
+    const lessons = egitimLessons.filter(l => l.topic_id === t.id && (isAdmin || l.is_visible !== false));
+    const adminLessonBtn = isAdmin ? `<button onclick="openEgitimDersModal(${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-accent);padding:1px 4px;font-family:inherit">+</button>
+      <button onclick="openEgitimKonuModal(${moduleId},${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-text-muted);padding:1px 4px;font-family:inherit">✏️</button>
+      <button onclick="deleteEgitimKonu(${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:#e57373;padding:1px 4px;font-family:inherit">✕</button>` : '';
+    html += `<div class="egitim-topic-hd"><span>${escHtml(t.title)}</span><div style="display:flex;gap:2px">${adminLessonBtn}</div></div>`;
+    lessons.forEach(l => {
+      const active = egitimCurrentLesson === l.id;
+      const adminDersBtns = isAdmin ? `<span style="display:flex;gap:2px;flex-shrink:0">
+        <button onclick="event.stopPropagation();openEgitimDersModal(${t.id},${l.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-text-muted);padding:1px 3px;font-family:inherit">✏️</button>
+        <button onclick="event.stopPropagation();deleteEgitimDers(${l.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:#e57373;padding:1px 3px;font-family:inherit">✕</button>
+      </span>` : '';
+      html += `<div class="egitim-lesson-item${active?' active':''}" onclick="egitimSelectLesson(${l.id})">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0"><circle cx="8" cy="8" r="6"/><path d="M6.5 5.5l4 2.5-4 2.5V5.5z" fill="currentColor" stroke="none"/></svg>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(l.title)}</span>
+        ${adminDersBtns}
       </div>`;
-    }).join('') : '<div class="empty" style="padding:24px">Bu modülde konu yok</div>'}
-    ${formBtn}
-  `;
+    });
+    if (!lessons.length && isAdmin) {
+      html += `<div style="padding:6px 24px;font-size:11px;color:var(--color-text-muted);font-style:italic">Ders yok</div>`;
+    }
+  });
+  if (!topics.length) html += `<div style="padding:16px;font-size:12px;color:var(--color-text-muted)">${isAdmin?'Bölüm ekle →':'İçerik yükleniyor…'}</div>`;
+  html += '</div>';
+  document.getElementById('egitim-nav-panel').innerHTML = html;
 }
 
-function openEgitimLesson(lessonId) {
+function renderEgitimModuleIntro(moduleId) {
+  const m = egitimModules.find(x => x.id === moduleId);
+  const access = egitimAccess.find(a => a.module_id === moduleId);
+  const completed = access && access.completed;
+  const sub = egitimSubs.find(s => s.module_id === moduleId && s.user_id === currentUser?.email);
+  const subStatus = sub ? sub.status : null;
+  let actionHtml = '';
+  if (!isAdmin) {
+    if (completed) actionHtml = `<div style="padding:14px 18px;background:var(--color-green-light);border:1px solid rgba(76,175,129,0.2);border-radius:10px;font-size:13px;color:#4caf81;margin-top:24px">✓ Bu seviyeyi tamamladın!</div>`;
+    else if (subStatus==='incelemede') actionHtml = `<div style="padding:14px 18px;background:rgba(224,165,83,0.08);border:1px solid rgba(224,165,83,0.2);border-radius:10px;font-size:13px;color:var(--color-amber);margin-top:24px">⏳ Formun gönderildi, admin inceliyor…</div>`;
+    else if (subStatus==='revize') actionHtml = `<div style="margin-top:24px"><div style="padding:12px 16px;background:rgba(229,115,115,0.08);border-radius:10px;font-size:13px;color:#e57373;margin-bottom:12px">↩ Revize gerekli${sub.admin_note?`: ${escHtml(sub.admin_note)}`:''}</div><button class="btn btn-primary" onclick="openEgitimForm(${moduleId})">Tekrar Gönder</button></div>`;
+    else actionHtml = `<button class="btn btn-primary" style="margin-top:24px" onclick="openEgitimForm(${moduleId})">Seviyeyi Tamamla →</button>`;
+  }
+  document.getElementById('egitim-content-panel').innerHTML = `
+    <div style="max-width:680px">
+      <div style="font-size:22px;font-weight:700;margin-bottom:10px;line-height:1.3">${escHtml(m?.title||'')}</div>
+      ${m?.description?`<div style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:16px">${escHtml(m.description)}</div>`:''}
+      <div style="font-size:13px;color:var(--color-text-muted)">Sol menüden bir ders seçerek başla.</div>
+      ${actionHtml}
+    </div>`;
+}
+
+function egitimSelectLesson(lessonId) {
+  egitimCurrentLesson = lessonId;
+  renderEgitimNav(egitimCurrentModule);
+  renderEgitimLessonContent(lessonId);
+}
+
+function renderEgitimLessonContent(lessonId) {
   const l = egitimLessons.find(x => x.id === lessonId);
   if (!l) return;
-  document.getElementById('egitim-module-list').style.display = 'none';
-  const lv = document.getElementById('egitim-lesson-view');
-  lv.style.display = '';
   let videoHtml = '';
   if (l.video_url) {
     const url = l.video_url;
     let embedUrl = '';
-    if (url.includes('vimeo.com')) {
-      const id = url.split('/').filter(Boolean).pop();
-      embedUrl = `https://player.vimeo.com/video/${id}`;
-    } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
-      if (match) embedUrl = `https://www.youtube.com/embed/${match[1]}`;
-    }
-    if (embedUrl) {
-      videoHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;margin-bottom:20px"><iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>`;
-    } else {
-      videoHtml = `<a href="${escHtml(url)}" target="_blank" style="display:block;padding:12px 16px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-accent);margin-bottom:20px">▶ Videoyu aç</a>`;
-    }
+    if (url.includes('vimeo.com')) { const id = url.split('/').filter(Boolean).pop(); embedUrl = `https://player.vimeo.com/video/${id}`; }
+    else if (url.includes('youtube.com')||url.includes('youtu.be')) { const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/); if(match) embedUrl=`https://www.youtube.com/embed/${match[1]}`; }
+    videoHtml = embedUrl
+      ? `<div class="egitim-video-wrap"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`
+      : `<a href="${escHtml(url)}" target="_blank" style="display:block;padding:12px 16px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-accent);margin-bottom:20px;text-decoration:none">▶ Videoyu aç</a>`;
   }
-  document.getElementById('egitim-lesson-content').innerHTML = `
+  document.getElementById('egitim-content-panel').innerHTML = `
     <div style="max-width:720px">
-      <div style="font-size:20px;font-weight:700;margin-bottom:16px">${escHtml(l.title)}</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:18px;line-height:1.35">${escHtml(l.title)}</div>
       ${videoHtml}
-      ${l.description ? `<div style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:16px">${escHtml(l.description)}</div>` : ''}
-      ${l.resource_url ? `<a href="${escHtml(l.resource_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-text-primary);text-decoration:none">📎 Kaynak</a>` : ''}
-    </div>
-  `;
+      ${l.description?`<div style="font-size:14px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:20px;white-space:pre-line">${escHtml(l.description)}</div>`:''}
+      ${l.resource_url?`<a href="${escHtml(l.resource_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-text-primary);text-decoration:none;border:1px solid var(--color-border)">📎 Kaynağa Git</a>`:''}
+    </div>`;
 }
 
+// ===== SUBMISSION FORM =====
 function openEgitimForm(moduleId) {
-  document.getElementById('egitim-module-list').style.display = 'none';
-  document.getElementById('egitim-lesson-view').style.display = 'none';
-  const fv = document.getElementById('egitim-form-view');
-  fv.style.display = '';
+  egitimCurrentModule = moduleId;
+  document.getElementById('egitim-grid-view').style.display = 'none';
+  document.getElementById('egitim-detail-view').style.display = 'none';
+  document.getElementById('egitim-form-view').style.display = '';
   const m = egitimModules.find(x => x.id === moduleId);
   document.getElementById('egitim-form-content').innerHTML = `
     <div style="background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:14px;padding:24px">
-      <div style="font-size:18px;font-weight:700;margin-bottom:6px">Modül Tamamlama Formu</div>
-      <div style="font-size:13px;color:var(--color-text-muted);margin-bottom:20px">${escHtml(m.title)}</div>
-      <label class="form-label">Bu modülde ne yaptın?</label>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">Seviye Tamamlama Formu</div>
+      <div style="font-size:13px;color:var(--color-text-muted);margin-bottom:20px">${escHtml(m?.title||'')}</div>
+      <label class="form-label">Bu seviyede ne yaptın?</label>
       <textarea class="form-input" id="esub-q1" rows="3" style="resize:none;margin-bottom:14px" placeholder="Kısaca anlat..."></textarea>
       <label class="form-label">En önemli çıktın ne oldu?</label>
       <textarea class="form-input" id="esub-q2" rows="3" style="resize:none;margin-bottom:14px" placeholder="Öğrendiklerin, fark ettiklerin..."></textarea>
-      <label class="form-label">Uyguladığın şey ne? (link, not, ekran görüntüsü)</label>
+      <label class="form-label">Uyguladığın şey (link, not, ekran görüntüsü)</label>
       <textarea class="form-input" id="esub-q3" rows="3" style="resize:none;margin-bottom:20px" placeholder="Link veya açıklama..."></textarea>
       <button class="btn btn-primary" onclick="submitEgitimForm(${moduleId})">Gönder</button>
-    </div>
-  `;
+    </div>`;
 }
 
 async function submitEgitimForm(moduleId) {
@@ -9280,81 +9365,82 @@ async function submitEgitimForm(moduleId) {
   const q2 = document.getElementById('esub-q2')?.value.trim();
   const q3 = document.getElementById('esub-q3')?.value.trim();
   if (!q1) { alert('Lütfen en az ilk soruyu cevapla.'); return; }
-  const { error } = await sb.from('training_module_submissions').insert({
-    user_id: currentUser.email,
-    module_id: moduleId,
-    q1, q2, q3,
-    status: 'incelemede',
-    created_at: new Date().toISOString()
-  });
+  const { error } = await sb.from('training_module_submissions').insert({ user_id:currentUser.email, module_id:moduleId, q1, q2, q3, status:'incelemede', created_at:new Date().toISOString() });
   if (error) { alert('Gönderilemedi: ' + error.message); return; }
-  egitimSubs.push({ user_id: currentUser.email, module_id: moduleId, status: 'incelemede' });
-  egitimBack();
-  openEgitimModule(moduleId);
+  egitimSubs.push({ user_id:currentUser.email, module_id:moduleId, status:'incelemede' });
+  egitimCurrentLesson = null;
+  egitimShowDetail(moduleId);
 }
 
-function egitimBack() {
-  document.getElementById('egitim-lesson-view').style.display = 'none';
-  document.getElementById('egitim-form-view').style.display = 'none';
-  document.getElementById('egitim-module-list').style.display = '';
-  renderEgitimModules();
+// ===== ONAY PANEL (admin, inside grid view) =====
+function egitimToggleOnay() {
+  const panel = document.getElementById('egitim-onay-panel');
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? '' : 'none';
+  if (open) renderEgitimOnayPanel();
 }
 
-// ===== ADMIN: İçerik Yönetimi =====
-async function loadEgitimYonetim() {
-  const [mR, tR, lR] = await Promise.all([
-    sb.from('training_modules').select('*').order('order_index'),
-    sb.from('training_topics').select('*').order('order_index'),
-    sb.from('training_lessons').select('*').order('order_index'),
-  ]);
-  egitimModules = mR.data || [];
-  egitimTopics  = tR.data || [];
-  egitimLessons = lR.data || [];
-  renderEgitimAdmin();
-}
-
-function renderEgitimAdmin() {
-  const el = document.getElementById('egitim-admin-list');
-  if (!egitimModules.length) { el.innerHTML = '<div class="empty" style="padding:40px">Henüz modül yok</div>'; return; }
-  el.innerHTML = egitimModules.map(m => {
-    const topics = egitimTopics.filter(t => t.module_id === m.id);
-    return `<div style="background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:12px;padding:18px 20px;margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="flex:1;font-size:15px;font-weight:600">${escHtml(m.title)}</div>
-        <span style="font-size:11px;color:var(--color-text-muted)">Sıra:${m.order_index}</span>
-        ${!m.is_visible ? '<span style="font-size:11px;padding:2px 8px;background:rgba(107,105,99,0.2);border-radius:6px;color:var(--color-text-muted)">Gizli</span>' : ''}
-        <button onclick="openEgitimModulModal(${m.id})" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:12px;padding:2px 8px">Düzenle</button>
-        <button onclick="deleteEgitimModul(${m.id})" style="background:none;border:none;cursor:pointer;color:#e57373;font-size:12px;padding:2px 8px">Sil</button>
-        <button onclick="openEgitimKonuModal(${m.id})" style="background:none;border:none;cursor:pointer;color:var(--color-accent);font-size:12px;padding:2px 8px">+ Konu</button>
+function renderEgitimOnayPanel() {
+  const el = document.getElementById('egitim-submissions-list');
+  if (!egitimSubs.length) { el.innerHTML = '<div class="empty" style="padding:24px">Bekleyen gönderim yok</div>'; return; }
+  const badge = s => {
+    const map = { incelemede:['rgba(224,165,83,0.12)','var(--color-amber)','⏳ İncelemede'], onaylandi:['rgba(76,175,129,0.12)','#4caf81','✓ Onaylandı'], revize:['rgba(229,115,115,0.12)','#e57373','↩ Revize'] };
+    const [bg,color,label] = map[s]||map.incelemede;
+    return `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${bg};color:${color}">${label}</span>`;
+  };
+  el.innerHTML = egitimSubs.map(s => {
+    const m = egitimModules.find(x => x.id === s.module_id);
+    return `<div style="background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:12px;padding:16px 18px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600;flex:1">${escHtml(s.user_id)}</span>
+        <span style="font-size:11px;color:var(--color-text-muted)">${m?escHtml(m.title):''}</span>
+        ${badge(s.status)}
+        <span style="font-size:11px;color:var(--color-text-muted)">${s.created_at?new Date(s.created_at).toLocaleDateString('tr-TR'):''}</span>
       </div>
-      ${topics.length ? topics.map(t => {
-        const lessons = egitimLessons.filter(l => l.topic_id === t.id);
-        return `<div style="padding:10px 14px;background:var(--color-surface);border-radius:8px;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <div style="flex:1;font-size:13px;font-weight:500">${escHtml(t.title)}</div>
-            <span style="font-size:11px;color:var(--color-text-muted)">Sıra:${t.order_index}</span>
-            <button onclick="openEgitimKonuModal(${m.id},${t.id})" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:12px;padding:1px 6px">Düzenle</button>
-            <button onclick="deleteEgitimKonu(${t.id})" style="background:none;border:none;cursor:pointer;color:#e57373;font-size:12px;padding:1px 6px">Sil</button>
-            <button onclick="openEgitimDersModal(${t.id})" style="background:none;border:none;cursor:pointer;color:var(--color-accent);font-size:12px;padding:1px 6px">+ Ders</button>
-          </div>
-          ${lessons.map(l => `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--color-bg-secondary);border-radius:6px;margin-bottom:4px">
-            <div style="flex:1;font-size:12px">${escHtml(l.title)}</div>
-            ${l.video_url ? '<span style="font-size:10px;color:var(--color-text-muted)">▶</span>' : ''}
-            <button onclick="openEgitimDersModal(${t.id},${l.id})" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:11px;padding:1px 5px">Düzenle</button>
-            <button onclick="deleteEgitimDers(${l.id})" style="background:none;border:none;cursor:pointer;color:#e57373;font-size:11px;padding:1px 5px">Sil</button>
-          </div>`).join('')}
-        </div>`;
-      }).join('') : ''}
+      ${s.q1?`<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:3px">Ne yaptın: <span style="color:var(--color-text-secondary)">${escHtml(s.q1)}</span></div>`:''}
+      ${s.q2?`<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:3px">Çıktı: <span style="color:var(--color-text-secondary)">${escHtml(s.q2)}</span></div>`:''}
+      ${s.q3?`<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:8px">Uygulama: <span style="color:var(--color-text-secondary)">${escHtml(s.q3)}</span></div>`:''}
+      ${s.admin_note?`<div style="font-size:12px;padding:7px 11px;background:rgba(224,165,83,0.08);border-radius:6px;margin-bottom:8px;color:var(--color-amber)">Not: ${escHtml(s.admin_note)}</div>`:''}
+      ${s.status!=='onaylandi'?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;background:var(--color-green-light);color:#4caf81;border:1px solid rgba(76,175,129,0.3)" onclick="egitimOnayla(${s.id},${s.module_id},'${escHtml(s.user_id)}')">Onayla</button>
+        <input id="enote-${s.id}" class="form-input" placeholder="Revize notu..." style="flex:1;min-width:140px;font-size:12px;padding:5px 9px"/>
+        <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="egitimRevize(${s.id},'${escHtml(s.user_id)}')">Revize İste</button>
+      </div>`:''}
     </div>`;
   }).join('');
 }
 
+async function egitimOnayla(subId, moduleId, userId) {
+  const mods = [...egitimModules].sort((a,b) => a.order_index - b.order_index);
+  const curIdx = mods.findIndex(m => m.id === moduleId);
+  const next = mods[curIdx + 1];
+  const ops = [
+    sb.from('training_module_submissions').update({ status:'onaylandi', reviewed_at:new Date().toISOString() }).eq('id', subId),
+    sb.from('user_module_access').upsert({ user_id:userId, module_id:moduleId, unlocked:true, completed:true, unlocked_at:new Date().toISOString() }, { onConflict:'user_id,module_id' }),
+  ];
+  if (next) ops.push(sb.from('user_module_access').upsert({ user_id:userId, module_id:next.id, unlocked:true, unlocked_at:new Date().toISOString() }, { onConflict:'user_id,module_id' }));
+  await Promise.all(ops);
+  const sub = egitimSubs.find(s => s.id === subId);
+  if (sub) sub.status = 'onaylandi';
+  renderEgitimOnayPanel();
+}
+
+async function egitimRevize(subId, userId) {
+  const note = document.getElementById(`enote-${subId}`)?.value.trim();
+  await sb.from('training_module_submissions').update({ status:'revize', admin_note:note||null, reviewed_at:new Date().toISOString() }).eq('id', subId);
+  const sub = egitimSubs.find(s => s.id === subId);
+  if (sub) { sub.status='revize'; sub.admin_note=note||null; }
+  renderEgitimOnayPanel();
+}
+
+// ===== ADMIN MODALS =====
 function openEgitimModulModal(id) {
   const m = id ? egitimModules.find(x => x.id === id) : null;
-  document.getElementById('egitim-modul-modal-title').textContent = m ? 'Modülü Düzenle' : 'Yeni Modül';
+  document.getElementById('egitim-modul-modal-title').textContent = m ? 'Seviyeyi Düzenle' : 'Yeni Seviye';
   document.getElementById('em-id').value = m ? m.id : '';
   document.getElementById('em-title').value = m ? m.title : '';
-  document.getElementById('em-desc').value = m ? (m.description || '') : '';
+  document.getElementById('em-desc').value = m ? (m.description||'') : '';
+  document.getElementById('em-icon').value = m ? (m.icon||'📚') : '📚';
   document.getElementById('em-order').value = m ? m.order_index : (egitimModules.length + 1);
   document.getElementById('em-visible').checked = m ? m.is_visible !== false : true;
   document.getElementById('modal-egitim-modul').classList.add('open');
@@ -9365,60 +9451,69 @@ async function saveEgitimModul() {
   const payload = {
     title: document.getElementById('em-title').value.trim(),
     description: document.getElementById('em-desc').value.trim(),
+    icon: document.getElementById('em-icon').value.trim() || '📚',
     order_index: +document.getElementById('em-order').value || 1,
     is_visible: document.getElementById('em-visible').checked
   };
-  if (!payload.title) { alert('Modül adı gerekli'); return; }
-  if (id) {
-    await sb.from('training_modules').update(payload).eq('id', id);
-  } else {
-    await sb.from('training_modules').insert(payload);
-  }
+  if (!payload.title) { alert('Seviye adı gerekli'); return; }
+  let res;
+  if (id) { res = await sb.from('training_modules').update(payload).eq('id', id).select().single(); }
+  else { res = await sb.from('training_modules').insert(payload).select().single(); }
   closeModal('modal-egitim-modul');
-  loadEgitimYonetim();
+  if (res?.data) {
+    if (id) { const idx = egitimModules.findIndex(x=>x.id==id); if(idx>=0) egitimModules[idx]={...egitimModules[idx],...res.data}; }
+    else egitimModules.push(res.data);
+  }
+  renderEgitimGrid();
 }
 
 async function deleteEgitimModul(id) {
-  if (!confirm('Modülü sil? İçindeki konular ve dersler de silinir.')) return;
+  if (!confirm('Seviyeyi sil? İçindeki bölümler ve dersler de silinir.')) return;
   const tIds = egitimTopics.filter(t => t.module_id === id).map(t => t.id);
-  if (tIds.length) { await sb.from('training_lessons').delete().in('topic_id', tIds); }
+  if (tIds.length) await sb.from('training_lessons').delete().in('topic_id', tIds);
   await sb.from('training_topics').delete().eq('module_id', id);
   await sb.from('training_modules').delete().eq('id', id);
-  loadEgitimYonetim();
+  egitimModules = egitimModules.filter(x => x.id !== id);
+  egitimTopics  = egitimTopics.filter(x => x.module_id !== id);
+  renderEgitimGrid();
 }
 
 function openEgitimKonuModal(moduleId, topicId) {
   const t = topicId ? egitimTopics.find(x => x.id === topicId) : null;
-  document.getElementById('egitim-konu-modal-title').textContent = t ? 'Konuyu Düzenle' : 'Yeni Konu';
+  document.getElementById('egitim-konu-modal-title').textContent = t ? 'Bölümü Düzenle' : 'Yeni Bölüm';
   document.getElementById('ek-id').value = t ? t.id : '';
   document.getElementById('ek-module-id').value = moduleId;
   document.getElementById('ek-title').value = t ? t.title : '';
-  document.getElementById('ek-order').value = t ? t.order_index : (egitimTopics.filter(x=>x.module_id===moduleId).length + 1);
+  document.getElementById('ek-order').value = t ? t.order_index : (egitimTopics.filter(x=>x.module_id==moduleId).length + 1);
   document.getElementById('ek-visible').checked = t ? t.is_visible !== false : true;
   document.getElementById('modal-egitim-konu').classList.add('open');
 }
 
 async function saveEgitimKonu() {
   const id = document.getElementById('ek-id').value;
-  const moduleId = document.getElementById('ek-module-id').value;
-  const payload = {
-    module_id: moduleId,
-    title: document.getElementById('ek-title').value.trim(),
-    order_index: +document.getElementById('ek-order').value || 1,
-    is_visible: document.getElementById('ek-visible').checked
-  };
-  if (!payload.title) { alert('Konu adı gerekli'); return; }
-  if (id) { await sb.from('training_topics').update(payload).eq('id', id); }
-  else { await sb.from('training_topics').insert(payload); }
+  const moduleId = +document.getElementById('ek-module-id').value;
+  const payload = { module_id:moduleId, title:document.getElementById('ek-title').value.trim(), order_index:+document.getElementById('ek-order').value||1, is_visible:document.getElementById('ek-visible').checked };
+  if (!payload.title) { alert('Bölüm adı gerekli'); return; }
+  let res;
+  if (id) { res = await sb.from('training_topics').update(payload).eq('id', id).select().single(); }
+  else { res = await sb.from('training_topics').insert(payload).select().single(); }
   closeModal('modal-egitim-konu');
-  loadEgitimYonetim();
+  if (res?.data) {
+    if (id) { const idx = egitimTopics.findIndex(x=>x.id==id); if(idx>=0) egitimTopics[idx]={...egitimTopics[idx],...res.data}; }
+    else egitimTopics.push(res.data);
+  }
+  if (egitimCurrentModule) renderEgitimNav(egitimCurrentModule);
+  else renderEgitimGrid();
 }
 
 async function deleteEgitimKonu(id) {
-  if (!confirm('Konuyu ve derslerini sil?')) return;
+  if (!confirm('Bölümü ve derslerini sil?')) return;
   await sb.from('training_lessons').delete().eq('topic_id', id);
   await sb.from('training_topics').delete().eq('id', id);
-  loadEgitimYonetim();
+  egitimTopics = egitimTopics.filter(x => x.id !== id);
+  egitimLessons = egitimLessons.filter(x => x.topic_id !== id);
+  if (egitimCurrentModule) renderEgitimNav(egitimCurrentModule);
+  else renderEgitimGrid();
 }
 
 function openEgitimDersModal(topicId, lessonId) {
@@ -9427,10 +9522,10 @@ function openEgitimDersModal(topicId, lessonId) {
   document.getElementById('ed2-id').value = l ? l.id : '';
   document.getElementById('ed2-topic-id').value = topicId;
   document.getElementById('ed2-title').value = l ? l.title : '';
-  document.getElementById('ed2-desc').value = l ? (l.description || '') : '';
-  document.getElementById('ed2-video').value = l ? (l.video_url || '') : '';
-  document.getElementById('ed2-resource').value = l ? (l.resource_url || '') : '';
-  document.getElementById('ed2-order').value = l ? l.order_index : (egitimLessons.filter(x=>x.topic_id===topicId).length + 1);
+  document.getElementById('ed2-desc').value = l ? (l.description||'') : '';
+  document.getElementById('ed2-video').value = l ? (l.video_url||'') : '';
+  document.getElementById('ed2-resource').value = l ? (l.resource_url||'') : '';
+  document.getElementById('ed2-order').value = l ? l.order_index : (egitimLessons.filter(x=>x.topic_id==topicId).length + 1);
   document.getElementById('ed2-visible').checked = l ? l.is_visible !== false : true;
   document.getElementById('modal-egitim-ders').classList.add('open');
 }
@@ -9438,84 +9533,34 @@ function openEgitimDersModal(topicId, lessonId) {
 async function saveEgitimDers() {
   const id = document.getElementById('ed2-id').value;
   const payload = {
-    topic_id: document.getElementById('ed2-topic-id').value,
+    topic_id: +document.getElementById('ed2-topic-id').value,
     title: document.getElementById('ed2-title').value.trim(),
     description: document.getElementById('ed2-desc').value.trim(),
-    video_url: document.getElementById('ed2-video').value.trim() || null,
-    resource_url: document.getElementById('ed2-resource').value.trim() || null,
-    order_index: +document.getElementById('ed2-order').value || 1,
+    video_url: document.getElementById('ed2-video').value.trim()||null,
+    resource_url: document.getElementById('ed2-resource').value.trim()||null,
+    order_index: +document.getElementById('ed2-order').value||1,
     is_visible: document.getElementById('ed2-visible').checked
   };
   if (!payload.title) { alert('Ders başlığı gerekli'); return; }
-  if (id) { await sb.from('training_lessons').update(payload).eq('id', id); }
-  else { await sb.from('training_lessons').insert(payload); }
+  let res;
+  if (id) { res = await sb.from('training_lessons').update(payload).eq('id', id).select().single(); }
+  else { res = await sb.from('training_lessons').insert(payload).select().single(); }
   closeModal('modal-egitim-ders');
-  loadEgitimYonetim();
+  if (res?.data) {
+    if (id) { const idx = egitimLessons.findIndex(x=>x.id==id); if(idx>=0) egitimLessons[idx]={...egitimLessons[idx],...res.data}; }
+    else egitimLessons.push(res.data);
+  }
+  if (egitimCurrentModule) renderEgitimNav(egitimCurrentModule);
+  else renderEgitimGrid();
 }
 
 async function deleteEgitimDers(id) {
   if (!confirm('Dersi sil?')) return;
   await sb.from('training_lessons').delete().eq('id', id);
-  loadEgitimYonetim();
-}
-
-// ===== ADMIN: Onay Bekleyenler =====
-async function loadEgitimOnay() {
-  const { data } = await sb.from('training_module_submissions').select('*').order('created_at', { ascending: false });
-  egitimSubs = data || [];
-  renderEgitimOnay();
-}
-
-function renderEgitimOnay() {
-  const el = document.getElementById('egitim-submissions-list');
-  const pending = egitimSubs;
-  if (!pending.length) { el.innerHTML = '<div class="empty" style="padding:40px">Bekleyen gönderim yok</div>'; return; }
-  const statusBadge = s => {
-    const map = { incelemede: ['rgba(224,165,83,0.12)','var(--color-amber)','⏳ İncelemede'], onaylandi: ['rgba(76,175,129,0.12)','#4caf81','✓ Onaylandı'], revize: ['rgba(229,115,115,0.12)','#e57373','↩ Revize'] };
-    const [bg,color,label] = map[s] || map.incelemede;
-    return `<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${bg};color:${color}">${label}</span>`;
-  };
-  el.innerHTML = pending.map(s => {
-    const m = egitimModules.find(x => x.id === s.module_id);
-    return `<div style="background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:12px;padding:18px 20px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-        <div style="font-size:14px;font-weight:600;flex:1">${escHtml(s.user_id)}</div>
-        <div style="font-size:12px;color:var(--color-text-muted)">${m ? escHtml(m.title) : 'Modül'}</div>
-        ${statusBadge(s.status)}
-        <div style="font-size:11px;color:var(--color-text-muted)">${s.created_at ? new Date(s.created_at).toLocaleDateString('tr-TR') : ''}</div>
-      </div>
-      ${s.q1 ? `<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:4px">Ne yaptın: <span style="color:var(--color-text-secondary)">${escHtml(s.q1)}</span></div>` : ''}
-      ${s.q2 ? `<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:4px">Çıktı: <span style="color:var(--color-text-secondary)">${escHtml(s.q2)}</span></div>` : ''}
-      ${s.q3 ? `<div style="font-size:12px;color:var(--color-text-muted);margin-bottom:10px">Uygulama: <span style="color:var(--color-text-secondary)">${escHtml(s.q3)}</span></div>` : ''}
-      ${s.admin_note ? `<div style="font-size:12px;padding:8px 12px;background:rgba(224,165,83,0.08);border-radius:6px;margin-bottom:10px;color:var(--color-amber)">Not: ${escHtml(s.admin_note)}</div>` : ''}
-      ${s.status !== 'onaylandi' ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" style="font-size:12px;padding:6px 14px;background:var(--color-green-light);color:#4caf81;border:1px solid rgba(76,175,129,0.3)" onclick="egitimOnayla(${s.id}, ${s.module_id}, '${escHtml(s.user_id)}')">Onayla</button>
-        <input id="enote-${s.id}" class="form-input" placeholder="Revize notu..." style="flex:1;min-width:160px;font-size:12px;padding:6px 10px"/>
-        <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px" onclick="egitimRevize(${s.id}, '${escHtml(s.user_id)}')">Revize İste</button>
-      </div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-async function egitimOnayla(subId, moduleId, userId) {
-  const mods = egitimModules.sort((a,b) => a.order_index - b.order_index);
-  const curIdx = mods.findIndex(m => m.id === moduleId);
-  const nextModule = mods[curIdx + 1];
-  const ops = [
-    sb.from('training_module_submissions').update({ status: 'onaylandi', reviewed_at: new Date().toISOString() }).eq('id', subId),
-    sb.from('user_module_access').upsert({ user_id: userId, module_id: moduleId, unlocked: true, completed: true, unlocked_at: new Date().toISOString() }, { onConflict: 'user_id,module_id' }),
-  ];
-  if (nextModule) {
-    ops.push(sb.from('user_module_access').upsert({ user_id: userId, module_id: nextModule.id, unlocked: true, unlocked_at: new Date().toISOString() }, { onConflict: 'user_id,module_id' }));
-  }
-  await Promise.all(ops);
-  loadEgitimOnay();
-}
-
-async function egitimRevize(subId, userId) {
-  const note = document.getElementById(`enote-${subId}`)?.value.trim();
-  await sb.from('training_module_submissions').update({ status: 'revize', admin_note: note || null, reviewed_at: new Date().toISOString() }).eq('id', subId);
-  loadEgitimOnay();
+  egitimLessons = egitimLessons.filter(x => x.id !== id);
+  if (egitimCurrentLesson === id) { egitimCurrentLesson = null; if(egitimCurrentModule) renderEgitimModuleIntro(egitimCurrentModule); }
+  if (egitimCurrentModule) renderEgitimNav(egitimCurrentModule);
+  else renderEgitimGrid();
 }
 </script>
 
