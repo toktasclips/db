@@ -1791,27 +1791,29 @@ select option { background: #232323; color: #e8e8e6; }
 .impl-tasks-header span { font-size: 10px; font-weight: 600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; }
 
 /* New flat task row (phase → tasks directly, no weeks layer) */
-.impl-task-row {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 9px 16px 9px 48px;
-  border-top: 1px solid rgba(255,255,255,0.03);
-  transition: background 0.1s;
-}
-.impl-task-row:hover { background: rgba(255,255,255,0.02); }
-.impl-task-row:hover .impl-task-admin-btns { opacity: 1; }
-.impl-task-cb-wrap { flex-shrink:0; margin-top:1px; cursor:pointer; }
-.impl-task-cb {
-  width:17px; height:17px; border-radius:4px; border:2px solid rgba(255,255,255,0.2);
-  display:flex; align-items:center; justify-content:center;
-  transition: border-color 0.15s, background 0.15s; cursor:pointer; flex-shrink:0;
-}
-.impl-task-cb.checked { border-color:#4caf81; background:rgba(76,175,129,0.15); }
-.impl-task-cb-icon { display:none; }
-.impl-task-cb.checked .impl-task-cb-icon { display:block; }
+.impl-task-row { display:flex; align-items:flex-start; gap:12px; padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.04); transition:background .1s; }
+.impl-task-row:hover { background:rgba(255,255,255,0.02); }
+.impl-task-row.impl-done { opacity:0.55; }
+.impl-task-check-col { flex-shrink:0; padding-top:2px; }
+.impl-checkbox { width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; color:#fff; flex-shrink:0; }
+.impl-checkbox:hover { border-color:rgba(255,255,255,0.5); }
+.impl-checkbox.checked { background:#4caf81; border-color:#4caf81; }
 .impl-task-main { flex:1; min-width:0; }
-.impl-task-row-title { font-size:13px; color:var(--color-text-primary); line-height:1.4; }
-.impl-task-row-title.done-text { color:var(--color-text-muted); text-decoration:line-through; }
-.impl-task-row-desc { font-size:11.5px; color:var(--color-text-muted); margin-top:2px; line-height:1.4; }
+.impl-task-title { font-size:13px; color:#e8e8e6; font-weight:500; line-height:1.4; }
+.impl-title-done { text-decoration:line-through; color:rgba(255,255,255,0.35); }
+.impl-task-desc { font-size:12px; color:rgba(255,255,255,0.35); margin-top:2px; line-height:1.4; }
+.impl-task-meta { display:flex; flex-wrap:wrap; gap:4px; align-items:center; flex-shrink:0; }
+.impl-badge { font-size:10.5px; padding:2px 8px; border-radius:4px; font-weight:500; white-space:nowrap; }
+.impl-badge-seviye { background:rgba(139,92,246,0.15); color:#a78bfa; border:1px solid rgba(139,92,246,0.25); }
+.impl-badge-konu { background:rgba(59,130,246,0.12); color:#60a5fa; border:1px solid rgba(59,130,246,0.2); }
+.impl-badge-cikti { background:rgba(34,197,94,0.1); color:#4ade80; border:1px solid rgba(34,197,94,0.18); }
+.impl-task-source { flex-shrink:0; max-width:160px; }
+.impl-source-link { font-size:11px; color:#d4a264; text-decoration:none; display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.impl-source-link:hover { color:#e8c07a; }
+.impl-source-text { font-size:11px; color:rgba(255,255,255,0.3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+.impl-task-admin { display:flex; gap:3px; flex-shrink:0; opacity:0; transition:opacity .15s; }
+.impl-task-row:hover .impl-task-admin { opacity:1; }
+/* Legacy admin btn styles kept for other uses */
 .impl-task-admin-btns { display:flex; gap:6px; flex-shrink:0; opacity:0; transition:opacity 0.15s; align-self:center; }
 .impl-task-admin-btn {
   font-size:11px; color:var(--color-text-muted); background:none; border:none; cursor:pointer;
@@ -3438,6 +3440,16 @@ select option { background: #232323; color: #e8e8e6; }
           <label class="form-label">Açıklama (opsiyonel)</label>
           <textarea class="form-input" id="impl-task-desc" rows="2" style="resize:none" placeholder="Kısa açıklama..."></textarea>
         </div>
+        <label class="form-label">Konu</label>
+        <input class="form-input" id="impl-task-konu" placeholder="Örn: Satış, İçerik, Kurulum..." style="margin-bottom:12px"/>
+        <label class="form-label">Seviye</label>
+        <input class="form-input" id="impl-task-seviye" placeholder="Örn: Seviye 2" style="margin-bottom:12px"/>
+        <label class="form-label">Çıktı</label>
+        <input class="form-input" id="impl-task-cikti" placeholder="Beklenen çıktı..." style="margin-bottom:12px"/>
+        <label class="form-label">Kaynak Etiketi</label>
+        <input class="form-input" id="impl-task-source-label" placeholder="Örn: Alet Çantası > Oto Müşteri" style="margin-bottom:12px"/>
+        <label class="form-label">Kaynak URL (opsiyonel)</label>
+        <input class="form-input" id="impl-task-source-url" placeholder="https://..." style="margin-bottom:16px"/>
         <div class="modal-footer">
           <div style="display:flex;gap:8px;margin-left:auto">
             <button class="btn btn-ghost" onclick="closeModal('modal-impl-task')">İptal</button>
@@ -9071,6 +9083,12 @@ async function loadIgDailyKPIs() {
   --     alter table program_tasks add column if not exists phase_id uuid references program_phases(id) on delete cascade;
   --     alter table program_tasks add column if not exists description text;
   --     alter table program_tasks add column if not exists is_visible boolean not null default true;
+  --   Run migration for metadata columns (added 2026-04):
+  --     alter table program_tasks add column if not exists konu text;
+  --     alter table program_tasks add column if not exists seviye text;
+  --     alter table program_tasks add column if not exists cikti text;
+  --     alter table program_tasks add column if not exists source_label text;
+  --     alter table program_tasks add column if not exists source_url text;
   -- program_task_progress: id, user_id (email), task_id, status ('done'|'undone'), updated_at
   --   unique(user_id, task_id)
 
@@ -9165,27 +9183,36 @@ function implVisibleTasksForPhase(phaseId) {
 function implRenderTaskRow(task) {
   const isDone = (implState.progress[task.id] ?? 'undone') === 'done';
   const isAdmin = currentUser?.role === 'admin';
-  const cbClass = isDone ? 'impl-task-cb checked' : 'impl-task-cb';
-  const titleClass = isDone ? 'impl-task-row-title done-text' : 'impl-task-row-title';
-  const descHtml = task.description
-    ? `<div class="impl-task-row-desc">${task.description}</div>`
-    : '';
-  const adminBtns = isAdmin
-    ? `<div class="impl-task-admin-btns">
-        <button class="impl-task-admin-btn" onclick="openImplTaskModal('${task.phase_id}','${task.id}')" title="Düzenle">düzenle</button>
-        <button class="impl-task-admin-btn danger" onclick="deleteImplTask('${task.id}')" title="Sil">sil</button>
-      </div>`
-    : '';
-  return `<div class="impl-task-row" id="impl-tr-${task.id}">
-    <div class="impl-task-cb-wrap" onclick="implToggleTask('${task.id}')">
-      <div class="${cbClass}" id="impl-cb-${task.id}">
-        <svg class="impl-task-cb-icon" width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#4caf81" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5l2.5 2.5 4.5-4.5"/></svg>
+
+  const adminBtns = isAdmin ? `<div class="impl-task-admin" onclick="event.stopPropagation()">
+    <button onclick="openImplTaskModal('${task.phase_id}','${task.id}')" class="eg-pill-btn">düzenle</button>
+    <button onclick="deleteImplTask('${task.id}')" class="eg-pill-btn red">sil</button>
+  </div>` : '';
+
+  // Metadata badges
+  const konuBadge   = task.konu   ? `<span class="impl-badge impl-badge-konu">${escHtml(task.konu)}</span>`   : '';
+  const seviyeBadge = task.seviye ? `<span class="impl-badge impl-badge-seviye">${escHtml(task.seviye)}</span>` : '';
+  const ciktiBadge  = task.cikti  ? `<span class="impl-badge impl-badge-cikti">${escHtml(task.cikti)}</span>`  : '';
+  const kaynakHtml = task.source_url
+    ? `<a href="${escHtml(task.source_url)}" target="_blank" class="impl-source-link">${escHtml(task.source_label || task.source_url)}</a>`
+    : task.source_label
+      ? `<span class="impl-source-text">${escHtml(task.source_label)}</span>`
+      : '';
+
+  return `<div class="impl-task-row ${isDone ? 'impl-done' : ''}" id="impl-tr-${task.id}" data-task-id="${task.id}">
+    <div class="impl-task-check-col">
+      <div class="impl-checkbox ${isDone ? 'checked' : ''}" id="impl-cb-${task.id}" onclick="implToggleTask('${task.id}')">
+        ${isDone ? '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>' : ''}
       </div>
     </div>
     <div class="impl-task-main">
-      <div class="${titleClass}">${task.title}</div>
-      ${descHtml}
+      <div class="impl-task-title ${isDone ? 'impl-title-done' : ''}">${escHtml(task.title)}</div>
+      ${task.description ? `<div class="impl-task-desc">${escHtml(task.description)}</div>` : ''}
     </div>
+    <div class="impl-task-meta">
+      ${seviyeBadge}${konuBadge}${ciktiBadge}
+    </div>
+    <div class="impl-task-source">${kaynakHtml}</div>
     ${adminBtns}
   </div>`;
 }
@@ -9312,6 +9339,11 @@ function openImplTaskModal(phaseId, taskId) {
     if (phaseEl) phaseEl.value = task.phase_id;
     if (nameEl)  nameEl.value  = task.title;
     if (descEl)  descEl.value  = task.description ?? '';
+    document.getElementById('impl-task-konu').value         = task.konu || '';
+    document.getElementById('impl-task-seviye').value       = task.seviye || '';
+    document.getElementById('impl-task-cikti').value        = task.cikti || '';
+    document.getElementById('impl-task-source-label').value = task.source_label || '';
+    document.getElementById('impl-task-source-url').value   = task.source_url || '';
   } else {
     // Add mode
     if (titleEl) titleEl.textContent = 'Görev Ekle';
@@ -9319,6 +9351,11 @@ function openImplTaskModal(phaseId, taskId) {
     if (phaseEl) phaseEl.value = phaseId;
     if (nameEl)  nameEl.value  = '';
     if (descEl)  descEl.value  = '';
+    document.getElementById('impl-task-konu').value         = '';
+    document.getElementById('impl-task-seviye').value       = '';
+    document.getElementById('impl-task-cikti').value        = '';
+    document.getElementById('impl-task-source-label').value = '';
+    document.getElementById('impl-task-source-url').value   = '';
   }
   openModal('modal-impl-task');
   setTimeout(() => { if (nameEl) nameEl.focus(); }, 80);
@@ -9333,6 +9370,11 @@ async function saveImplTask() {
   const title       = (nameEl?.value ?? '').trim();
   const description = (descEl?.value ?? '').trim() || null;
   const phase_id    = phaseEl?.value ?? '';
+  const konu        = document.getElementById('impl-task-konu').value.trim() || null;
+  const seviye      = document.getElementById('impl-task-seviye').value.trim() || null;
+  const cikti       = document.getElementById('impl-task-cikti').value.trim() || null;
+  const source_label = document.getElementById('impl-task-source-label').value.trim() || null;
+  const source_url   = document.getElementById('impl-task-source-url').value.trim() || null;
 
   if (!title) { if (nameEl) nameEl.focus(); return; }
 
@@ -9341,11 +9383,11 @@ async function saveImplTask() {
   if (taskId) {
     // Update existing task
     const { error } = await sb.from('program_tasks')
-      .update({ title, description })
+      .update({ title, description, konu, seviye, cikti, source_label, source_url })
       .eq('id', taskId);
     if (!error) {
       const t = implState.tasks.find(t => t.id === taskId);
-      if (t) { t.title = title; t.description = description; }
+      if (t) { t.title = title; t.description = description; t.konu = konu; t.seviye = seviye; t.cikti = cikti; t.source_label = source_label; t.source_url = source_url; }
     }
   } else {
     // Insert new task
@@ -9353,7 +9395,7 @@ async function saveImplTask() {
       .filter(t => t.phase_id === phase_id)
       .reduce((m, t) => Math.max(m, t.order_index ?? 0), 0);
     const { data, error } = await sb.from('program_tasks')
-      .insert({ phase_id, title, description, order_index: maxOrder + 1, is_visible: true })
+      .insert({ phase_id, title, description, konu, seviye, cikti, source_label, source_url, order_index: maxOrder + 1, is_visible: true })
       .select()
       .single();
     if (!error && data) {
