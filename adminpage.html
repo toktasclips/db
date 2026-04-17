@@ -6041,6 +6041,16 @@ async function addUser(){
 // Admin paneli, yönetim araçları, arka plan değişiklikleri EKLENMEZ.
 const CHANGELOG = [
   {
+    date: '2026-04-17',
+    entries: [
+      { type:'new', icon:'💬', title:'Uygulama içi mesajlaşma eklendi', desc:'Admin ve kullanıcılar arasında anlık mesajlaşma. Admin tüm kullanıcıları sol panelde görür, istediğiyle sohbet başlatabilir. Kullanıcılar da admin\'e yazabilir. Okunmamış mesajlar için sidebar rozeti var.' },
+      { type:'new', icon:'⏳', title:'Abonelik süresi dolunca erişim engeli', desc:'Süresi dolan kullanıcılar giriş yapınca tam ekran kilit ekranı görür. Sağ üstte kalan gün rozeti: 7 günden az turuncu, bitince kırmızı.' },
+      { type:'imp', icon:'🔒', title:'Şifreler SHA-256 ile hashlendi', desc:'Admin ve kullanıcı şifreleri artık veritabanında düz metin olarak saklanmıyor. Giriş sırasında hash karşılaştırması yapılıyor.' },
+      { type:'imp', icon:'🛡️', title:'Supabase RLS etkinleştirildi', desc:'Tüm tablolarda Row Level Security açıldı. Veritabanı dışarıdan doğrudan erişime karşı korunuyor.' },
+      { type:'imp', icon:'🎓', title:'Dersler sürükle-bırak sıralama', desc:'Seviyeler, bölümler ve dersler sürükle-bırak ile yeniden sıralanabiliyor. Sıra numarası girme kaldırıldı.' },
+    ]
+  },
+  {
     date: '2026-04-16',
     entries: [
       { type:'new', icon:'📋', title:'Ödevler sistemi eklendi', desc:'Koçun sana görev atayabilecek. Ödevi tamamladığında "Tamamladım" diyorsun, koç inceleyip onaylıyor. Durum takibi: Atandı → İnceleniyor → Onaylandı.' },
