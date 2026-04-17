@@ -1929,21 +1929,22 @@ select option { background: #232323; color: #e8e8e6; }
 .egitim-nav-back:hover { color:var(--color-text-primary); }
 .egitim-nav-body { flex:1; overflow-y:auto; padding:8px 0; }
 .egitim-topic-group { }
-.egitim-topic-group.has-gap .egitim-topic-hd { border-top:1px solid var(--color-divider); padding-top:16px; margin-top:6px; }
-.egitim-topic-hd { padding:10px 16px 6px; font-size:11px; font-weight:600; color:#ffffff; text-transform:uppercase; letter-spacing:0.7px; display:flex; align-items:center; justify-content:space-between; cursor:grab; }
+.egitim-topic-group.has-gap .egitim-topic-hd { border-top:1px solid rgba(255,255,255,0.07); padding-top:18px; margin-top:8px; }
+.egitim-topic-hd { padding:10px 14px 7px; font-size:12px; font-weight:600; color:#ffffff; text-transform:uppercase; letter-spacing:0.6px; display:flex; align-items:center; justify-content:space-between; cursor:grab; user-select:none; }
 .egitim-topic-hd:active { cursor:grabbing; }
-.egitim-lesson-item { padding:7px 12px 7px 24px; font-size:12px; color:var(--color-text-secondary); cursor:grab; display:flex; align-items:center; gap:8px; border-left:2px solid transparent; transition:background .1s; }
+.egitim-topic-hd span.eg-topic-title { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.egitim-lesson-item { padding:8px 12px 8px 22px; font-size:13px; color:var(--color-text-secondary); cursor:grab; display:flex; align-items:center; gap:8px; border-left:2px solid transparent; transition:background .1s; user-select:none; }
 .egitim-lesson-item:hover { background:var(--color-surface); color:var(--color-text-primary); }
 .egitim-lesson-item.active { background:var(--color-surface); color:var(--color-text-primary); border-left-color:var(--color-accent); font-weight:500; cursor:pointer; }
 .egitim-lesson-item.drag-over { background:rgba(74,158,255,0.08); border-left-color:var(--color-accent); }
-.egitim-topic-hd.drag-over { background:rgba(74,158,255,0.08); border-radius:4px; }
+.egitim-topic-hd.drag-over { background:rgba(74,158,255,0.07); border-radius:5px; }
 .egitim-card.dragging { opacity:0.45; transform:scale(0.97); }
 .egitim-card.drag-over { border-color:var(--color-accent) !important; box-shadow:0 0 0 2px rgba(74,158,255,0.22); }
-.egitim-nav-icon-btn { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:5px; background:none; border:1px solid rgba(255,255,255,0.08); cursor:pointer; color:var(--color-text-muted); font-family:inherit; padding:0; flex-shrink:0; transition:background .1s, color .1s, border-color .1s; }
-.egitim-nav-icon-btn:hover { background:var(--color-surface-hover); color:var(--color-text-primary); border-color:rgba(255,255,255,0.16); }
-.egitim-nav-icon-btn.danger:hover { color:var(--color-red); border-color:rgba(229,115,115,0.3); background:rgba(229,115,115,0.07); }
-.egitim-action-btn { display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 10px; border-radius:5px; background:none; border:1px solid rgba(255,255,255,0.10); cursor:pointer; color:var(--color-text-secondary); font-size:11px; font-family:inherit; font-weight:500; transition:background .1s, border-color .1s, color .1s; }
-.egitim-action-btn:hover { background:var(--color-surface-hover); border-color:rgba(255,255,255,0.18); color:var(--color-text-primary); }
+.eg-pill-btn { font-size:10px; padding:2px 7px; border-radius:4px; background:transparent; border:1px solid rgba(255,255,255,0.09); color:var(--color-text-disabled); cursor:pointer; font-family:inherit; transition:all .1s; white-space:nowrap; line-height:1.5; }
+.eg-pill-btn:hover { background:rgba(255,255,255,0.07); color:var(--color-text-secondary); border-color:rgba(255,255,255,0.18); }
+.eg-pill-btn.red:hover { background:rgba(229,115,115,0.08); color:var(--color-red); border-color:rgba(229,115,115,0.22); }
+.egitim-action-btn { display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border-radius:5px; background:none; border:1px solid rgba(255,255,255,0.11); cursor:pointer; color:var(--color-text-secondary); font-size:11px; font-family:inherit; font-weight:500; transition:background .1s, border-color .1s, color .1s; }
+.egitim-action-btn:hover { background:var(--color-surface-hover); border-color:rgba(255,255,255,0.2); color:var(--color-text-primary); }
 .egitim-drop-zone { height:112px; border:1.5px dashed rgba(255,255,255,0.12); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .15s, background .15s; position:relative; overflow:hidden; margin-bottom:12px; background:rgba(255,255,255,0.02); }
 .egitim-drop-zone:hover, .egitim-drop-zone.drag-over { border-color:var(--color-accent); background:rgba(74,158,255,0.06); }
 .egitim-content-panel { flex:1; overflow-y:auto; padding:32px 36px; }
@@ -9257,10 +9258,8 @@ function egitimBack() {
 function renderEgitimGrid() {
   const el = document.getElementById('egitim-module-list');
   const visibleMods = egitimModules.filter(m => egitimIsAdmin() || m.is_visible !== false);
-  const pencilSvg = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11.5V14h2.5l7.5-7.5-2.5-2.5L2 11.5z"/><path d="M10.5 4.5l1 1"/></svg>`;
-  const trashSvg  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 5 5 5 13 5"/><path d="M6 5V3h4v2"/><path d="M4.5 5l.8 8h5.4l.8-8"/></svg>`;
-  const gripSvg   = `<svg width="10" height="14" viewBox="0 0 10 14" fill="rgba(255,255,255,0.35)"><circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/><circle cx="3" cy="6" r="1.2"/><circle cx="7" cy="6" r="1.2"/><circle cx="3" cy="10" r="1.2"/><circle cx="7" cy="10" r="1.2"/></svg>`;
-  const lockSvg   = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>`;
+  const gripSvg = `<svg width="9" height="13" viewBox="0 0 9 13" fill="rgba(255,255,255,0.28)"><circle cx="2.5" cy="2" r="1.2"/><circle cx="6.5" cy="2" r="1.2"/><circle cx="2.5" cy="6.5" r="1.2"/><circle cx="6.5" cy="6.5" r="1.2"/><circle cx="2.5" cy="11" r="1.2"/><circle cx="6.5" cy="11" r="1.2"/></svg>`;
+  const lockSvg = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>`;
 
   const cards = visibleMods.map((m, idx) => {
     const access    = egitimAccess.find(a => a.module_id === m.id);
@@ -9277,10 +9276,10 @@ function renderEgitimGrid() {
     if (completed) statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(76,175,129,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">✓ Tamam</div>`;
     else if (subStatus==='incelemede') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(224,165,83,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">İnceleniyor</div>`;
     else if (subStatus==='revize') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(229,115,115,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">Revize</div>`;
-    const adminBtns = egitimIsAdmin() ? `<div style="display:flex;gap:5px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
-      <span style="color:var(--color-text-disabled);cursor:grab;line-height:0;margin-right:1px" title="Sürükleyerek sırala">${gripSvg}</span>
-      <button onclick="event.stopPropagation();openEgitimModulModal(${m.id})" class="egitim-nav-icon-btn" style="width:26px;height:26px" title="Düzenle">${pencilSvg}</button>
-      <button onclick="event.stopPropagation();deleteEgitimModul(${m.id})" class="egitim-nav-icon-btn danger" style="width:26px;height:26px" title="Sil">${trashSvg}</button>
+    const adminBtns = egitimIsAdmin() ? `<div style="display:flex;gap:4px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
+      <span style="cursor:grab;line-height:0;margin-right:3px" title="Sürükle">${gripSvg}</span>
+      <button onclick="event.stopPropagation();openEgitimModulModal(${m.id})" class="eg-pill-btn">düzenle</button>
+      <button onclick="event.stopPropagation();deleteEgitimModul(${m.id})" class="eg-pill-btn red">sil</button>
     </div>` : '';
     const draggable = egitimIsAdmin()
       ? `draggable="true" ondragstart="egitimModulDragStart(event,${m.id})" ondragover="egitimModulDragOver(event)" ondragleave="this.classList.remove('drag-over')" ondrop="egitimModulDrop(event,${m.id})"`
@@ -9360,13 +9359,10 @@ function renderEgitimNav(moduleId) {
   const topics   = egitimTopics.filter(t => t.module_id === moduleId && (egitimIsAdmin() || t.is_visible !== false));
   const access   = egitimAccess.find(a => a.module_id === moduleId);
   const completed = access && access.completed;
-  const pencilSvg = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 11.5V14h2.5l7.5-7.5-2.5-2.5L2 11.5z"/><path d="M10.5 4.5l1 1"/></svg>`;
-  const trashSvg  = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 5 5 5 13 5"/><path d="M6 5V3h4v2"/><path d="M4.5 5l.8 8h5.4l.8-8"/></svg>`;
-  const plusSvg   = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>`;
-  const gripSvg   = `<svg width="9" height="13" viewBox="0 0 10 14" fill="rgba(255,255,255,0.3)"><circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/><circle cx="3" cy="6" r="1.2"/><circle cx="7" cy="6" r="1.2"/><circle cx="3" cy="10" r="1.2"/><circle cx="7" cy="10" r="1.2"/></svg>`;
+  const gripSvg = `<svg width="9" height="13" viewBox="0 0 9 13" fill="rgba(255,255,255,0.28)"><circle cx="2.5" cy="2" r="1.2"/><circle cx="6.5" cy="2" r="1.2"/><circle cx="2.5" cy="6.5" r="1.2"/><circle cx="6.5" cy="6.5" r="1.2"/><circle cx="2.5" cy="11" r="1.2"/><circle cx="6.5" cy="11" r="1.2"/></svg>`;
 
   const adminTopicBtn = egitimIsAdmin()
-    ? `<button onclick="openEgitimKonuModal(${moduleId})" class="egitim-action-btn">${plusSvg} Bölüm</button>`
+    ? `<button onclick="openEgitimKonuModal(${moduleId})" class="egitim-action-btn">+ Bölüm</button>`
     : '';
 
   let html = `<div class="egitim-nav-header">
@@ -9375,7 +9371,7 @@ function renderEgitimNav(moduleId) {
     </button>
     <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);line-height:1.3;margin-bottom:8px">${escHtml(m?.title||'')}</div>
     <div class="egitim-card-bar-bg"><div class="egitim-card-bar-fill" style="width:${completed?100:0}%"></div></div>
-    ${egitimIsAdmin()?`<div style="display:flex;gap:5px;margin-top:10px"><button onclick="openEgitimModulModal(${moduleId})" class="egitim-action-btn">${pencilSvg} Düzenle</button>${adminTopicBtn}</div>`:''}
+    ${egitimIsAdmin()?`<div style="display:flex;gap:5px;margin-top:10px"><button onclick="openEgitimModulModal(${moduleId})" class="egitim-action-btn">Düzenle</button>${adminTopicBtn}</div>`:''}
   </div>
   <div class="egitim-nav-body">`;
 
@@ -9384,22 +9380,22 @@ function renderEgitimNav(moduleId) {
     const topicDrag = egitimIsAdmin()
       ? `draggable="true" ondragstart="egitimTopicDragStart(event,${t.id})" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="egitimTopicDrop(event,${t.id})"`
       : '';
-    const adminTopicBtns = egitimIsAdmin() ? `<div style="display:flex;gap:2px;align-items:center">
-      <span style="cursor:grab;line-height:0;margin-right:1px">${gripSvg}</span>
-      <button onclick="openEgitimDersModal(${t.id})" class="egitim-nav-icon-btn" title="Ders ekle">${plusSvg}</button>
-      <button onclick="openEgitimKonuModal(${moduleId},${t.id})" class="egitim-nav-icon-btn" title="Düzenle">${pencilSvg}</button>
-      <button onclick="deleteEgitimKonu(${t.id})" class="egitim-nav-icon-btn danger" title="Sil">${trashSvg}</button>
+    const adminTopicBtns = egitimIsAdmin() ? `<div style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+      <span style="cursor:grab;line-height:0;margin-right:2px">${gripSvg}</span>
+      <button onclick="openEgitimDersModal(${t.id})" class="eg-pill-btn">+ ders</button>
+      <button onclick="openEgitimKonuModal(${moduleId},${t.id})" class="eg-pill-btn">düzenle</button>
+      <button onclick="deleteEgitimKonu(${t.id})" class="eg-pill-btn red">sil</button>
     </div>` : '';
     html += `<div class="egitim-topic-group${tIdx > 0 ? ' has-gap' : ''}">
-      <div class="egitim-topic-hd" ${topicDrag}><span>${escHtml(t.title)}</span>${adminTopicBtns}</div>`;
+      <div class="egitim-topic-hd" ${topicDrag}><span class="eg-topic-title">${escHtml(t.title)}</span>${adminTopicBtns}</div>`;
     lessons.forEach(l => {
       const active = egitimCurrentLesson === l.id;
       const lessonDrag = egitimIsAdmin()
         ? `draggable="true" ondragstart="egitimLessonDragStart(event,${l.id})" ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="egitimLessonDrop(event,${l.id})"`
         : '';
-      const adminDersBtns = egitimIsAdmin() ? `<span style="display:flex;gap:2px;flex-shrink:0">
-        <button onclick="event.stopPropagation();openEgitimDersModal(${t.id},${l.id})" class="egitim-nav-icon-btn" title="Dersi düzenle">${pencilSvg}</button>
-        <button onclick="event.stopPropagation();deleteEgitimDers(${l.id})" class="egitim-nav-icon-btn danger" title="Dersi sil">${trashSvg}</button>
+      const adminDersBtns = egitimIsAdmin() ? `<span style="display:flex;gap:3px;flex-shrink:0">
+        <button onclick="event.stopPropagation();openEgitimDersModal(${t.id},${l.id})" class="eg-pill-btn">düzenle</button>
+        <button onclick="event.stopPropagation();deleteEgitimDers(${l.id})" class="eg-pill-btn red">sil</button>
       </span>` : '';
       html += `<div class="egitim-lesson-item${active?' active':''}" onclick="if(!window._egitimDragging)egitimSelectLesson(${l.id})" ${lessonDrag} ondragend="window._egitimDragging=false">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.45"><circle cx="8" cy="8" r="6"/><path d="M6.5 5.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
