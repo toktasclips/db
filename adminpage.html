@@ -2092,7 +2092,7 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
-    <div class="nav-item" onclick="go('egitim',this)">
+    <div class="nav-item" id="nav-egitim" onclick="go('egitim',this)">
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2L2 5l6 3 6-3-6-3z"/><path d="M2 5v5c0 1.5 2.5 3 6 3s6-1.5 6-3V5"/></svg>
       Dersler
     </div>
@@ -5831,6 +5831,14 @@ function showApp(){
   document.querySelectorAll('.non-admin-only').forEach(el => {
     el.style.display = isAdmin ? 'none' : '';
   });
+
+  // Dersler: sadece admin ve test kullanıcısına göster
+  const EGITIM_TEST_USER = 'kullaniciekle@gmail.com';
+  const canSeeDersler = isAdmin || currentUser.email === EGITIM_TEST_USER;
+  const navEgitim = document.getElementById('nav-egitim');
+  if(navEgitim) navEgitim.style.display = canSeeDersler ? '' : 'none';
+  const pageEgitim = document.getElementById('page-egitim');
+  if(pageEgitim) pageEgitim.style.display = canSeeDersler ? '' : 'none';
 
   // State sıfırla
   state.clients=[]; state.leads=[]; state.goals=[];
