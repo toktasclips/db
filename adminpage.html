@@ -2110,6 +2110,11 @@ select option { background: #232323; color: #e8e8e6; }
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M9 11.5h5M11.5 9v5"/></svg>
       Kullanıcılar
     </div>
+    <div class="nav-item" onclick="go('mesajlar',this)" id="nav-mesajlar">
+      <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H5l-3 2V4a1 1 0 0 1 1-1z"/></svg>
+      Mesajlar
+      <span id="msg-unread-badge" style="display:none;background:#e57373;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:auto"></span>
+    </div>
 
     <!-- hidden instagram -->
     <div class="nav-item" onclick="go('instagram',this)" style="display:none">
@@ -2606,6 +2611,11 @@ select option { background: #232323; color: #e8e8e6; }
         <div class="card-head"><span class="card-title">Kayıtlı Kullanıcılar</span></div>
         <div class="card-body"><div id="users-list"></div></div>
       </div>
+    </div>
+
+    <!-- ===== MESAJLAR ===== -->
+    <div class="page" id="page-mesajlar" style="max-width:none;padding:0">
+      <div id="msg-root" style="display:flex;height:calc(100vh - 0px);overflow:hidden"></div>
     </div>
 
     <!-- ===== MÜŞTERİ YÖNETİMİ ===== -->
@@ -4364,6 +4374,7 @@ function go(id,el){
   if(id==='barista') setTimeout(loadToolboxItems, 50);
   if(id==='odevler') setTimeout(loadOdevler, 50);
   if(id==='egitim') setTimeout(loadEgitim, 50);
+  if(id==='mesajlar') setTimeout(loadMesajlar, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -5832,6 +5843,7 @@ function showApp(){
     loadIgDailyKPIs();
     renderUserProgramCard();
     renderExpiryBadge();
+    updateUnreadBadge();
     checkAccess(); // enforce expiry after client data is loaded
   });
 }
@@ -9184,6 +9196,199 @@ async function loadImplementationPage() {
 </script>
 
 <script>
+// ============================================================
+// MESAJLAŞMA
+// ============================================================
+
+let msgRealtimeSub = null;
+let msgActiveThread = null; // email of conversation partner
+
+async function loadMesajlar(){
+  const root = document.getElementById('msg-root');
+  if(!root) return;
+  if(currentUser?.role === 'admin'){
+    await renderMsgAdminView();
+  } else {
+    msgActiveThread = 'admin';
+    await renderMsgUserView();
+  }
+  subscribeMessages();
+}
+
+function msgAdminEmail(){ return 'admin'; }
+
+// ── Admin: sol panel kullanıcılar, sağ panel chat ──────────────
+async function renderMsgAdminView(){
+  const root = document.getElementById('msg-root');
+  root.innerHTML = `
+    <div id="msg-sidebar" style="width:260px;flex-shrink:0;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;overflow:hidden">
+      <div style="padding:20px 16px 12px;font-size:13px;font-weight:600;color:#e8e8e6;border-bottom:1px solid rgba(255,255,255,0.07)">Mesajlar</div>
+      <div id="msg-thread-list" style="flex:1;overflow-y:auto"></div>
+    </div>
+    <div id="msg-chat-area" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div id="msg-chat-empty" style="flex:1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:13px">Bir konuşma seç</div>
+    </div>`;
+  await renderMsgThreadList();
+}
+
+async function renderMsgThreadList(){
+  const el = document.getElementById('msg-thread-list');
+  if(!el) return;
+  const { data: msgs } = await sb.from('messages').select('*').order('created_at', { ascending: false });
+  if(!msgs || !msgs.length){ el.innerHTML = '<div style="padding:16px;font-size:12px;color:rgba(255,255,255,0.25)">Henüz mesaj yok</div>'; return; }
+
+  // Group by user (non-admin side)
+  const threads = {};
+  msgs.forEach(m => {
+    const partner = m.sender_email === 'admin' ? m.receiver_email : m.sender_email;
+    if(!threads[partner]) threads[partner] = { last: m, unread: 0 };
+    if(m.sender_email !== 'admin' && !m.is_read) threads[partner].unread++;
+  });
+
+  el.innerHTML = Object.entries(threads).map(([email, t]) => {
+    const initials = email.slice(0,2).toUpperCase();
+    const time = new Date(t.last.created_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    const preview = t.last.content.length > 35 ? t.last.content.slice(0,35)+'…' : t.last.content;
+    const active = msgActiveThread === email ? 'background:rgba(255,255,255,0.06);' : '';
+    return `<div onclick="msgOpenThread('${email}')" style="padding:12px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);${active}display:flex;align-items:center;gap:10px" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='${msgActiveThread===email?'rgba(255,255,255,0.06)':'transparent'}'">
+      <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#e8e8e6;flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+          <span style="font-size:12.5px;font-weight:500;color:#e8e8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">${email}</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.3);flex-shrink:0">${time}</span>
+        </div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,0.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${preview}</div>
+      </div>
+      ${t.unread > 0 ? `<span style="background:#e57373;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;flex-shrink:0">${t.unread}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function msgOpenThread(email){
+  msgActiveThread = email;
+  await renderMsgAdminChatPanel(email);
+  await renderMsgThreadList();
+  await msgMarkRead(email);
+  updateUnreadBadge();
+}
+
+async function renderMsgAdminChatPanel(email){
+  const area = document.getElementById('msg-chat-area');
+  if(!area) return;
+  area.innerHTML = `
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px">
+      <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#e8e8e6">${email.slice(0,2).toUpperCase()}</div>
+      <span style="font-size:13px;font-weight:500;color:#e8e8e6">${email}</span>
+    </div>
+    <div id="msg-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px"></div>
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:8px">
+      <input id="msg-input" type="text" placeholder="Mesaj yaz…" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 12px;font-size:13px;color:#e8e8e6;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')msgSend()"/>
+      <button onclick="msgSend()" style="padding:9px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e8e8e6;font-size:12px;cursor:pointer;font-family:inherit">Gönder</button>
+    </div>`;
+  await renderMsgMessages(email);
+}
+
+// ── User view ──────────────────────────────────────────────────
+async function renderMsgUserView(){
+  const root = document.getElementById('msg-root');
+  root.innerHTML = `
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px">
+        <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#e8e8e6">DB</div>
+        <span style="font-size:13px;font-weight:500;color:#e8e8e6">Dijital Barista</span>
+      </div>
+      <div id="msg-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:8px">
+        <input id="msg-input" type="text" placeholder="Mesaj yaz…" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 12px;font-size:13px;color:#e8e8e6;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')msgSend()"/>
+        <button onclick="msgSend()" style="padding:9px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e8e8e6;font-size:12px;cursor:pointer;font-family:inherit">Gönder</button>
+      </div>
+    </div>`;
+  await renderMsgMessages(currentUser.email);
+  await msgMarkRead(currentUser.email);
+  updateUnreadBadge();
+}
+
+// ── Shared: render messages ────────────────────────────────────
+async function renderMsgMessages(userEmail){
+  const el = document.getElementById('msg-messages');
+  if(!el) return;
+  const { data: msgs } = await sb.from('messages')
+    .select('*')
+    .or(`and(sender_email.eq.${userEmail},receiver_email.eq.admin),and(sender_email.eq.admin,receiver_email.eq.${userEmail})`)
+    .order('created_at', { ascending: true });
+  if(!msgs || !msgs.length){ el.innerHTML = '<div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.2);margin-top:40px">Henüz mesaj yok</div>'; return; }
+  const myEmail = currentUser?.role === 'admin' ? 'admin' : currentUser.email;
+  el.innerHTML = msgs.map(m => {
+    const isMine = m.sender_email === myEmail;
+    const time = new Date(m.created_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex;justify-content:${isMine?'flex-end':'flex-start'}">
+      <div style="max-width:70%;padding:9px 13px;border-radius:${isMine?'14px 14px 4px 14px':'14px 14px 14px 4px'};background:${isMine?'rgba(255,255,255,0.1)':'rgba(255,255,255,0.05)'};font-size:13px;color:#e8e8e6;line-height:1.5">
+        ${m.content}
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;text-align:right">${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function msgSend(){
+  const input = document.getElementById('msg-input');
+  if(!input) return;
+  const content = input.value.trim();
+  if(!content) return;
+  const isAdmin = currentUser?.role === 'admin';
+  const sender = isAdmin ? 'admin' : currentUser.email;
+  const receiver = isAdmin ? msgActiveThread : 'admin';
+  if(!receiver){ alert('Kullanıcı seç'); return; }
+  input.value = '';
+  await sb.from('messages').insert({ sender_email: sender, receiver_email: receiver, content, is_read: false });
+  await renderMsgMessages(isAdmin ? msgActiveThread : currentUser.email);
+  if(isAdmin) await renderMsgThreadList();
+}
+
+async function msgMarkRead(userEmail){
+  if(currentUser?.role === 'admin'){
+    await sb.from('messages').update({ is_read: true }).eq('sender_email', userEmail).eq('receiver_email', 'admin').eq('is_read', false);
+  } else {
+    await sb.from('messages').update({ is_read: true }).eq('sender_email', 'admin').eq('receiver_email', userEmail).eq('is_read', false);
+  }
+}
+
+async function updateUnreadBadge(){
+  const badge = document.getElementById('msg-unread-badge');
+  if(!badge) return;
+  const myEmail = currentUser?.role === 'admin' ? 'admin' : currentUser.email;
+  const { count } = await sb.from('messages').select('id', { count: 'exact', head: true }).eq('receiver_email', myEmail).eq('is_read', false);
+  if(count && count > 0){ badge.textContent = count; badge.style.display = 'inline'; }
+  else { badge.style.display = 'none'; }
+}
+
+function subscribeMessages(){
+  if(msgRealtimeSub) sb.removeChannel(msgRealtimeSub);
+  const myEmail = currentUser?.role === 'admin' ? 'admin' : currentUser.email;
+  msgRealtimeSub = sb.channel('messages-realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
+      const m = payload.new;
+      const isAdmin = currentUser?.role === 'admin';
+      const relevant = isAdmin
+        ? (m.receiver_email === 'admin' || m.sender_email === 'admin')
+        : (m.sender_email === myEmail || m.receiver_email === myEmail);
+      if(!relevant) return;
+      updateUnreadBadge();
+      const msgsEl = document.getElementById('msg-messages');
+      if(!msgsEl) return;
+      if(isAdmin && msgActiveThread){
+        await renderMsgMessages(msgActiveThread);
+        await renderMsgThreadList();
+        if(m.sender_email !== 'admin') await msgMarkRead(msgActiveThread);
+      } else if(!isAdmin){
+        await renderMsgMessages(myEmail);
+        await msgMarkRead(myEmail);
+      }
+    })
+    .subscribe();
+}
+
 // ============================================================
 // EĞİTİM / CLASSROOM SİSTEMİ
 // ============================================================
