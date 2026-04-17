@@ -5803,7 +5803,7 @@ async function doLogin(){
   }
 
   // Supabase users tablosundan kontrol (role dahil)
-  const {data:found, error} = await sb.from('users').select('*').eq('email',email).eq('password',passHash);
+  const {data:found, error} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
   if(found && found.length > 0){
     const u = found[0];
     currentUser = {email: u.email, name: u.name, role: u.role||'client', id: u.id};
@@ -5965,7 +5965,7 @@ async function recordSaleInDaily(name, programName, amount) {
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
-  const password = await sha256(document.getElementById('u-password').value);
+  const password = document.getElementById('u-password').value;
   if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
   if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
 
