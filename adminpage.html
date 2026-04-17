@@ -9135,6 +9135,8 @@ async function loadImplementationPage() {
 // EĞİTİM / CLASSROOM SİSTEMİ
 // ============================================================
 
+function egitimIsAdmin(){ return currentUser?.role === 'admin'; }
+
 let egitimModules = [];
 let egitimTopics  = [];
 let egitimLessons = [];
@@ -9147,7 +9149,7 @@ async function loadEgitim() {
   const email = currentUser?.email;
   try {
     if (email) {
-      const subsQuery = isAdmin
+      const subsQuery = egitimIsAdmin()
         ? sb.from('training_module_submissions').select('*').order('created_at', { ascending: false })
         : sb.from('training_module_submissions').select('*').eq('user_id', email);
       const [mR, tR, lR, aR, sR] = await Promise.all([
@@ -9190,30 +9192,30 @@ function egitimBack() {
 // ===== GRID VIEW =====
 function renderEgitimGrid() {
   const el = document.getElementById('egitim-module-list');
-  const visibleMods = egitimModules.filter(m => isAdmin || m.is_visible !== false);
+  const visibleMods = egitimModules.filter(m => egitimIsAdmin() || m.is_visible !== false);
   const cards = visibleMods.map((m, idx) => {
     const access = egitimAccess.find(a => a.module_id === m.id);
-    const unlocked = isAdmin || idx === 0 || (access && access.unlocked);
+    const unlocked = egitimIsAdmin() || idx === 0 || (access && access.unlocked);
     const completed = access && access.completed;
     const sub = egitimSubs.find(s => s.module_id === m.id && s.user_id === currentUser?.email);
     const subStatus = sub ? sub.status : null;
-    const topics = egitimTopics.filter(t => t.module_id === m.id && (isAdmin || t.is_visible !== false));
-    const lessonCount = topics.reduce((n,t) => n + egitimLessons.filter(l => l.topic_id === t.id && (isAdmin || l.is_visible !== false)).length, 0);
+    const topics = egitimTopics.filter(t => t.module_id === m.id && (egitimIsAdmin() || t.is_visible !== false));
+    const lessonCount = topics.reduce((n,t) => n + egitimLessons.filter(l => l.topic_id === t.id && (egitimIsAdmin() || l.is_visible !== false)).length, 0);
     const icon = m.icon || '📚';
     let statusBadge = '';
     if (completed) statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(76,175,129,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">✓ Tamam</div>`;
     else if (subStatus==='incelemede') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(224,165,83,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">⏳ İnceleniyor</div>`;
     else if (subStatus==='revize') statusBadge = `<div style="position:absolute;top:10px;right:10px;background:rgba(229,115,115,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">↩ Revize</div>`;
-    const adminBtns = isAdmin ? `<div style="display:flex;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
+    const adminBtns = egitimIsAdmin() ? `<div style="display:flex;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid var(--color-divider)">
       <button onclick="event.stopPropagation();openEgitimModulModal(${m.id})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-text-muted);padding:2px 6px;font-family:inherit">✏️ Düzenle</button>
       <button onclick="event.stopPropagation();deleteEgitimModul(${m.id})" style="background:none;border:none;cursor:pointer;font-size:11px;color:#e57373;padding:2px 6px;font-family:inherit">🗑 Sil</button>
     </div>` : '';
-    return `<div class="egitim-card" onclick="${unlocked?`egitimOpenModule(${m.id})`:'void(0)'}" style="${!unlocked&&!isAdmin?'opacity:0.55;cursor:default;pointer-events:none':''}">
+    return `<div class="egitim-card" onclick="${unlocked?`egitimOpenModule(${m.id})`:'void(0)'}" style="${!unlocked&&!egitimIsAdmin()?'opacity:0.55;cursor:default;pointer-events:none':''}">
       <div class="egitim-card-cover">
         <span>${icon}</span>
-        ${!unlocked&&!isAdmin?'<div class="egitim-locked-overlay">🔒</div>':''}
+        ${!unlocked&&!egitimIsAdmin()?'<div class="egitim-locked-overlay">🔒</div>':''}
         ${statusBadge}
-        ${!m.is_visible&&isAdmin?'<div style="position:absolute;bottom:8px;left:10px;font-size:10px;background:rgba(0,0,0,0.7);color:#aaa;padding:2px 7px;border-radius:6px">Gizli</div>':''}
+        ${!m.is_visible&&egitimIsAdmin()?'<div style="position:absolute;bottom:8px;left:10px;font-size:10px;background:rgba(0,0,0,0.7);color:#aaa;padding:2px 7px;border-radius:6px">Gizli</div>':''}
       </div>
       <div class="egitim-card-body">
         <div class="egitim-card-title">${escHtml(m.title)}</div>
@@ -9224,7 +9226,7 @@ function renderEgitimGrid() {
       </div>
     </div>`;
   });
-  if (isAdmin) {
+  if (egitimIsAdmin()) {
     cards.push(`<div class="egitim-add-card" onclick="openEgitimModulModal()">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
       <span style="font-size:13px;font-weight:500">Yeni Seviye Ekle</span>
@@ -9254,28 +9256,28 @@ function egitimShowDetail(moduleId) {
 
 function renderEgitimNav(moduleId) {
   const m = egitimModules.find(x => x.id === moduleId);
-  const topics = egitimTopics.filter(t => t.module_id === moduleId && (isAdmin || t.is_visible !== false));
+  const topics = egitimTopics.filter(t => t.module_id === moduleId && (egitimIsAdmin() || t.is_visible !== false));
   const access = egitimAccess.find(a => a.module_id === moduleId);
   const completed = access && access.completed;
-  const adminTopicBtn = isAdmin ? `<button onclick="openEgitimKonuModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-accent);padding:2px 6px;font-family:inherit">+ Bölüm</button>` : '';
+  const adminTopicBtn = egitimIsAdmin() ? `<button onclick="openEgitimKonuModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-accent);padding:2px 6px;font-family:inherit">+ Bölüm</button>` : '';
   let html = `<div class="egitim-nav-header">
     <button class="egitim-nav-back" onclick="egitimShowGrid()">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> Dersler
     </button>
     <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);line-height:1.3;margin-bottom:8px">${escHtml(m?.title||'')}</div>
     <div class="egitim-card-bar-bg"><div class="egitim-card-bar-fill" style="width:${completed?100:0}%"></div></div>
-    ${isAdmin?`<div style="display:flex;gap:4px;margin-top:8px"><button onclick="openEgitimModulModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-text-muted);padding:0;font-family:inherit">✏️ Düzenle</button>${adminTopicBtn}</div>`:''}
+    ${egitimIsAdmin()?`<div style="display:flex;gap:4px;margin-top:8px"><button onclick="openEgitimModulModal(${moduleId})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--color-text-muted);padding:0;font-family:inherit">✏️ Düzenle</button>${adminTopicBtn}</div>`:''}
   </div>
   <div class="egitim-nav-body">`;
   topics.forEach(t => {
-    const lessons = egitimLessons.filter(l => l.topic_id === t.id && (isAdmin || l.is_visible !== false));
-    const adminLessonBtn = isAdmin ? `<button onclick="openEgitimDersModal(${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-accent);padding:1px 4px;font-family:inherit">+</button>
+    const lessons = egitimLessons.filter(l => l.topic_id === t.id && (egitimIsAdmin() || l.is_visible !== false));
+    const adminLessonBtn = egitimIsAdmin() ? `<button onclick="openEgitimDersModal(${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-accent);padding:1px 4px;font-family:inherit">+</button>
       <button onclick="openEgitimKonuModal(${moduleId},${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-text-muted);padding:1px 4px;font-family:inherit">✏️</button>
       <button onclick="deleteEgitimKonu(${t.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:#e57373;padding:1px 4px;font-family:inherit">✕</button>` : '';
     html += `<div class="egitim-topic-hd"><span>${escHtml(t.title)}</span><div style="display:flex;gap:2px">${adminLessonBtn}</div></div>`;
     lessons.forEach(l => {
       const active = egitimCurrentLesson === l.id;
-      const adminDersBtns = isAdmin ? `<span style="display:flex;gap:2px;flex-shrink:0">
+      const adminDersBtns = egitimIsAdmin() ? `<span style="display:flex;gap:2px;flex-shrink:0">
         <button onclick="event.stopPropagation();openEgitimDersModal(${t.id},${l.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--color-text-muted);padding:1px 3px;font-family:inherit">✏️</button>
         <button onclick="event.stopPropagation();deleteEgitimDers(${l.id})" style="background:none;border:none;cursor:pointer;font-size:10px;color:#e57373;padding:1px 3px;font-family:inherit">✕</button>
       </span>` : '';
@@ -9285,11 +9287,11 @@ function renderEgitimNav(moduleId) {
         ${adminDersBtns}
       </div>`;
     });
-    if (!lessons.length && isAdmin) {
+    if (!lessons.length && egitimIsAdmin()) {
       html += `<div style="padding:6px 24px;font-size:11px;color:var(--color-text-muted);font-style:italic">Ders yok</div>`;
     }
   });
-  if (!topics.length) html += `<div style="padding:16px;font-size:12px;color:var(--color-text-muted)">${isAdmin?'Bölüm ekle →':'İçerik yükleniyor…'}</div>`;
+  if (!topics.length) html += `<div style="padding:16px;font-size:12px;color:var(--color-text-muted)">${egitimIsAdmin()?'Bölüm ekle →':'İçerik yükleniyor…'}</div>`;
   html += '</div>';
   document.getElementById('egitim-nav-panel').innerHTML = html;
 }
@@ -9301,7 +9303,7 @@ function renderEgitimModuleIntro(moduleId) {
   const sub = egitimSubs.find(s => s.module_id === moduleId && s.user_id === currentUser?.email);
   const subStatus = sub ? sub.status : null;
   let actionHtml = '';
-  if (!isAdmin) {
+  if (!egitimIsAdmin()) {
     if (completed) actionHtml = `<div style="padding:14px 18px;background:var(--color-green-light);border:1px solid rgba(76,175,129,0.2);border-radius:10px;font-size:13px;color:#4caf81;margin-top:24px">✓ Bu seviyeyi tamamladın!</div>`;
     else if (subStatus==='incelemede') actionHtml = `<div style="padding:14px 18px;background:rgba(224,165,83,0.08);border:1px solid rgba(224,165,83,0.2);border-radius:10px;font-size:13px;color:var(--color-amber);margin-top:24px">⏳ Formun gönderildi, admin inceliyor…</div>`;
     else if (subStatus==='revize') actionHtml = `<div style="margin-top:24px"><div style="padding:12px 16px;background:rgba(229,115,115,0.08);border-radius:10px;font-size:13px;color:#e57373;margin-bottom:12px">↩ Revize gerekli${sub.admin_note?`: ${escHtml(sub.admin_note)}`:''}</div><button class="btn btn-primary" onclick="openEgitimForm(${moduleId})">Tekrar Gönder</button></div>`;
