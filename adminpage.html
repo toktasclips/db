@@ -9145,22 +9145,27 @@ let egitimCurrentLesson = null;
 
 async function loadEgitim() {
   const email = currentUser?.email;
-  if (!email) return;
-  const subsQuery = isAdmin
-    ? sb.from('training_module_submissions').select('*').order('created_at', { ascending: false })
-    : sb.from('training_module_submissions').select('*').eq('user_id', email);
-  const [mR, tR, lR, aR, sR] = await Promise.all([
-    sb.from('training_modules').select('*').order('order_index'),
-    sb.from('training_topics').select('*').order('order_index'),
-    sb.from('training_lessons').select('*').order('order_index'),
-    sb.from('user_module_access').select('*').eq('user_id', email),
-    subsQuery,
-  ]);
-  egitimModules = mR.data || [];
-  egitimTopics  = tR.data || [];
-  egitimLessons = lR.data || [];
-  egitimAccess  = aR.data || [];
-  egitimSubs    = sR.data || [];
+  try {
+    if (email) {
+      const subsQuery = isAdmin
+        ? sb.from('training_module_submissions').select('*').order('created_at', { ascending: false })
+        : sb.from('training_module_submissions').select('*').eq('user_id', email);
+      const [mR, tR, lR, aR, sR] = await Promise.all([
+        sb.from('training_modules').select('*').order('order_index'),
+        sb.from('training_topics').select('*').order('order_index'),
+        sb.from('training_lessons').select('*').order('order_index'),
+        sb.from('user_module_access').select('*').eq('user_id', email),
+        subsQuery,
+      ]);
+      egitimModules = mR.data || [];
+      egitimTopics  = tR.data || [];
+      egitimLessons = lR.data || [];
+      egitimAccess  = aR.data || [];
+      egitimSubs    = sR.data || [];
+    }
+  } catch(e) {
+    console.warn('loadEgitim error:', e.message);
+  }
   egitimShowGrid();
 }
 
