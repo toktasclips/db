@@ -1950,7 +1950,9 @@ select option { background: #232323; color: #e8e8e6; }
 .ec-section-hd { display:flex; align-items:center; gap:8px; padding:10px 18px; cursor:pointer; user-select:none; }
 .ec-section-hd:hover { background:rgba(255,255,255,0.03); }
 .ec-section-num { font-size:13px; font-weight:600; color:#e8e8e6; flex-shrink:0; }
-.ec-section-name { font-size:13px; font-weight:600; color:#e8e8e6; flex:1; }
+.ec-section-name { font-size:13px; font-weight:600; color:#e8e8e6; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.ec-section-admin { opacity:0; transition:opacity .15s; flex-shrink:0; }
+.ec-section-hd:hover .ec-section-admin { opacity:1; }
 .ec-chevron { flex-shrink:0; transition:transform 0.2s; color:rgba(255,255,255,0.35); }
 .ec-section[data-open="false"] .ec-chevron { transform:rotate(-90deg); }
 .ec-section[data-open="false"] .ec-section-body { display:none; }
@@ -9725,7 +9727,7 @@ function renderEgitimNav(moduleId) {
     const topicDrag = egitimIsAdmin()
       ? `draggable="true" ondragstart="egitimTopicDragStart(event,${t.id})" ondragover="event.preventDefault();this.querySelector('.ec-section-hd').classList.add('drag-over')" ondragleave="this.querySelector('.ec-section-hd').classList.remove('drag-over')" ondrop="egitimTopicDrop(event,${t.id})"`
       : '';
-    const adminTopicBtns = egitimIsAdmin() ? `<div style="display:flex;gap:3px;align-items:center;flex-shrink:0;margin-left:4px" onclick="event.stopPropagation()">
+    const adminTopicBtns = egitimIsAdmin() ? `<div class="ec-section-admin" style="display:flex;gap:3px;align-items:center;margin-left:4px" onclick="event.stopPropagation()">
       <span style="cursor:grab;line-height:0;margin-right:2px">${gripSvg}</span>
       <button onclick="openEgitimDersModal(${t.id})" class="eg-pill-btn">+ ders</button>
       <button onclick="openEgitimKonuModal(${moduleId},${t.id})" class="eg-pill-btn">duzenle</button>
@@ -9904,8 +9906,8 @@ function renderEgitimLessonContent(lessonId) {
         <h1 class="ec-lesson-title">${escHtml(l.title)}</h1>
         ${adminActions}
       </div>
-      ${videoSectionHtml}
       ${descHtml}
+      ${videoSectionHtml}
       ${resourcesHtml}
     </div>`;
 }
