@@ -1807,11 +1807,11 @@ select option { background: #232323; color: #e8e8e6; }
    ============================================================ */
 .nav-group { margin-bottom: 2px; }
 .nav-group-hd {
-  display:flex; align-items:center; gap:7px;
-  padding:6px 10px; border-radius:6px; margin:0 4px;
-  font-size:13px; font-weight:500; text-transform:none; letter-spacing:0;
-  color:rgba(255,255,255,0.35); cursor:pointer;
-  transition:color 0.12s, background 0.12s; user-select:none;
+  display:flex; align-items:center; gap:9px;
+  padding:6px 10px; border-radius:6px; margin:1px 6px;
+  font-size:13px; font-weight:400; text-transform:none; letter-spacing:0;
+  color:rgba(255,255,255,0.45); cursor:pointer;
+  transition:background 0.12s, color 0.12s; user-select:none;
 }
 .nav-group-hd:hover { color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.04); }
 .nav-group-arrow { margin-left:auto; transition:transform 0.18s; flex-shrink:0; opacity:0.5; }
@@ -2041,8 +2041,9 @@ select option { background: #232323; color: #e8e8e6; }
     <!-- OPERASYON ACCORDION -->
     <div class="nav-group" id="navgroup-operasyon">
       <div class="nav-group-hd" onclick="toggleNavGroup('operasyon')">
+        <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 7h6M5 10h4"/></svg>
         Operasyon
-        <svg class="nav-group-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
+        <svg class="nav-group-arrow" style="margin-left:auto" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
       </div>
       <div class="nav-group-bd" id="navgroupbd-operasyon">
         <div class="nav-item admin-only" onclick="go('musteri-yonetimi',this)">
@@ -2071,8 +2072,9 @@ select option { background: #232323; color: #e8e8e6; }
     <!-- İŞ TAKİBİ ACCORDION -->
     <div class="nav-group" id="navgroup-istakibi">
       <div class="nav-group-hd" onclick="toggleNavGroup('istakibi')">
+        <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V7l5-4 5 4v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M6 13v-3h4v3"/></svg>
         İş Takibi
-        <svg class="nav-group-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
+        <svg class="nav-group-arrow" style="margin-left:auto" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3.5l3 3 3-3"/></svg>
       </div>
       <div class="nav-group-bd" id="navgroupbd-istakibi">
         <div class="nav-item" onclick="go('goals',this)">
