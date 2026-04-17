@@ -1993,17 +1993,19 @@ select option { background: #232323; color: #e8e8e6; }
 
 <!-- ===== BLOCK SCREEN (program expired) ===== -->
 <div id="block-screen" style="display:none;position:fixed;inset:0;background:#111111;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(229,115,115,0.5)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:24px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-  <div style="font-size:24px;font-weight:700;color:#e8e8e6;letter-spacing:-0.5px;margin-bottom:12px">Süre Doldu</div>
-  <div style="font-size:15px;color:rgba(255,255,255,0.4);max-width:380px;line-height:1.6;margin-bottom:32px">Program süreniz sona erdi. Sisteme tekrar erişmek için kaydınızı yenilemeniz gerekiyor.</div>
-  <a href="mailto:destek@dijitalbarista.com" style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#e8e8e6'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)'">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(229,115,115,0.45)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:28px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <div style="font-size:26px;font-weight:700;color:#e8e8e6;letter-spacing:-0.5px;margin-bottom:14px">Program Süreniz Doldu</div>
+  <div style="font-size:15px;color:rgba(255,255,255,0.38);max-width:400px;line-height:1.7;margin-bottom:36px">Platforma erişimin askıya alındı. Devam etmek için programını yenilemen gerekiyor. Aşağıdan destek ekibiyle iletişime geç.</div>
+  <a href="mailto:destek@dijitalbarista.com" style="display:inline-flex;align-items:center;gap:8px;padding:12px 26px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:9px;font-size:13px;color:rgba(255,255,255,0.65);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#e8e8e6'" onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.65)'">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l6 5 6-5"/><rect x="1" y="3" width="14" height="10" rx="2"/></svg>
     Destek ile iletişime geç
   </a>
-  <button onclick="doLogout()" style="margin-top:16px;background:transparent;border:none;font-size:12px;color:rgba(255,255,255,0.2);cursor:pointer;font-family:inherit">Çıkış Yap</button>
+  <button onclick="doLogout()" style="margin-top:18px;background:transparent;border:none;font-size:12px;color:rgba(255,255,255,0.18);cursor:pointer;font-family:inherit">Çıkış Yap</button>
 </div>
 
 <div class="app" id="app-root" style="display:none">
+  <!-- EXPIRY BADGE -->
+  <div id="expiry-badge" style="display:none;position:fixed;top:14px;right:20px;z-index:200;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;font-family:inherit;letter-spacing:0.2px;pointer-events:none"></div>
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo"><div class="logo-icon-wrap">☕</div>Dijital <span>Barista</span></div>
@@ -4416,6 +4418,29 @@ function showBlockScreen(){
   document.getElementById('block-screen').style.display='flex';
 }
 
+function renderExpiryBadge(){
+  const el=document.getElementById('expiry-badge');
+  if(!el) return;
+  if(!currentUser||currentUser.role==='admin'){ el.style.display='none'; return; }
+  const c=getUserClient();
+  if(!c||!c.programEnd){ el.style.display='none'; return; }
+  const days=remainingDays(c.programEnd);
+  if(days===null){ el.style.display='none'; return; }
+  let bg,color,border,text;
+  if(days<0){
+    bg='rgba(229,115,115,0.15)'; color='#e57373'; border='rgba(229,115,115,0.35)'; text='Süre Doldu';
+  } else if(days<=7){
+    bg='rgba(255,183,77,0.15)'; color='#ffb74d'; border='rgba(255,183,77,0.35)'; text=days===0?'Son gün':days+' gün kaldı';
+  } else {
+    bg='rgba(255,255,255,0.07)'; color='rgba(255,255,255,0.45)'; border='rgba(255,255,255,0.12)'; text=days+' gün kaldı';
+  }
+  el.style.display='block';
+  el.style.background=bg;
+  el.style.color=color;
+  el.style.border='1px solid '+border;
+  el.textContent=text;
+}
+
 // ── User program card ─────────────────────────────────────────
 function renderUserProgramCard(){
   const card=document.getElementById('user-program-card');
@@ -5800,6 +5825,7 @@ function showApp(){
     loadSalesTicker();
     loadIgDailyKPIs();
     renderUserProgramCard();
+    renderExpiryBadge();
     checkAccess(); // enforce expiry after client data is loaded
   });
 }
@@ -5808,6 +5834,7 @@ function doLogout(){
   currentUser = null;
   state.clients=[]; state.leads=[]; state.goals=[];
   state.milestones=[]; state.daily=[]; state.offers=[]; state.ownClient=null;
+  const eb=document.getElementById('expiry-badge'); if(eb) eb.style.display='none';
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('block-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
