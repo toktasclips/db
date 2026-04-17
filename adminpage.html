@@ -2057,7 +2057,7 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
         <div class="nav-item admin-only" onclick="go('egitim-yonetim',this)">
           <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v2.5l1.5 1.5"/></svg>
-          İçerik Yönetimi
+          Eğitim İçerikleri
         </div>
         <div class="nav-item admin-only" onclick="go('egitim-onay',this)">
           <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
@@ -3332,7 +3332,7 @@ select option { background: #232323; color: #e8e8e6; }
     <!-- ===== EĞİTİM YÖNETİM (admin) ===== -->
     <div class="page admin-only" id="page-egitim-yonetim">
       <div class="page-head">
-        <div><div class="page-title">İçerik Yönetimi</div></div>
+        <div><div class="page-title">Eğitim İçerikleri</div></div>
         <button class="btn btn-primary" onclick="openEgitimModulModal()">+ Modül Ekle</button>
       </div>
       <div id="egitim-admin-list"></div>
@@ -9357,7 +9357,7 @@ function openEgitimModulModal(id) {
   document.getElementById('em-desc').value = m ? (m.description || '') : '';
   document.getElementById('em-order').value = m ? m.order_index : (egitimModules.length + 1);
   document.getElementById('em-visible').checked = m ? m.is_visible !== false : true;
-  document.getElementById('modal-egitim-modul').classList.add('active');
+  document.getElementById('modal-egitim-modul').classList.add('open');
 }
 
 async function saveEgitimModul() {
@@ -9395,7 +9395,7 @@ function openEgitimKonuModal(moduleId, topicId) {
   document.getElementById('ek-title').value = t ? t.title : '';
   document.getElementById('ek-order').value = t ? t.order_index : (egitimTopics.filter(x=>x.module_id===moduleId).length + 1);
   document.getElementById('ek-visible').checked = t ? t.is_visible !== false : true;
-  document.getElementById('modal-egitim-konu').classList.add('active');
+  document.getElementById('modal-egitim-konu').classList.add('open');
 }
 
 async function saveEgitimKonu() {
@@ -9432,7 +9432,7 @@ function openEgitimDersModal(topicId, lessonId) {
   document.getElementById('ed2-resource').value = l ? (l.resource_url || '') : '';
   document.getElementById('ed2-order').value = l ? l.order_index : (egitimLessons.filter(x=>x.topic_id===topicId).length + 1);
   document.getElementById('ed2-visible').checked = l ? l.is_visible !== false : true;
-  document.getElementById('modal-egitim-ders').classList.add('active');
+  document.getElementById('modal-egitim-ders').classList.add('open');
 }
 
 async function saveEgitimDers() {
