@@ -1922,22 +1922,6 @@ select option { background: #232323; color: #e8e8e6; }
 .egitim-add-card { background:transparent; border:1px dashed rgba(255,255,255,0.12); border-radius:14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:192px; transition:border-color .15s, background .15s; color:var(--color-text-muted); }
 .egitim-add-card:hover { border-color:var(--color-accent); background:rgba(74,158,255,0.04); color:var(--color-accent); }
 .egitim-locked-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; font-size:22px; }
-.egitim-detail-wrap { display:flex; gap:0; margin:-24px; height:calc(100vh - 56px); overflow:hidden; }
-.egitim-nav-panel { width:272px; min-width:272px; border-right:1px solid var(--color-border); overflow-y:auto; background:var(--color-bg); display:flex; flex-direction:column; }
-.egitim-nav-header { padding:16px; border-bottom:1px solid var(--color-divider); }
-.egitim-nav-back { background:none; border:none; color:var(--color-text-muted); cursor:pointer; font-size:12px; padding:0; display:flex; align-items:center; gap:5px; margin-bottom:10px; font-family:inherit; }
-.egitim-nav-back:hover { color:var(--color-text-primary); }
-.egitim-nav-body { flex:1; overflow-y:auto; padding:8px 0; }
-.egitim-topic-group { }
-.egitim-topic-group.has-gap .egitim-topic-hd { border-top:1px solid rgba(255,255,255,0.07); padding-top:18px; margin-top:8px; }
-.egitim-topic-hd { padding:10px 14px 7px; font-size:12px; font-weight:600; color:#ffffff; text-transform:uppercase; letter-spacing:0.6px; display:flex; align-items:center; justify-content:space-between; cursor:grab; user-select:none; }
-.egitim-topic-hd:active { cursor:grabbing; }
-.egitim-topic-hd span.eg-topic-title { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.egitim-lesson-item { padding:8px 12px 8px 22px; font-size:13px; color:var(--color-text-secondary); cursor:grab; display:flex; align-items:center; gap:8px; border-left:2px solid transparent; transition:background .1s; user-select:none; }
-.egitim-lesson-item:hover { background:var(--color-surface); color:var(--color-text-primary); }
-.egitim-lesson-item.active { background:var(--color-surface); color:var(--color-text-primary); border-left-color:var(--color-accent); font-weight:500; cursor:pointer; }
-.egitim-lesson-item.drag-over { background:rgba(74,158,255,0.08); border-left-color:var(--color-accent); }
-.egitim-topic-hd.drag-over { background:rgba(74,158,255,0.07); border-radius:5px; }
 .egitim-card.dragging { opacity:0.45; transform:scale(0.97); }
 .egitim-card.drag-over { border-color:var(--color-accent) !important; box-shadow:0 0 0 2px rgba(74,158,255,0.22); }
 .eg-pill-btn { font-size:10px; padding:2px 7px; border-radius:4px; background:transparent; border:1px solid rgba(255,255,255,0.09); color:var(--color-text-disabled); cursor:pointer; font-family:inherit; transition:all .1s; white-space:nowrap; line-height:1.5; }
@@ -1947,11 +1931,64 @@ select option { background: #232323; color: #e8e8e6; }
 .egitim-action-btn:hover { background:var(--color-surface-hover); border-color:rgba(255,255,255,0.2); color:var(--color-text-primary); }
 .egitim-drop-zone { height:112px; border:1.5px dashed rgba(255,255,255,0.12); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .15s, background .15s; position:relative; overflow:hidden; margin-bottom:12px; background:rgba(255,255,255,0.02); }
 .egitim-drop-zone:hover, .egitim-drop-zone.drag-over { border-color:var(--color-accent); background:rgba(74,158,255,0.06); }
-.egitim-content-panel { flex:1; overflow-y:auto; padding:32px 36px; }
-.egitim-video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; margin-bottom:20px; background:#111; }
-.egitim-video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
 .egitim-sub-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
-@media (max-width:700px) { .egitim-detail-wrap { flex-direction:column; height:auto; } .egitim-nav-panel { width:100%; min-width:0; border-right:none; border-bottom:1px solid var(--color-border); max-height:260px; } }
+.egitim-nav-back { background:none; border:none; color:var(--color-text-muted); cursor:pointer; font-size:12px; padding:0; display:flex; align-items:center; gap:5px; font-family:inherit; }
+.egitim-nav-back:hover { color:var(--color-text-primary); }
+/* Classroom layout */
+.egitim-classroom { display:flex; height:calc(100vh - 56px); overflow:hidden; margin:-24px; }
+/* Left nav */
+.ec-nav { width:320px; flex-shrink:0; background:#1a1a1a; border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; overflow:hidden; }
+.ec-nav-header { padding:20px 18px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.ec-back-btn { background:none; border:none; color:rgba(255,255,255,0.4); font-size:12px; cursor:pointer; padding:0 0 10px 0; font-family:inherit; display:flex; align-items:center; gap:4px; }
+.ec-back-btn:hover { color:rgba(255,255,255,0.7); }
+.ec-module-title { font-size:14px; font-weight:600; color:#e8e8e6; margin-bottom:10px; line-height:1.4; }
+.ec-progress-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+.ec-progress-track { height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+.ec-progress-fill { height:100%; background:#4caf81; border-radius:2px; transition:width 0.3s; }
+.ec-nav-body { flex:1; overflow-y:auto; padding:8px 0; }
+/* Sections */
+.ec-section-hd { display:flex; align-items:center; gap:8px; padding:10px 18px; cursor:pointer; user-select:none; }
+.ec-section-hd:hover { background:rgba(255,255,255,0.03); }
+.ec-section-num { font-size:13px; font-weight:600; color:#e8e8e6; flex-shrink:0; }
+.ec-section-name { font-size:13px; font-weight:600; color:#e8e8e6; flex:1; }
+.ec-chevron { flex-shrink:0; transition:transform 0.2s; color:rgba(255,255,255,0.35); }
+.ec-section[data-open="false"] .ec-chevron { transform:rotate(-90deg); }
+.ec-section[data-open="false"] .ec-section-body { display:none; }
+/* Lesson rows */
+.ec-lesson-row { display:flex; align-items:center; gap:8px; padding:8px 18px 8px 32px; cursor:pointer; border-radius:8px; margin:1px 8px; transition:background 0.1s; }
+.ec-lesson-row:hover { background:rgba(255,255,255,0.04); }
+.ec-lesson-row.active { background:#f5e6c8; margin:2px 8px; }
+.ec-lesson-row.active .ec-lesson-name { color:#1a1a1a; font-weight:500; }
+.ec-lesson-name { font-size:13px; color:rgba(255,255,255,0.65); flex:1; line-height:1.4; }
+.ec-lesson-check { width:18px; height:18px; border-radius:50%; background:#4caf81; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ec-lesson-check svg { stroke:#fff; }
+/* Right content */
+.ec-content { flex:1; overflow-y:auto; padding:28px 32px; background:#161616; }
+.ec-content-card { background:#1e1e1e; border:1px solid rgba(255,255,255,0.07); border-radius:16px; overflow:hidden; }
+.ec-content-header { padding:24px 28px 20px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.ec-lesson-title { font-size:20px; font-weight:700; color:#e8e8e6; line-height:1.3; margin:0; flex:1; }
+.ec-admin-actions { display:flex; gap:6px; flex-shrink:0; }
+.ec-admin-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:7px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.45); cursor:pointer; transition:all 0.1s; }
+.ec-admin-btn:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.2); color:#e8e8e6; }
+.ec-admin-btn.red:hover { background:rgba(229,115,115,0.1); border-color:rgba(229,115,115,0.3); color:#e57373; }
+/* Video */
+.ec-video-container { margin:0 28px 24px; }
+.ec-video-wrap { position:relative; padding-bottom:56.25%; height:0; background:#111; border-radius:12px; overflow:hidden; }
+.ec-video-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+.ec-video-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.15); font-size:13px; }
+/* Resources */
+.ec-resources { padding:0 28px 28px; }
+.ec-resources-title { font-size:14px; font-weight:600; color:#e8e8e6; margin-bottom:12px; }
+.ec-resource-link { display:block; color:#d4a264; font-size:13px; text-decoration:none; padding:4px 0; }
+.ec-resource-link:hover { color:#e8c07a; }
+/* Admin nav actions */
+.ec-nav-admin { padding:12px 16px; border-top:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:6px; }
+.ec-add-btn { display:flex; align-items:center; gap:7px; padding:7px 12px; border-radius:7px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.45); font-size:12px; cursor:pointer; font-family:inherit; transition:all 0.1s; width:100%; }
+.ec-add-btn:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.18); color:rgba(255,255,255,0.75); }
+/* Drag-over states for new layout */
+.ec-lesson-row.drag-over { background:rgba(74,158,255,0.08); outline:1px solid rgba(74,158,255,0.3); }
+.ec-section-hd.drag-over { background:rgba(74,158,255,0.07); border-radius:5px; }
+@media (max-width:700px) { .egitim-classroom { flex-direction:column; height:auto; } .ec-nav { width:100%; flex-shrink:0; border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); max-height:260px; } }
 
 </style>
 <body>
@@ -3367,10 +3404,10 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
       <!-- Classroom Detail View -->
       <div id="egitim-detail-view" style="display:none">
-        <div class="egitim-detail-wrap">
-          <div class="egitim-nav-panel" id="egitim-nav-panel"></div>
-          <div class="egitim-content-panel" id="egitim-content-panel">
-            <div style="color:var(--color-text-muted);font-size:14px;padding-top:40px;text-align:center">← Sol menüden bir ders seç</div>
+        <div class="egitim-classroom">
+          <div class="ec-nav" id="egitim-nav-panel"></div>
+          <div class="ec-content" id="egitim-content-panel">
+            <div style="color:rgba(255,255,255,0.35);font-size:14px;padding-top:40px;text-align:center">Sol menuden bir ders sec</div>
           </div>
         </div>
       </div>
@@ -9655,62 +9692,89 @@ function egitimShowDetail(moduleId) {
   }
 }
 
+function toggleEcSection(hdEl) {
+  const section = hdEl.closest('.ec-section');
+  if (!section) return;
+  const open = section.dataset.open !== 'false';
+  section.dataset.open = open ? 'false' : 'true';
+}
+
 function renderEgitimNav(moduleId) {
   const m        = egitimModules.find(x => x.id === moduleId);
   const topics   = egitimTopics.filter(t => t.module_id === moduleId && (egitimIsAdmin() || t.is_visible !== false));
   const access   = egitimAccess.find(a => a.module_id === moduleId);
   const completed = access && access.completed;
   const gripSvg = `<svg width="9" height="13" viewBox="0 0 9 13" fill="rgba(255,255,255,0.28)"><circle cx="2.5" cy="2" r="1.2"/><circle cx="6.5" cy="2" r="1.2"/><circle cx="2.5" cy="6.5" r="1.2"/><circle cx="6.5" cy="6.5" r="1.2"/><circle cx="2.5" cy="11" r="1.2"/><circle cx="6.5" cy="11" r="1.2"/></svg>`;
+  const chevronSvg = `<svg class="ec-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>`;
+  const checkSvg = `<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>`;
 
-  const adminTopicBtn = egitimIsAdmin()
-    ? `<button onclick="openEgitimKonuModal(${moduleId})" class="egitim-action-btn">+ Bölüm</button>`
-    : '';
+  const progressPct = completed ? 100 : 0;
 
-  let html = `<div class="egitim-nav-header">
-    <button class="egitim-nav-back" onclick="egitimShowGrid()">
+  let html = `<div class="ec-nav-header">
+    <button class="ec-back-btn" onclick="egitimShowGrid()">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> Dersler
     </button>
-    <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);line-height:1.3;margin-bottom:8px">${escHtml(m?.title||'')}</div>
-    <div class="egitim-card-bar-bg"><div class="egitim-card-bar-fill" style="width:${completed?100:0}%"></div></div>
-    ${egitimIsAdmin()?`<div style="display:flex;gap:5px;margin-top:10px"><button onclick="openEgitimModulModal(${moduleId})" class="egitim-action-btn">Düzenle</button>${adminTopicBtn}</div>`:''}
+    <div class="ec-module-title">${escHtml(m?.title||'')}</div>
+    <div class="ec-progress-label">${progressPct}% tamamlandi</div>
+    <div class="ec-progress-track"><div class="ec-progress-fill" style="width:${progressPct}%"></div></div>
   </div>
-  <div class="egitim-nav-body">`;
+  <div class="ec-nav-body">`;
 
   topics.forEach((t, tIdx) => {
     const lessons = egitimLessons.filter(l => l.topic_id === t.id && (egitimIsAdmin() || l.is_visible !== false));
     const topicDrag = egitimIsAdmin()
-      ? `draggable="true" ondragstart="egitimTopicDragStart(event,${t.id})" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="egitimTopicDrop(event,${t.id})"`
+      ? `draggable="true" ondragstart="egitimTopicDragStart(event,${t.id})" ondragover="event.preventDefault();this.querySelector('.ec-section-hd').classList.add('drag-over')" ondragleave="this.querySelector('.ec-section-hd').classList.remove('drag-over')" ondrop="egitimTopicDrop(event,${t.id})"`
       : '';
-    const adminTopicBtns = egitimIsAdmin() ? `<div style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+    const adminTopicBtns = egitimIsAdmin() ? `<div style="display:flex;gap:3px;align-items:center;flex-shrink:0;margin-left:4px" onclick="event.stopPropagation()">
       <span style="cursor:grab;line-height:0;margin-right:2px">${gripSvg}</span>
       <button onclick="openEgitimDersModal(${t.id})" class="eg-pill-btn">+ ders</button>
-      <button onclick="openEgitimKonuModal(${moduleId},${t.id})" class="eg-pill-btn">düzenle</button>
+      <button onclick="openEgitimKonuModal(${moduleId},${t.id})" class="eg-pill-btn">duzenle</button>
       <button onclick="deleteEgitimKonu(${t.id})" class="eg-pill-btn red">sil</button>
     </div>` : '';
-    html += `<div class="egitim-topic-group${tIdx > 0 ? ' has-gap' : ''}">
-      <div class="egitim-topic-hd" ${topicDrag}><span class="eg-topic-title">${escHtml(t.title)}</span>${adminTopicBtns}</div>`;
+    html += `<div class="ec-section" data-open="true" ${topicDrag}>
+      <div class="ec-section-hd" onclick="toggleEcSection(this)">
+        <span class="ec-section-num">${tIdx+1}.</span>
+        <span class="ec-section-name">${escHtml(t.title)}</span>
+        ${chevronSvg}
+        ${adminTopicBtns}
+      </div>
+      <div class="ec-section-body">`;
     lessons.forEach(l => {
       const active = egitimCurrentLesson === l.id;
       const lessonDrag = egitimIsAdmin()
         ? `draggable="true" ondragstart="egitimLessonDragStart(event,${l.id})" ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="egitimLessonDrop(event,${l.id})"`
         : '';
-      const adminDersBtns = egitimIsAdmin() ? `<span style="display:flex;gap:3px;flex-shrink:0">
-        <button onclick="event.stopPropagation();openEgitimDersModal(${t.id},${l.id})" class="eg-pill-btn">düzenle</button>
-        <button onclick="event.stopPropagation();deleteEgitimDers(${l.id})" class="eg-pill-btn red">sil</button>
+      const adminDersBtns = egitimIsAdmin() ? `<span style="display:flex;gap:3px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button onclick="openEgitimDersModal(${t.id},${l.id})" class="eg-pill-btn">duzenle</button>
+        <button onclick="deleteEgitimDers(${l.id})" class="eg-pill-btn red">sil</button>
       </span>` : '';
-      html += `<div class="egitim-lesson-item${active?' active':''}" onclick="if(!window._egitimDragging)egitimSelectLesson(${l.id})" ${lessonDrag} ondragend="window._egitimDragging=false">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;opacity:0.45"><circle cx="8" cy="8" r="6"/><path d="M6.5 5.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(l.title)}</span>
+      html += `<div class="ec-lesson-row${active?' active':''}" onclick="if(!window._egitimDragging)egitimSelectLesson(${l.id})" ${lessonDrag} ondragend="window._egitimDragging=false">
+        <span class="ec-lesson-name">${escHtml(l.title)}</span>
         ${adminDersBtns}
       </div>`;
     });
     if (!lessons.length && egitimIsAdmin()) {
-      html += `<div style="padding:5px 26px;font-size:11px;color:var(--color-text-disabled);font-style:italic">Ders yok</div>`;
+      html += `<div style="padding:5px 32px;font-size:11px;color:rgba(255,255,255,0.25);font-style:italic">Ders yok</div>`;
     }
-    html += '</div>';
+    html += `</div></div>`;
   });
-  if (!topics.length) html += `<div style="padding:18px 16px;font-size:12px;color:var(--color-text-muted)">${egitimIsAdmin()?'Yukarıdan bölüm ekle →':'İçerik yükleniyor…'}</div>`;
+
+  if (!topics.length) {
+    html += `<div style="padding:18px 18px;font-size:12px;color:rgba(255,255,255,0.3)">${egitimIsAdmin()?'Asagidan bolum ekle →':'Icerik yukleniyor…'}</div>`;
+  }
   html += '</div>';
+
+  if (egitimIsAdmin()) {
+    html += `<div class="ec-nav-admin">
+      <button onclick="openEgitimKonuModal(${moduleId})" class="ec-add-btn">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Bolum Ekle
+      </button>
+      <button onclick="openEgitimModulModal(${moduleId})" class="ec-add-btn">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2H5a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2z"/><path d="M8 7v4M6 9h4"/></svg> Modulu Duzenle
+      </button>
+    </div>`;
+  }
+
   document.getElementById('egitim-nav-panel').innerHTML = html;
 }
 
@@ -9771,17 +9835,21 @@ function renderEgitimModuleIntro(moduleId) {
   const subStatus = sub ? sub.status : null;
   let actionHtml = '';
   if (!egitimIsAdmin()) {
-    if (completed) actionHtml = `<div style="padding:14px 18px;background:var(--color-green-light);border:1px solid rgba(76,175,129,0.2);border-radius:10px;font-size:13px;color:#4caf81;margin-top:24px">✓ Bu seviyeyi tamamladın!</div>`;
+    if (completed) actionHtml = `<div style="padding:14px 18px;background:rgba(76,175,129,0.08);border:1px solid rgba(76,175,129,0.2);border-radius:10px;font-size:13px;color:#4caf81;margin-top:24px">✓ Bu seviyeyi tamamladın!</div>`;
     else if (subStatus==='incelemede') actionHtml = `<div style="padding:14px 18px;background:rgba(224,165,83,0.08);border:1px solid rgba(224,165,83,0.2);border-radius:10px;font-size:13px;color:var(--color-amber);margin-top:24px">⏳ Formun gönderildi, admin inceliyor…</div>`;
     else if (subStatus==='revize') actionHtml = `<div style="margin-top:24px"><div style="padding:12px 16px;background:rgba(229,115,115,0.08);border-radius:10px;font-size:13px;color:#e57373;margin-bottom:12px">↩ Revize gerekli${sub.admin_note?`: ${escHtml(sub.admin_note)}`:''}</div><button class="btn btn-primary" onclick="openEgitimForm(${moduleId})">Tekrar Gönder</button></div>`;
     else actionHtml = `<button class="btn btn-primary" style="margin-top:24px" onclick="openEgitimForm(${moduleId})">Seviyeyi Tamamla →</button>`;
   }
   document.getElementById('egitim-content-panel').innerHTML = `
-    <div style="max-width:680px">
-      <div style="font-size:22px;font-weight:700;margin-bottom:10px;line-height:1.3">${escHtml(m?.title||'')}</div>
-      ${m?.description?`<div style="font-size:14px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:16px">${escHtml(m.description)}</div>`:''}
-      <div style="font-size:13px;color:var(--color-text-muted)">Sol menüden bir ders seçerek başla.</div>
-      ${actionHtml}
+    <div class="ec-content-card">
+      <div class="ec-content-header">
+        <h1 class="ec-lesson-title">${escHtml(m?.title||'')}</h1>
+      </div>
+      <div style="padding:0 28px 28px">
+        ${m?.description?`<div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:16px">${escHtml(m.description)}</div>`:''}
+        <div style="font-size:13px;color:rgba(255,255,255,0.3)">Sol menuden bir ders secerek basla.</div>
+        ${actionHtml}
+      </div>
     </div>`;
 }
 
@@ -9794,22 +9862,51 @@ function egitimSelectLesson(lessonId) {
 function renderEgitimLessonContent(lessonId) {
   const l = egitimLessons.find(x => x.id === lessonId);
   if (!l) return;
-  let videoHtml = '';
+  const topic = egitimTopics.find(t => t.id === l.topic_id);
+
+  let videoSectionHtml = '';
   if (l.video_url) {
     const url = l.video_url;
     let embedUrl = '';
     if (url.includes('vimeo.com')) { const id = url.split('/').filter(Boolean).pop(); embedUrl = `https://player.vimeo.com/video/${id}`; }
     else if (url.includes('youtube.com')||url.includes('youtu.be')) { const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/); if(match) embedUrl=`https://www.youtube.com/embed/${match[1]}`; }
-    videoHtml = embedUrl
-      ? `<div class="egitim-video-wrap"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`
-      : `<a href="${escHtml(url)}" target="_blank" style="display:block;padding:12px 16px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-accent);margin-bottom:20px;text-decoration:none">▶ Videoyu aç</a>`;
+    videoSectionHtml = `<div class="ec-video-container">
+      <div class="ec-video-wrap">${embedUrl
+        ? `<iframe src="${embedUrl}" allowfullscreen></iframe>`
+        : `<div class="ec-video-placeholder"><a href="${escHtml(url)}" target="_blank" style="color:#d4a264;font-size:13px;text-decoration:none">▶ Videoyu ac</a></div>`
+      }</div>
+    </div>`;
+  } else {
+    videoSectionHtml = `<div class="ec-video-container">
+      <div class="ec-video-wrap"><div class="ec-video-placeholder">Video bulunmuyor</div></div>
+    </div>`;
   }
+
+  const adminActions = egitimIsAdmin() ? `<div class="ec-admin-actions">
+    <button class="ec-admin-btn" title="Dersi duzenle" onclick="openEgitimDersModal(${l.topic_id},${l.id})">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2l3 3-8 8H3v-3z"/></svg>
+    </button>
+    <button class="ec-admin-btn red" title="Dersi sil" onclick="deleteEgitimDers(${l.id})">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M5 4V3h6v1M6 7v5M10 7v5M4 4l1 9h6l1-9"/></svg>
+    </button>
+  </div>` : '';
+
+  const resourcesHtml = l.resource_url ? `<div class="ec-resources">
+    <div class="ec-resources-title">Kaynaklar</div>
+    <a href="${escHtml(l.resource_url)}" target="_blank" class="ec-resource-link">📎 Kaynaga Git</a>
+  </div>` : '';
+
+  const descHtml = l.description ? `<div style="padding:0 28px 24px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.75;white-space:pre-line">${escHtml(l.description)}</div>` : '';
+
   document.getElementById('egitim-content-panel').innerHTML = `
-    <div style="max-width:720px">
-      <div style="font-size:20px;font-weight:700;margin-bottom:18px;line-height:1.35">${escHtml(l.title)}</div>
-      ${videoHtml}
-      ${l.description?`<div style="font-size:14px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:20px;white-space:pre-line">${escHtml(l.description)}</div>`:''}
-      ${l.resource_url?`<a href="${escHtml(l.resource_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--color-surface);border-radius:8px;font-size:13px;color:var(--color-text-primary);text-decoration:none;border:1px solid var(--color-border)">📎 Kaynağa Git</a>`:''}
+    <div class="ec-content-card">
+      <div class="ec-content-header">
+        <h1 class="ec-lesson-title">${escHtml(l.title)}</h1>
+        ${adminActions}
+      </div>
+      ${videoSectionHtml}
+      ${descHtml}
+      ${resourcesHtml}
     </div>`;
 }
 
