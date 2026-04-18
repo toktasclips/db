@@ -82,10 +82,12 @@ serve(async (req: Request) => {
     ? new Date(Date.now() + expiresIn * 1000).toISOString()
     : null;
 
-  // ── STEP 1: Bulk fetch pages + instagram_business_account field ────
+  // ── STEP 1: Bulk fetch pages — both iba and connected_instagram_account ──
+  // instagram_business_account = Business accounts
+  // connected_instagram_account = Creator accounts (and Business too)
   const pagesRes = await fetch(
     `https://graph.facebook.com/${GV}/me/accounts` +
-    `?fields=id,name,access_token,instagram_business_account` +
+    `?fields=id,name,access_token,instagram_business_account,connected_instagram_account` +
     `&access_token=${userToken}`,
   );
   const pagesData = await pagesRes.json();
@@ -93,7 +95,7 @@ serve(async (req: Request) => {
 
   console.log(`[IG OAuth] Fetched ${pages.length} page(s) for user ${userId}`);
   for (const p of pages) {
-    console.log(`[IG OAuth]   page ${p.id} (${p.name}) → iba=${JSON.stringify(p.instagram_business_account ?? null)}`);
+    console.log(`[IG OAuth]   page ${p.id} (${p.name}) iba=${JSON.stringify(p.instagram_business_account ?? null)} cia=${JSON.stringify(p.connected_instagram_account ?? null)}`);
   }
 
   let igUserId: string | null   = null;
@@ -102,12 +104,19 @@ serve(async (req: Request) => {
   let pageId: string | null     = null;
   let pageToken: string | null  = null;
 
+  function extractIg(d: any): { id: string; username: string | null; name: string | null } | null {
+    const src = d.instagram_business_account ?? d.connected_instagram_account ?? null;
+    if (src?.id) return { id: src.id, username: src.username ?? null, name: src.name ?? null };
+    return null;
+  }
+
   // Check bulk result first
   for (const page of pages) {
-    if (page.instagram_business_account?.id) {
-      igUserId   = page.instagram_business_account.id;
-      igUsername = page.instagram_business_account.username ?? null;
-      igName     = page.instagram_business_account.name     ?? null;
+    const ig = extractIg(page);
+    if (ig) {
+      igUserId   = ig.id;
+      igUsername = ig.username;
+      igName     = ig.name;
       pageId     = page.id;
       pageToken  = page.access_token;
       console.log(`[IG OAuth] Found via bulk: ig_id=${igUserId} page=${pageId}`);
@@ -120,13 +129,16 @@ serve(async (req: Request) => {
     for (const page of pages) {
       const r = await fetch(
         `https://graph.facebook.com/${GV}/${page.id}` +
-        `?fields=instagram_business_account` +
+        `?fields=instagram_business_account,connected_instagram_account` +
         `&access_token=${page.access_token}`,
       );
       const d = await r.json();
-      console.log(`[IG OAuth] Per-page (page-token) ${page.id}: iba=${JSON.stringify(d.instagram_business_account ?? null)}`);
-      if (d.instagram_business_account?.id) {
-        igUserId  = d.instagram_business_account.id;
+      console.log(`[IG OAuth] Per-page (page-token) ${page.id}: iba=${JSON.stringify(d.instagram_business_account ?? null)} cia=${JSON.stringify(d.connected_instagram_account ?? null)}`);
+      const ig = extractIg(d);
+      if (ig) {
+        igUserId  = ig.id;
+        igUsername = ig.username;
+        igName    = ig.name;
         pageId    = page.id;
         pageToken = page.access_token;
         break;
@@ -139,15 +151,17 @@ serve(async (req: Request) => {
     for (const page of pages) {
       const r = await fetch(
         `https://graph.facebook.com/${GV}/${page.id}` +
-        `?fields=instagram_business_account` +
+        `?fields=instagram_business_account,connected_instagram_account` +
         `&access_token=${userToken}`,
       );
       const d = await r.json();
-      console.log(`[IG OAuth] Per-page (user-token) ${page.id}: iba=${JSON.stringify(d.instagram_business_account ?? null)}`);
-      if (d.instagram_business_account?.id) {
-        igUserId  = d.instagram_business_account.id;
+      console.log(`[IG OAuth] Per-page (user-token) ${page.id}: iba=${JSON.stringify(d.instagram_business_account ?? null)} cia=${JSON.stringify(d.connected_instagram_account ?? null)}`);
+      const ig = extractIg(d);
+      if (ig) {
+        igUserId  = ig.id;
+        igUsername = ig.username;
+        igName    = ig.name;
         pageId    = page.id;
-        // Use page access token for long-lived operations even if we found it via user token
         pageToken = pages.find(p => p.id === page.id)?.access_token ?? null;
         break;
       }
