@@ -8805,7 +8805,7 @@ async function _callSyncFn() {
   try {
     const res = await fetch(IG_SYNC_FN, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
       body: JSON.stringify({ user_id: currentUser.email }),
     });
     return await res.json();
