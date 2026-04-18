@@ -3441,13 +3441,37 @@ select option { background: #232323; color: #e8e8e6; }
           <textarea class="form-input" id="impl-task-desc" rows="2" style="resize:none" placeholder="Kısa açıklama..."></textarea>
         </div>
         <label class="form-label">Konu</label>
-        <input class="form-input" id="impl-task-konu" placeholder="Örn: Satış, İçerik, Kurulum..." style="margin-bottom:12px"/>
+        <select class="form-input" id="impl-task-konu" style="margin-bottom:12px">
+          <option value="">— Seç —</option>
+          <option value="Pazarlama">Pazarlama</option>
+          <option value="Satış">Satış</option>
+          <option value="Operasyon">Operasyon</option>
+          <option value="İçerik">İçerik</option>
+          <option value="Kurulum">Kurulum</option>
+          <option value="Strateji">Strateji</option>
+          <option value="Finans">Finans</option>
+          <option value="Diğer">Diğer</option>
+        </select>
         <label class="form-label">Seviye</label>
-        <input class="form-input" id="impl-task-seviye" placeholder="Örn: Seviye 2" style="margin-bottom:12px"/>
+        <select class="form-input" id="impl-task-seviye" style="margin-bottom:12px">
+          <option value="">— Seç —</option>
+          <option value="Seviye 1">Seviye 1</option>
+          <option value="Seviye 2">Seviye 2</option>
+          <option value="Seviye 3">Seviye 3</option>
+          <option value="Seviye 4">Seviye 4</option>
+        </select>
         <label class="form-label">Çıktı</label>
-        <input class="form-input" id="impl-task-cikti" placeholder="Beklenen çıktı..." style="margin-bottom:12px"/>
-        <label class="form-label">Kaynak Etiketi</label>
-        <input class="form-input" id="impl-task-source-label" placeholder="Örn: Alet Çantası > Oto Müşteri" style="margin-bottom:12px"/>
+        <select class="form-input" id="impl-task-cikti" style="margin-bottom:12px">
+          <option value="">— Seç —</option>
+          <option value="Pazarlama">Pazarlama</option>
+          <option value="Satış">Satış</option>
+          <option value="Operasyon">Operasyon</option>
+          <option value="İçerik">İçerik</option>
+          <option value="Kurulum">Kurulum</option>
+          <option value="Strateji">Strateji</option>
+          <option value="Finans">Finans</option>
+          <option value="Diğer">Diğer</option>
+        </select>
         <label class="form-label">Kaynak URL (opsiyonel)</label>
         <input class="form-input" id="impl-task-source-url" placeholder="https://..." style="margin-bottom:16px"/>
         <div class="modal-footer">
@@ -9342,7 +9366,6 @@ function openImplTaskModal(phaseId, taskId) {
     document.getElementById('impl-task-konu').value         = task.konu || '';
     document.getElementById('impl-task-seviye').value       = task.seviye || '';
     document.getElementById('impl-task-cikti').value        = task.cikti || '';
-    document.getElementById('impl-task-source-label').value = task.source_label || '';
     document.getElementById('impl-task-source-url').value   = task.source_url || '';
   } else {
     // Add mode
@@ -9354,7 +9377,6 @@ function openImplTaskModal(phaseId, taskId) {
     document.getElementById('impl-task-konu').value         = '';
     document.getElementById('impl-task-seviye').value       = '';
     document.getElementById('impl-task-cikti').value        = '';
-    document.getElementById('impl-task-source-label').value = '';
     document.getElementById('impl-task-source-url').value   = '';
   }
   openModal('modal-impl-task');
@@ -9373,7 +9395,6 @@ async function saveImplTask() {
   const konu        = document.getElementById('impl-task-konu').value.trim() || null;
   const seviye      = document.getElementById('impl-task-seviye').value.trim() || null;
   const cikti       = document.getElementById('impl-task-cikti').value.trim() || null;
-  const source_label = document.getElementById('impl-task-source-label').value.trim() || null;
   const source_url   = document.getElementById('impl-task-source-url').value.trim() || null;
 
   if (!title) { if (nameEl) nameEl.focus(); return; }
@@ -9383,11 +9404,11 @@ async function saveImplTask() {
   if (taskId) {
     // Update existing task
     const { error } = await sb.from('program_tasks')
-      .update({ title, description, konu, seviye, cikti, source_label, source_url })
+      .update({ title, description, konu, seviye, cikti, source_url })
       .eq('id', taskId);
     if (!error) {
       const t = implState.tasks.find(t => t.id === taskId);
-      if (t) { t.title = title; t.description = description; t.konu = konu; t.seviye = seviye; t.cikti = cikti; t.source_label = source_label; t.source_url = source_url; }
+      if (t) { t.title = title; t.description = description; t.konu = konu; t.seviye = seviye; t.cikti = cikti; t.source_url = source_url; }
     }
   } else {
     // Insert new task
@@ -9395,7 +9416,7 @@ async function saveImplTask() {
       .filter(t => t.phase_id === phase_id)
       .reduce((m, t) => Math.max(m, t.order_index ?? 0), 0);
     const { data, error } = await sb.from('program_tasks')
-      .insert({ phase_id, title, description, konu, seviye, cikti, source_label, source_url, order_index: maxOrder + 1, is_visible: true })
+      .insert({ phase_id, title, description, konu, seviye, cikti, source_url, order_index: maxOrder + 1, is_visible: true })
       .select()
       .single();
     if (!error && data) {
