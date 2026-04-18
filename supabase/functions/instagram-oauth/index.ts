@@ -168,7 +168,44 @@ serve(async (req: Request) => {
     }
   }
 
-  // ── STEP 4: Fetch IG profile details if id found but name/username missing
+  // ── STEP 4: Business Manager fallback ─────────────────────────────
+  // /me/accounts returns 0 for BM-managed pages; query via /me/businesses instead
+  if (!igUserId) {
+    const bizRes = await fetch(
+      `https://graph.facebook.com/${GV}/me/businesses` +
+      `?fields=id,name,owned_pages{id,name,instagram_business_account,connected_instagram_account}` +
+      `&access_token=${userToken}`,
+    );
+    const bizData = await bizRes.json();
+    const businesses: any[] = bizData.data ?? [];
+    console.log(`[IG OAuth] BM businesses: ${businesses.length}`);
+    outer: for (const biz of businesses) {
+      const bizPages: any[] = biz.owned_pages?.data ?? [];
+      console.log(`[IG OAuth]   biz ${biz.id} (${biz.name}) → ${bizPages.length} page(s)`);
+      for (const bp of bizPages) {
+        console.log(`[IG OAuth]     biz-page ${bp.id} iba=${JSON.stringify(bp.instagram_business_account ?? null)} cia=${JSON.stringify(bp.connected_instagram_account ?? null)}`);
+        const ig = extractIg(bp);
+        if (ig) {
+          igUserId   = ig.id;
+          igUsername = ig.username;
+          igName     = ig.name;
+          pageId     = bp.id;
+          // Get page token for BM page
+          const ptRes = await fetch(
+            `https://graph.facebook.com/${GV}/${bp.id}` +
+            `?fields=access_token` +
+            `&access_token=${userToken}`,
+          );
+          const ptData = await ptRes.json();
+          pageToken = ptData.access_token ?? null;
+          console.log(`[IG OAuth] Found via BM: ig_id=${igUserId} page=${pageId} has_token=${!!pageToken}`);
+          break outer;
+        }
+      }
+    }
+  }
+
+  // ── STEP 5: Fetch IG profile details if id found but name/username missing
   if (igUserId && (!igUsername || !igName)) {
     const profRes = await fetch(
       `https://graph.facebook.com/${GV}/${igUserId}` +
