@@ -9009,12 +9009,363 @@ async function _callSyncFn() {
   }
 }
 
-// ── Load page data ────────────────────────────────────────────────────
+// ── Instagram State ───────────────────────────────────────────────────
+const igState = {
+  filters: { sortBy: 'newest', contentType: 'all', dateRange: 'all' },
+  research: {
+    accounts: (() => { try { return JSON.parse(localStorage.getItem('ig_ra')||'[]'); } catch { return []; } })(),
+    data: {},    // username → { profile, media, fetchedAt }
+    active: null // null = own account
+  },
+};
+
+// ── Metric utilities ──────────────────────────────────────────────────
+function igFmt(n) {
+  if (n === null || n === undefined) return '—';
+  return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : (+n).toLocaleString('tr-TR');
+}
+function igFmtS(n) { return (!n) ? '0' : n >= 1000 ? (n/1000).toFixed(1)+'K' : (+n).toLocaleString('tr-TR'); }
+function igEngTotal(m) { return (m.like_count||0)+(m.comments_count||0)+(m.saves||0)+(m.shares||0); }
+function igEngRate(m, followers) {
+  if (m.engagement_rate != null && m.engagement_rate > 0) return m.engagement_rate;
+  const denom = m.reach || followers || 1;
+  return denom > 0 ? (igEngTotal(m) / denom * 100) : 0;
+}
+
+// ── Filter / Sort ─────────────────────────────────────────────────────
+function igApplyFilters(media, f) {
+  let r = [...media];
+  if (f.contentType !== 'all') r = r.filter(m => m.media_type === f.contentType);
+  if (f.dateRange !== 'all') {
+    const days = { '7d':7,'30d':30,'90d':90 }[f.dateRange]||99999;
+    const cut = Date.now() - days*86400000;
+    r = r.filter(m => m.published_at && new Date(m.published_at).getTime() >= cut);
+  }
+  const sorts = {
+    newest:          (a,b) => new Date(b.published_at||0)-new Date(a.published_at||0),
+    oldest:          (a,b) => new Date(a.published_at||0)-new Date(b.published_at||0),
+    most_views:      (a,b) => (b.views||0)-(a.views||0),
+    most_likes:      (a,b) => (b.like_count||0)-(a.like_count||0),
+    most_comments:   (a,b) => (b.comments_count||0)-(a.comments_count||0),
+    most_engagement: (a,b) => igEngTotal(b)-igEngTotal(a),
+    top_eng_rate:    (a,b) => igEngRate(b,0)-igEngRate(a,0),
+    most_saves:      (a,b) => (b.saves||0)-(a.saves||0),
+    most_shares:     (a,b) => (b.shares||0)-(a.shares||0),
+  };
+  r.sort(sorts[f.sortBy]||sorts.newest);
+  return r;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────
+function igRenderToolbar() {
+  const bar = document.getElementById('ig-toolbar');
+  if (!bar) return;
+  const ra = igState.research.accounts;
+  const own = igConn?.instagram_username ? '@'+igConn.instagram_username : 'Kendi Hesabım';
+  const acctOpts = [
+    `<option value="own" ${!igState.research.active?'selected':''}>${escHtml(own)}</option>`,
+    ...ra.map(u=>`<option value="${escHtml(u)}" ${igState.research.active===u?'selected':''}>@${escHtml(u)}</option>`)
+  ].join('');
+  const f = igState.filters;
+  bar.innerHTML = `
+    <select class="ig-sel" onchange="igOnAccount(this.value)" title="Hesap">${acctOpts}</select>
+    <select class="ig-sel" onchange="igState.filters.sortBy=this.value;igRenderGrid()" title="Sıralama">
+      <option value="newest"          ${f.sortBy==='newest'?'selected':''}>En Yeni</option>
+      <option value="most_views"      ${f.sortBy==='most_views'?'selected':''}>En Çok İzlenen</option>
+      <option value="most_likes"      ${f.sortBy==='most_likes'?'selected':''}>En Çok Beğenilen</option>
+      <option value="most_comments"   ${f.sortBy==='most_comments'?'selected':''}>En Çok Yorum</option>
+      <option value="most_engagement" ${f.sortBy==='most_engagement'?'selected':''}>En Çok Etkileşim</option>
+      <option value="top_eng_rate"    ${f.sortBy==='top_eng_rate'?'selected':''}>En Yüksek Oran</option>
+      <option value="most_saves"      ${f.sortBy==='most_saves'?'selected':''}>En Çok Kaydedilen</option>
+      <option value="most_shares"     ${f.sortBy==='most_shares'?'selected':''}>En Çok Paylaşılan</option>
+      <option value="oldest"          ${f.sortBy==='oldest'?'selected':''}>En Eski</option>
+    </select>
+    <select class="ig-sel" onchange="igState.filters.contentType=this.value;igRenderGrid()" title="Tür">
+      <option value="all"            ${f.contentType==='all'?'selected':''}>Tüm Türler</option>
+      <option value="REELS"          ${f.contentType==='REELS'?'selected':''}>Reels</option>
+      <option value="IMAGE"          ${f.contentType==='IMAGE'?'selected':''}>Fotoğraf</option>
+      <option value="CAROUSEL_ALBUM" ${f.contentType==='CAROUSEL_ALBUM'?'selected':''}>Carousel</option>
+      <option value="VIDEO"          ${f.contentType==='VIDEO'?'selected':''}>Video</option>
+    </select>
+    <select class="ig-sel" onchange="igState.filters.dateRange=this.value;igRenderGrid()" title="Tarih">
+      <option value="all" ${f.dateRange==='all'?'selected':''}>Tüm Zamanlar</option>
+      <option value="7d"  ${f.dateRange==='7d'?'selected':''}>Son 7 Gün</option>
+      <option value="30d" ${f.dateRange==='30d'?'selected':''}>Son 30 Gün</option>
+      <option value="90d" ${f.dateRange==='90d'?'selected':''}>Son 90 Gün</option>
+    </select>
+    <div style="flex:1;min-width:8px"></div>
+    <button class="btn btn-ghost" onclick="openIgResearch()" style="font-size:12px;padding:7px 14px;gap:6px;display:flex;align-items:center;border-color:rgba(193,100,200,0.3);color:rgba(200,120,210,0.9)">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M14 14l-3-3"/></svg>
+      Hesap Araştır
+    </button>`;
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────
+function igRenderGrid() {
+  const area = document.getElementById('ig-content-area');
+  if (!area) return;
+  const isRes = igState.research.active !== null;
+  const src   = isRes ? (igState.research.data[igState.research.active]?.media||[]) : igMedia;
+  const flrs  = isRes ? (igState.research.data[igState.research.active]?.profile?.followers_count||1) : 1;
+  const items = igApplyFilters(src, igState.filters);
+  if (!items.length) {
+    area.innerHTML = `<div class="ig-empty-box"><div class="ig-empty-icon">${src.length?'🔍':'📭'}</div><div class="ig-empty-title">${src.length?'Filtrelerle eşleşen içerik yok':'Henüz içerik yok'}</div><div class="ig-empty-sub">${src.length?'Farklı filtre deneyin.':'Senkronize Et\'e basarak verileri çek.'}</div></div>`;
+    return;
+  }
+  const TL = { IMAGE:'FOTOĞRAF', VIDEO:'VİDEO', CAROUSEL_ALBUM:'CAROUSEL', REELS:'REELS' };
+  const maxP = Math.max(...items.map(m=>m.performance_score??0),1);
+  area.innerHTML = `<div class="ig-content-grid">${items.map((m,i)=>igCardHtml(m,i,flrs,maxP,TL,!isRes)).join('')}</div>`;
+}
+
+function igCardHtml(m, idx, flrs, maxP, TL, isOwn) {
+  const thumb = m.thumbnail_url||m.media_url;
+  const thumbH = thumb ? `<img src="${escHtml(thumb)}" alt="" loading="lazy" onerror="this.style.display='none'">` : '<span style="font-size:28px;opacity:.3">📷</span>';
+  const perf   = Math.min(100,((m.performance_score??0)/maxP)*100);
+  const er     = igEngRate(m, flrs);
+  const erCol  = er>=5?'#4caf81':er>=2?'#f58529':'var(--color-text-muted)';
+  const cap    = m.caption ? escHtml(m.caption.slice(0,90)) : '';
+  const date   = m.published_at ? new Date(m.published_at).toLocaleDateString('tr-TR',{day:'numeric',month:'short'}) : '';
+  const src    = isOwn ? 'own' : igState.research.active;
+  const hasVw  = (m.views||0) > 0 || m.media_type==='REELS'||m.media_type==='VIDEO';
+  return `<div class="ig-card" onclick="openIgDetail(${idx},'${escHtml(src)}')">
+    <div class="ig-card-thumb">
+      ${thumbH}
+      ${m.media_type?`<span class="ig-card-type">${TL[m.media_type]??m.media_type}</span>`:''}
+      ${er>=5?'<span class="ig-card-hot">🔥</span>':''}
+    </div>
+    <div class="ig-card-body">
+      ${cap?`<div class="ig-card-caption">${cap}</div>`:''}
+      <div class="ig-card-metrics">
+        <div class="ig-card-metric"><div class="ig-card-metric-val">${igFmtS(m.like_count)}</div><div class="ig-card-metric-lbl">Beğeni</div></div>
+        <div class="ig-card-metric"><div class="ig-card-metric-val">${igFmtS(m.comments_count)}</div><div class="ig-card-metric-lbl">Yorum</div></div>
+        <div class="ig-card-metric"><div class="ig-card-metric-val">${igFmtS(hasVw?m.views:m.reach)}</div><div class="ig-card-metric-lbl">${hasVw?'İzlenme':'Erişim'}</div></div>
+        <div class="ig-card-metric"><div class="ig-card-metric-val" style="color:${erCol}">%${er.toFixed(1)}</div><div class="ig-card-metric-lbl">Etk.Oran</div></div>
+      </div>
+      <div class="ig-card-footer">
+        <span class="ig-card-date">${date}</span>
+        ${isOwn?`<div class="ig-perf-bar" style="width:56px"><div class="ig-perf-fill" style="width:${perf.toFixed(1)}%"></div></div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function igOnAccount(val) {
+  igState.research.active = val==='own' ? null : val;
+  igRenderGrid();
+}
+
+// ── Detail Drawer ─────────────────────────────────────────────────────
+function openIgDetail(idx, src) {
+  const isOwn  = src==='own';
+  const srcMed = isOwn ? igMedia : (igState.research.data[src]?.media||[]);
+  const flrs   = isOwn ? 1 : (igState.research.data[src]?.profile?.followers_count||1);
+  const items  = igApplyFilters(srcMed, igState.filters);
+  const m      = items[idx]; if (!m) return;
+  const TL     = { IMAGE:'Fotoğraf', VIDEO:'Video', CAROUSEL_ALBUM:'Carousel / Albüm', REELS:'Reels' };
+  const er     = igEngRate(m, flrs);
+  const eng    = igEngTotal(m);
+  const thumb  = m.thumbnail_url||m.media_url;
+  const canDl  = isOwn && !!m.media_url;
+  const inner  = document.getElementById('ig-detail-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <div class="ig-detail-header">
+      <span class="ig-card-type" style="position:static;font-size:10px;padding:3px 8px">${TL[m.media_type]??m.media_type??'—'}</span>
+      <button class="ig-detail-close" onclick="closeIgDetail()">✕</button>
+    </div>
+    ${thumb?`<div class="ig-detail-thumb"><img src="${escHtml(thumb)}" alt="" onerror="this.style.display='none'"></div>`:''}
+    <div class="ig-detail-content">
+      ${m.caption?`<div class="ig-detail-caption">${escHtml(m.caption)}</div>`:'<div class="ig-detail-caption" style="opacity:.35;font-style:italic">Açıklama yok</div>'}
+      <div class="ig-detail-date">${m.published_at?new Date(m.published_at).toLocaleString('tr-TR'):''}</div>
+      <div class="ig-detail-metrics">
+        <div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.like_count)}</div><div class="ig-detail-metric-lbl">Beğeni</div></div>
+        <div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.comments_count)}</div><div class="ig-detail-metric-lbl">Yorum</div></div>
+        ${m.views>0?`<div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.views)}</div><div class="ig-detail-metric-lbl">İzlenme</div></div>`:''}
+        ${m.reach>0?`<div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.reach)}</div><div class="ig-detail-metric-lbl">Erişim</div></div>`:''}
+        ${(m.saves||0)>0?`<div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.saves)}</div><div class="ig-detail-metric-lbl">Kayıt</div></div>`:''}
+        ${(m.shares||0)>0?`<div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(m.shares)}</div><div class="ig-detail-metric-lbl">Paylaşım</div></div>`:''}
+        <div class="ig-detail-metric"><div class="ig-detail-metric-val">%${er.toFixed(2)}</div><div class="ig-detail-metric-lbl">Etk. Oranı</div></div>
+        <div class="ig-detail-metric"><div class="ig-detail-metric-val">${igFmt(eng)}</div><div class="ig-detail-metric-lbl">Toplam Etk.</div></div>
+        ${isOwn&&m.performance_score?`<div class="ig-detail-metric"><div class="ig-detail-metric-val">${(+m.performance_score).toFixed(1)}</div><div class="ig-detail-metric-lbl">Perf. Skoru</div></div>`:''}
+      </div>
+      <div class="ig-detail-actions">
+        ${m.permalink?`<a href="${escHtml(m.permalink)}" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:12px;text-decoration:none">Instagram'da Aç ↗</a>`:''}
+        ${canDl?`<button class="btn btn-ghost" onclick="igDownload('${escHtml(m.media_url)}','${m.media_type}')" style="font-size:12px">⬇ İndir</button>`:''}
+      </div>
+    </div>`;
+  const overlay = document.getElementById('ig-detail-overlay');
+  const drawer  = document.getElementById('ig-detail-drawer');
+  overlay.style.display = '';
+  drawer.style.display  = '';
+  setTimeout(()=>drawer.style.transform='translateX(0)',10);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeIgDetail() {
+  const overlay = document.getElementById('ig-detail-overlay');
+  const drawer  = document.getElementById('ig-detail-drawer');
+  if (overlay) overlay.style.display = 'none';
+  if (drawer)  { drawer.style.transform='translateX(100%)'; setTimeout(()=>drawer.style.display='none',260); }
+  document.body.style.overflow = '';
+}
+
+// ── Download ──────────────────────────────────────────────────────────
+async function igDownload(url, mediaType) {
+  try {
+    const res = await fetch(url, { mode:'cors' });
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const ext  = (mediaType==='REELS'||mediaType==='VIDEO') ? 'mp4' : 'jpg';
+    const obj  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = obj; a.download = `ig-content.${ext}`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(obj), 5000);
+  } catch { window.open(url,'_blank','noopener'); }
+}
+
+// ── Research Modal ────────────────────────────────────────────────────
+function openIgResearch() {
+  const m = document.getElementById('ig-research-modal');
+  if (!m) return;
+  m.classList.add('open');
+  _igResearchRenderInput();
+}
+function closeIgResearch() {
+  const m = document.getElementById('ig-research-modal');
+  if (m) m.classList.remove('open');
+}
+
+function _igResearchRenderInput(prefill='') {
+  const box = document.getElementById('ig-rm-inner'); if (!box) return;
+  const recent = igState.research.accounts;
+  box.innerHTML = `
+    <div style="padding:24px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--color-text-primary)">Hesap Araştır</div>
+          <div style="font-size:12px;color:var(--color-text-muted);margin-top:3px">Business / Creator hesapları araştır</div>
+        </div>
+        <button onclick="closeIgResearch()" style="background:none;border:none;color:var(--color-text-muted);font-size:18px;cursor:pointer;padding:2px 6px;line-height:1">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="ig-ri" class="form-input" placeholder="@kullaniciadi veya kullaniciadi" value="${escHtml(prefill)}"
+          style="flex:1" oninput="this.value=this.value.replace(/^@+/,'')" onkeydown="if(event.key==='Enter')_igDoResearch()">
+        <button class="btn btn-primary" onclick="_igDoResearch()" style="font-size:13px;padding:8px 18px;white-space:nowrap">Araştır</button>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-disabled);line-height:1.55;margin-bottom:${recent.length?'14px':'0'}">
+        ⚠ Yalnızca <strong style="color:var(--color-text-muted)">Business</strong> veya <strong style="color:var(--color-text-muted)">Creator</strong> türündeki halka açık hesaplar desteklenir.
+      </div>
+      ${recent.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">${recent.map(u=>`<button class="btn btn-ghost" onclick="_igLoadAccount('${escHtml(u)}')" style="font-size:11px;padding:4px 10px">@${escHtml(u)}</button>`).join('')}</div>`:''}
+      <div id="ig-rr" style="margin-top:16px"></div>
+    </div>`;
+  setTimeout(()=>document.getElementById('ig-ri')?.focus(),80);
+}
+
+async function _igDoResearch() {
+  const inp = document.getElementById('ig-ri'); if (!inp) return;
+  const username = inp.value.replace(/^@/,'').trim().toLowerCase();
+  if (!username) { toast('Kullanıcı adı girin'); return; }
+  _igLoadAccount(username);
+}
+
+async function _igLoadAccount(username) {
+  const rr = document.getElementById('ig-rr'); if (!rr) return;
+  const cached = igState.research.data[username];
+  if (cached && Date.now()-cached.fetchedAt < 5*60*1000) { _igRenderResult(cached); return; }
+
+  rr.innerHTML = `<div style="text-align:center;padding:40px 0">
+    <div class="ig-skel" style="width:56px;height:56px;border-radius:50%;margin:0 auto 14px"></div>
+    <div class="ig-skel" style="width:130px;height:13px;border-radius:6px;margin:0 auto 8px"></div>
+    <div class="ig-skel" style="width:90px;height:11px;border-radius:6px;margin:0 auto"></div>
+  </div>`;
+
+  try {
+    const res  = await fetch(IG_RESEARCH_FN, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      body: JSON.stringify({ user_id: currentUser.email, target_username: username }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      const msgs = {
+        not_business_account: 'Bu hesap Business/Creator türünde değil — araştırılamıyor.',
+        account_not_found:    'Hesap bulunamadı. Kullanıcı adını kontrol edin.',
+        no_active_connection: 'Önce kendi Instagram hesabınızı bağlayın.',
+        token_expired:        'Instagram bağlantınızın süresi dolmuş. Yeniden bağlayın.',
+        api_error:            data.detail || 'API hatası oluştu.',
+      };
+      rr.innerHTML = `<div class="ig-empty-box" style="padding:20px"><div class="ig-empty-icon">⚠️</div><div class="ig-empty-title" style="color:#e57373">${msgs[data.error]||data.error||'Bilinmeyen hata'}</div>${data.code?`<div class="ig-empty-sub" style="font-size:10px">Hata kodu: ${data.code}</div>`:''}</div>`;
+      return;
+    }
+    igState.research.data[username] = { ...data, fetchedAt: Date.now() };
+    if (!igState.research.accounts.includes(username)) {
+      igState.research.accounts.unshift(username);
+      igState.research.accounts = igState.research.accounts.slice(0,8);
+      try { localStorage.setItem('ig_ra', JSON.stringify(igState.research.accounts)); } catch {}
+    }
+    _igRenderResult(igState.research.data[username]);
+    igRenderToolbar();
+  } catch {
+    rr.innerHTML = `<div class="ig-empty-box" style="padding:20px"><div class="ig-empty-icon">❌</div><div class="ig-empty-title">Bağlantı hatası. Tekrar deneyin.</div></div>`;
+  }
+}
+
+function _igRenderResult(data) {
+  const rr = document.getElementById('ig-rr'); if (!rr) return;
+  const p = data.profile; const media = data.media||[];
+  const TL = { IMAGE:'FOTOĞRAF', VIDEO:'VİDEO', CAROUSEL_ALBUM:'CAROUSEL', REELS:'REELS' };
+  const avgL = media.length ? Math.round(media.reduce((s,m)=>s+(m.like_count||0),0)/media.length) : 0;
+  const avgC = media.length ? Math.round(media.reduce((s,m)=>s+(m.comments_count||0),0)/media.length) : 0;
+  const tc = {}; media.forEach(m=>{ tc[m.media_type]=(tc[m.media_type]||0)+1; });
+  const dom = Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  rr.innerHTML = `
+    <div class="ig-rp-card">
+      ${p.profile_picture_url?`<img src="${escHtml(p.profile_picture_url)}" class="ig-rp-avatar" alt="" onerror="this.outerHTML='<div class=ig-rp-avatar-ph>👤</div>'">`:'<div class="ig-rp-avatar-ph">👤</div>'}
+      <div style="flex:1;min-width:0">
+        <div class="ig-rp-username">@${escHtml(p.username)}</div>
+        ${p.name?`<div class="ig-rp-name">${escHtml(p.name)}</div>`:''}
+        ${p.biography?`<div class="ig-rp-bio">${escHtml(p.biography.slice(0,140))}</div>`:''}
+        <div class="ig-rp-stats">
+          <div class="ig-rp-stat"><span>${igFmt(p.followers_count)}</span>Takipçi</div>
+          <div class="ig-rp-stat"><span>${igFmt(p.follows_count)}</span>Takip</div>
+          <div class="ig-rp-stat"><span>${igFmt(p.media_count)}</span>Gönderi</div>
+        </div>
+      </div>
+    </div>
+    ${media.length?`
+    <div class="ig-rp-analytics">
+      <div class="ig-rp-ana"><div class="ig-rp-ana-val">${igFmtS(avgL)}</div><div class="ig-rp-ana-lbl">Ort. Beğeni</div></div>
+      <div class="ig-rp-ana"><div class="ig-rp-ana-val">${igFmtS(avgC)}</div><div class="ig-rp-ana-lbl">Ort. Yorum</div></div>
+      <div class="ig-rp-ana"><div class="ig-rp-ana-val">${dom?TL[dom[0]]||dom[0]:'—'}</div><div class="ig-rp-ana-lbl">Baskın Tür</div></div>
+      <div class="ig-rp-ana"><div class="ig-rp-ana-val">${media.length}</div><div class="ig-rp-ana-lbl">İçerik</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Son İçerikler</div>
+    <div class="ig-rp-grid">${media.map(m=>{
+      const th=m.thumbnail_url||m.media_url;
+      return `<div class="ig-rp-item">
+        ${th?`<img src="${escHtml(th)}" alt="" onerror="this.style.display='none'">`:'<span>📷</span>'}
+        <div class="ig-rp-item-over"><span>❤️${igFmtS(m.like_count)}</span><span>💬${igFmtS(m.comments_count)}</span></div>
+        ${m.media_type?`<span class="ig-card-type">${TL[m.media_type]??''}</span>`:''}
+      </div>`;
+    }).join('')}</div>`:''}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-ghost" onclick="igLoadResearchInMain('${escHtml(p.username)}')" style="font-size:12px">
+        Panele Yükle →
+      </button>
+    </div>`;
+}
+
+function igLoadResearchInMain(username) {
+  closeIgResearch();
+  igState.research.active = username;
+  igRenderToolbar();
+  igRenderGrid();
+}
+
+// ── Page load ─────────────────────────────────────────────────────────
 async function loadInstagramPage() {
   const card = document.getElementById('ig-connection-card');
   if (!card) return;
 
-  // Fetch connection metadata (anon key — encrypted_access_token column excluded by DB policy)
   const { data: conn } = await sb
     .from('instagram_connections')
     .select('instagram_user_id,instagram_username,instagram_account_name,token_expires_at,is_active,last_synced_at,sync_error')
@@ -9022,202 +9373,56 @@ async function loadInstagramPage() {
     .maybeSingle();
 
   igConn = conn;
-
-  // Render connection card
   _renderIgConnectionCard(card, conn);
 
   if (!conn?.is_active) {
     document.getElementById('ig-account-detail-section').style.display = 'none';
-    document.getElementById('ig-sync-controls').style.display = 'none';
-    document.getElementById('ig-media-section').style.display = 'none';
+    document.getElementById('ig-main-area').style.display = 'none';
+    document.getElementById('ig-setup-info').style.display = '';
     return;
   }
+  document.getElementById('ig-setup-info').style.display = 'none';
 
-  // Fetch latest snapshot for account stats
-  const { data: latestSnap } = await sb
+  const { data: snap } = await sb
     .from('instagram_account_snapshots')
-    .select('*')
-    .eq('user_id', currentUser.email)
-    .order('snapshot_date', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .select('*').eq('user_id', currentUser.email)
+    .order('snapshot_date',{ascending:false}).limit(1).maybeSingle();
+  if (snap) { _renderIgAccountDetail(snap); document.getElementById('ig-account-detail-section').style.display=''; }
 
-  if (latestSnap) {
-    _renderIgAccountDetail(latestSnap);
-    document.getElementById('ig-account-detail-section').style.display = '';
-  }
-
-  // Sync controls
-  const syncCtrl = document.getElementById('ig-sync-controls');
-  const syncStatus = document.getElementById('ig-sync-status');
-  if (syncCtrl) syncCtrl.style.display = '';
-  if (syncStatus && conn.last_synced_at) {
-    const d = new Date(conn.last_synced_at);
-    syncStatus.textContent = `Son sync: ${d.toLocaleString('tr-TR')}`;
-  }
-
-  // Fetch media (last 20 by published_at)
   const { data: media } = await sb
-    .from('instagram_media')
-    .select('*')
+    .from('instagram_media').select('*')
     .eq('user_id', currentUser.email)
-    .order('published_at', { ascending: false })
-    .limit(20);
+    .order('published_at',{ascending:false}).limit(50);
 
   igMedia = media ?? [];
-  _renderIgMediaGrid();
+  document.getElementById('ig-main-area').style.display = '';
+  igRenderToolbar();
+  igRenderGrid();
 }
 
 function _renderIgConnectionCard(card, conn) {
-  if (!conn || !conn.is_active) {
-    // ── Not connected ──
-    card.innerHTML = `
-      <div class="ig-connect-card">
-        <div class="ig-brand">
-          <div class="ig-brand-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-          </div>
-          <div>
-            <div class="ig-brand-name">
-              Instagram
-              <span class="ig-status disconnected"><span class="ig-status-dot"></span>Bağlı değil</span>
-            </div>
-            <div class="ig-brand-sub">Instagram Business veya Creator hesabını bağla</div>
-          </div>
-        </div>
-        <div class="ig-connect-actions">
-          <button class="btn btn-primary" onclick="connectInstagram()" style="font-size:13px;padding:8px 18px">
-            + Instagram Bağla
-          </button>
-        </div>
-      </div>`;
+  const igSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
+  if (!conn?.is_active) {
+    card.innerHTML = `<div class="ig-connect-card"><div class="ig-brand"><div class="ig-brand-icon">${igSvg}</div><div><div class="ig-brand-name">Instagram<span class="ig-status disconnected"><span class="ig-status-dot"></span>Bağlı değil</span></div><div class="ig-brand-sub">Business veya Creator hesabını bağla</div></div></div><div class="ig-connect-actions"><button class="btn btn-primary" onclick="connectInstagram()" style="font-size:13px;padding:8px 18px">+ Instagram Bağla</button></div></div>`;
     return;
   }
-
-  // ── Token expired ──
-  const expired = conn.token_expires_at && new Date(conn.token_expires_at) < new Date();
+  const expired   = conn.token_expires_at && new Date(conn.token_expires_at) < new Date();
   const statusHtml = expired
     ? `<span class="ig-status expired"><span class="ig-status-dot"></span>Yenileme gerekiyor</span>`
     : `<span class="ig-status connected"><span class="ig-status-dot"></span>Bağlı</span>`;
-
-  const username = conn.instagram_username ? `@${escHtml(conn.instagram_username)}` : '—';
-  const name     = conn.instagram_account_name ? escHtml(conn.instagram_account_name) : '';
-  const lastSync = conn.last_synced_at
-    ? new Date(conn.last_synced_at).toLocaleString('tr-TR')
-    : 'Henüz senkronize edilmedi';
-
-  card.innerHTML = `
-    <div class="ig-connect-card connected">
-      <div class="ig-brand">
-        <div class="ig-brand-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-          </svg>
-        </div>
-        <div>
-          <div class="ig-brand-name">
-            ${username}
-            ${statusHtml}
-          </div>
-          <div class="ig-brand-sub">${name}</div>
-          <div class="ig-last-sync">Son sync: ${lastSync}</div>
-        </div>
-      </div>
-      <div class="ig-connect-actions">
-        ${expired
-          ? `<button class="btn btn-primary" onclick="connectInstagram()" style="font-size:12px;padding:7px 16px">↺ Yeniden Bağla</button>`
-          : `<button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:7px 14px">↻ Senkronize Et</button>`}
-        <button class="btn btn-ghost" onclick="disconnectInstagram()" style="font-size:12px;padding:7px 14px;color:var(--color-text-muted)">Bağlantıyı Kaldır</button>
-      </div>
-    </div>`;
+  const username  = conn.instagram_username ? `@${escHtml(conn.instagram_username)}` : '—';
+  const name      = conn.instagram_account_name ? escHtml(conn.instagram_account_name) : '';
+  const lastSync  = conn.last_synced_at ? new Date(conn.last_synced_at).toLocaleString('tr-TR') : 'Henüz senkronize edilmedi';
+  card.innerHTML  = `<div class="ig-connect-card connected"><div class="ig-brand"><div class="ig-brand-icon">${igSvg}</div><div><div class="ig-brand-name">${username}${statusHtml}</div>${name?`<div class="ig-brand-sub">${name}</div>`:''}<div class="ig-last-sync">Son sync: ${lastSync}</div></div></div><div class="ig-connect-actions">${expired?`<button class="btn btn-primary" onclick="connectInstagram()" style="font-size:12px;padding:7px 16px">↺ Yeniden Bağla</button>`:`<button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:7px 14px">↻ Senkronize Et</button>`}<button class="btn btn-ghost" onclick="disconnectInstagram()" style="font-size:12px;padding:7px 14px;color:var(--color-text-muted)">Bağlantıyı Kaldır</button></div></div>`;
 }
 
 function _renderIgAccountDetail(snap) {
-  const detail = document.getElementById('ig-account-detail');
-  if (!detail) return;
-  const fmt = (n) => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n?.toLocaleString('tr-TR') ?? '—';
-
-  detail.innerHTML = `
-    <div class="ig-account-detail">
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.follower_count)}</div>
-        <div class="ig-account-stat-lbl">Takipçi</div>
-      </div>
-      <div class="ig-account-divider"></div>
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.follows_count)}</div>
-        <div class="ig-account-stat-lbl">Takip</div>
-      </div>
-      <div class="ig-account-divider"></div>
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.media_count)}</div>
-        <div class="ig-account-stat-lbl">İçerik</div>
-      </div>
-      <div class="ig-account-divider"></div>
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.reach)}</div>
-        <div class="ig-account-stat-lbl">Günlük Erişim</div>
-      </div>
-      <div class="ig-account-divider"></div>
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.impressions)}</div>
-        <div class="ig-account-stat-lbl">Gösterim</div>
-      </div>
-      <div class="ig-account-divider"></div>
-      <div class="ig-account-stat">
-        <div class="ig-account-stat-val">${fmt(snap.profile_views)}</div>
-        <div class="ig-account-stat-lbl">Profil Görüntüleme</div>
-      </div>
-    </div>`;
-}
-
-function _renderIgMediaGrid() {
-  const grid = document.getElementById('ig-media-grid');
-  const section = document.getElementById('ig-media-section');
-  if (!grid || !section) return;
-
-  if (!igMedia.length) {
-    section.style.display = 'none';
-    return;
-  }
-  section.style.display = '';
-
-  const typeLabel = { IMAGE: 'Fotoğraf', VIDEO: 'Video', CAROUSEL_ALBUM: 'Albüm', REELS: 'Reels' };
-  const maxPerf = Math.max(...igMedia.map(m => m.performance_score ?? 0), 1);
-  const fmt = (n) => n >= 1000 ? (n/1000).toFixed(1)+'K' : n?.toLocaleString('tr-TR') ?? '0';
-
-  grid.innerHTML = igMedia.map(m => {
-    const thumb = m.thumbnail_url || m.media_url;
-    const thumbHtml = thumb
-      ? `<img src="${escHtml(thumb)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='📷'">`
-      : '📷';
-    const perf = Math.min(100, ((m.performance_score ?? 0) / maxPerf) * 100);
-    const caption = m.caption ? escHtml(m.caption.slice(0, 80)) : '<em style="opacity:.5">Açıklama yok</em>';
-    const date = m.published_at ? new Date(m.published_at).toLocaleDateString('tr-TR') : '';
-
-    return `<div class="ig-media-card">
-      <div class="ig-media-thumb">
-        ${thumbHtml}
-        <span class="ig-media-type-badge">${typeLabel[m.media_type] ?? m.media_type ?? '—'}</span>
-      </div>
-      <div class="ig-media-body">
-        <div class="ig-media-caption">${caption}</div>
-        <div class="ig-media-stats">
-          <div class="ig-media-stat">❤️ <span>${fmt(m.like_count)}</span></div>
-          <div class="ig-media-stat">💬 <span>${fmt(m.comments_count)}</span></div>
-          ${m.views > 0 ? `<div class="ig-media-stat">👁 <span>${fmt(m.views)}</span></div>` : ''}
-          ${m.saves > 0 ? `<div class="ig-media-stat">🔖 <span>${fmt(m.saves)}</span></div>` : ''}
-        </div>
-        <div class="ig-media-stats" style="margin-top:4px">
-          <div class="ig-media-stat" style="color:var(--color-text-muted);font-size:10px">${date}</div>
-          <div class="ig-media-stat" style="margin-left:auto">%<span>${(m.engagement_rate ?? 0).toFixed(2)}</span></div>
-        </div>
-        <div class="ig-perf-bar"><div class="ig-perf-fill" style="width:${perf.toFixed(1)}%"></div></div>
-      </div>
-    </div>`;
-  }).join('');
+  const detail = document.getElementById('ig-account-detail'); if (!detail) return;
+  const stats = [
+    ['Takipçi', snap.follower_count], ['Takip', snap.follows_count], ['İçerik', snap.media_count],
+    ['Erişim', snap.reach], ['Gösterim', snap.impressions], ['Profil Görüntüleme', snap.profile_views],
+  ].filter(([,v]) => v != null);
+  detail.innerHTML = `<div class="ig-account-detail">${stats.map(([l,v],i)=>`${i>0?'<div class="ig-account-divider"></div>':''}<div class="ig-account-stat"><div class="ig-account-stat-val">${igFmt(v)}</div><div class="ig-account-stat-lbl">${l}</div></div>`).join('')}</div>`;
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────
