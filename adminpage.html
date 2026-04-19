@@ -8792,7 +8792,7 @@ async function syncInstagram() {
     toast('⚠️ Bağlantı süresi dolmuş. Lütfen yeniden bağlayın.');
     loadInstagramPage();
   } else {
-    toast('⚠️ Senkronizasyon başarısız. Lütfen tekrar deneyin.');
+    toast(`⚠️ Senkronizasyon başarısız: ${result.detail || result.error || 'bilinmeyen hata'}`);
   }
 }
 
