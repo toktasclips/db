@@ -4472,6 +4472,22 @@ function showDailyWelcome(){
   const sub = document.getElementById('daily-welcome-sub');
   if(el) el.textContent = w.msg;
   if(sub) sub.textContent = w.sub;
+  prefillTakipciFromIG();
+}
+
+async function prefillTakipciFromIG(){
+  const inp = document.getElementById('kpi-takipci');
+  if(!inp || inp.value) return; // don't overwrite manual input
+  try {
+    const { data } = await sb
+      .from('instagram_account_snapshots')
+      .select('follower_count')
+      .eq('user_id', currentUser.email)
+      .order('snapshot_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if(data?.follower_count) inp.value = data.follower_count;
+  } catch(e) {}
 }
 
 const NAV_GROUPS = {
