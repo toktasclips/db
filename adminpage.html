@@ -10979,6 +10979,11 @@ async function cbHandleFile(input) {
         pages.push(content.items.map(item => item.str).join(' '));
       }
       text = pages.join('\n\n');
+      console.log(`[PDF] ${file.name}: ${pdf.numPages} sayfa, ${text.length} karakter`);
+      if (!text.trim()) {
+        alert('PDF\'den metin okunamadı. Bu PDF taranmış/görsel tabanlı olabilir. Lütfen metin içeren bir PDF veya .txt dosyası kullanın.');
+        return;
+      }
     } catch(e) {
       alert('PDF okunamadı: ' + e.message);
       return;
@@ -10989,7 +10994,7 @@ async function cbHandleFile(input) {
   cbEditDocs.push({ filename: file.name, content: text });
   const list = document.getElementById('cb-doc-list');
   list.innerHTML = cbEditDocs.map((d,i) => `
-    <span class="cb-doc-chip">${d.filename}<button onclick="cbEditDocs.splice(${i},1);cbHandleFile({files:[]})">×</button></span>`).join('');
+    <span class="cb-doc-chip">${d.filename} (${d.content.length} kr)<button onclick="cbEditDocs.splice(${i},1);cbHandleFile({files:[]})">×</button></span>`).join('');
   input.value = '';
 }
 
