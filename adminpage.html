@@ -11017,12 +11017,17 @@ async function cbSaveBot() {
   }
   // Dokümanları yükle
   for (const doc of cbEditDocs) {
-    await fetch(CHATBOT_INGEST_FN, {
+    console.log(`[ingest] ${doc.filename} → ${doc.content.length} karakter gönderiliyor`);
+    const r = await fetch(CHATBOT_INGEST_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
       body: JSON.stringify({ chatbot_id: botId, filename: doc.filename, content: doc.content }),
     });
+    const rj = await r.json().catch(() => ({}));
+    console.log(`[ingest] yanıt:`, rj);
+    if (!r.ok) { alert(`Belge yükleme hatası (${doc.filename}): ${JSON.stringify(rj)}`); return; }
   }
+  alert(cbEditDocs.length > 0 ? `Kaydedildi! ${cbEditDocs.length} belge yüklendi.` : 'Kaydedildi!');
   await cbFetchBots();
   cbShowList();
 }
