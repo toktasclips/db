@@ -10851,6 +10851,9 @@ async function cbOpenChat(botId) {
       </div>
       <div class="cb-chat-messages" id="cb-msgs">
         <div class="cb-msg assistant">Merhaba! Size nasıl yardımcı olabilirim?</div>
+        ${(cbActiveBot.starter_questions||[]).length > 0 ? `<div id="cb-starters" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:0 4px">
+          ${(cbActiveBot.starter_questions||[]).map(q => `<button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;border-radius:20px;text-align:left" onclick="cbSendStarter(this,'${q.replace(/'/g,"&#39;")}')">${q}</button>`).join('')}
+        </div>` : ''}
       </div>
       <div class="cb-chat-input-row">
         <textarea class="cb-chat-input" id="cb-input" placeholder="Mesajınızı yazın..." rows="1"
@@ -10858,6 +10861,12 @@ async function cbOpenChat(botId) {
         <button class="btn btn-primary" onclick="cbSend()" style="align-self:flex-end">Gönder</button>
       </div>
     </div>`;
+}
+
+function cbSendStarter(btn, text) {
+  document.getElementById('cb-starters')?.remove();
+  document.getElementById('cb-input').value = text;
+  cbSend();
 }
 
 async function cbSend() {
@@ -10942,6 +10951,10 @@ function cbOpenEditor(botId = null) {
         <textarea id="cb-prompt" class="form-input" rows="5" placeholder="Bu asistan sadece satış eğitimi konularında yanıt verir. Konu dışı sorulara 'Bu konuda yardımcı olamam' de.">${bot?.system_prompt||''}</textarea>
       </div>
       <div style="margin-bottom:16px">
+        <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:6px">Konuşma Başlatıcılar <span style="opacity:.5">(opsiyonel, max 4)</span></div>
+        ${[0,1,2,3].map(i => `<input id="cb-sq-${i}" class="form-input" style="margin-bottom:6px" placeholder="örn. Sıcak kitle nedir?" value="${(bot?.starter_questions||[])[i]||''}">`).join('')}
+      </div>
+      <div style="margin-bottom:16px">
         <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:6px">Belge Yükle (PDF veya metin)</div>
         <input type="file" id="cb-file-input" accept=".txt,.pdf,.md" style="display:none" onchange="cbHandleFile(this)">
         <button class="btn btn-ghost" onclick="document.getElementById('cb-file-input').click()">+ Dosya Ekle</button>
@@ -11003,9 +11016,10 @@ async function cbSaveBot() {
   if (!name) { alert('Asistan adı gerekli'); return; }
   const payload = {
     name,
-    description:   document.getElementById('cb-desc').value.trim(),
-    system_prompt: document.getElementById('cb-prompt').value.trim(),
-    avatar_emoji:  document.getElementById('cb-emoji').value.trim() || '🤖',
+    description:      document.getElementById('cb-desc').value.trim(),
+    system_prompt:    document.getElementById('cb-prompt').value.trim(),
+    avatar_emoji:     document.getElementById('cb-emoji').value.trim() || '🤖',
+    starter_questions: [0,1,2,3].map(i => document.getElementById(`cb-sq-${i}`)?.value.trim()).filter(Boolean),
     is_active: true,
   };
   let botId = cbEditingId;
