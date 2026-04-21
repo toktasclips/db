@@ -10863,6 +10863,13 @@ async function cbOpenChat(botId) {
     </div>`;
 }
 
+async function cbDeleteDoc(docId, btn) {
+  if (!confirm('Bu belgeyi silmek istiyor musun?')) return;
+  await sb.from('chatbot_chunks').delete().eq('document_id', docId);
+  await sb.from('chatbot_documents').delete().eq('id', docId);
+  btn.closest('.cb-doc-chip').remove();
+}
+
 function cbSendStarter(btn, text) {
   document.getElementById('cb-starters')?.remove();
   document.getElementById('cb-input').value = text;
@@ -10922,13 +10929,21 @@ function cbRemoveTyping() {
 let cbEditingId = null;
 let cbEditDocs = [];
 
-function cbOpenEditor(botId = null) {
+async function cbOpenEditor(botId = null) {
   cbEditingId = botId;
   cbEditDocs = [];
   const bot = botId ? cbBots.find(b => b.id === botId) : null;
   document.getElementById('cb-back-btn').style.display = '';
   document.getElementById('cb-new-btn').style.display = 'none';
   document.getElementById('cb-subtitle').textContent = bot ? 'Asistan Düzenle' : 'Yeni Asistan';
+
+  // Mevcut dokümanları çek
+  let savedDocs = [];
+  if (botId) {
+    const { data } = await sb.from('chatbot_documents').select('id, filename, created_at').eq('chatbot_id', botId).order('created_at');
+    savedDocs = data || [];
+  }
+
   const area = document.getElementById('cb-area');
   area.innerHTML = `
     <div class="cb-editor">
@@ -10955,9 +10970,13 @@ function cbOpenEditor(botId = null) {
         ${[0,1,2,3].map(i => `<input id="cb-sq-${i}" class="form-input" style="margin-bottom:6px" placeholder="örn. Sıcak kitle nedir?" value="${(bot?.starter_questions||[])[i]||''}">`).join('')}
       </div>
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:6px">Belge Yükle (PDF veya metin)</div>
+        <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:6px">Belgeler</div>
+        <div id="cb-saved-docs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          ${savedDocs.map(d => `<span class="cb-doc-chip" style="background:var(--color-bg-tertiary)">📄 ${d.filename}<button onclick="cbDeleteDoc('${d.id}',this)">×</button></span>`).join('')}
+          ${savedDocs.length === 0 ? '<span style="font-size:12px;color:var(--color-text-muted)">Henüz belge yok</span>' : ''}
+        </div>
         <input type="file" id="cb-file-input" accept=".txt,.pdf,.md" style="display:none" onchange="cbHandleFile(this)">
-        <button class="btn btn-ghost" onclick="document.getElementById('cb-file-input').click()">+ Dosya Ekle</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('cb-file-input').click()">+ Yeni Dosya Ekle</button>
         <div id="cb-doc-list" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
       <div style="display:flex;gap:8px">
