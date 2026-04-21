@@ -3644,14 +3644,8 @@ select option { background: #232323; color: #e8e8e6; }
 
         <!-- Meta Ads (top) -->
         <div class="ig-ds-card" id="ig-ads-card" style="margin-bottom:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div style="margin-bottom:14px">
             <div class="ig-ds-title" style="margin-bottom:0">📢 Meta Reklam Performansı</div>
-            <button id="meta-ads-sync-btn" onclick="syncMetaAds()"
-              style="padding:6px 14px;font-size:12px;border-radius:6px;border:1px solid #3a3a3a;background:transparent;color:#aaa;cursor:pointer;font-family:inherit;transition:all 0.15s"
-              onmouseover="this.style.borderColor='#666';this.style.color='#fff'"
-              onmouseout="this.style.borderColor='#3a3a3a';this.style.color='#aaa'">
-              ↻ Reklamları Senkronize Et
-            </button>
           </div>
           <div id="ig-ads-content" style="color:#555;font-size:13px">Yükleniyor…</div>
           <!-- Takipçi + Son Sync inside ads card -->
@@ -10021,7 +10015,7 @@ async function loadIgAdsSection() {
         Henüz reklam verisi yok.<br>
         <span style="font-size:12px">
           <strong style="color:#888">↺ Yeniden Bağla</strong> ile OAuth'u yenileyin,
-          ardından <em>Reklamları Senkronize Et</em>'e tıklayın.
+          ardından <em>Senkronize Et</em>'e tıklayın.
         </span>
       </div>`;
     return;
