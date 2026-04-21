@@ -3638,30 +3638,37 @@ select option { background: #232323; color: #e8e8e6; }
 
       <!-- Analytics dashboard -->
       <div id="ig-analytics-section" style="display:none">
-        <div class="ig-an-kpi-grid" id="ig-an-kpi-grid"></div>
-        <div class="ig-charts-grid">
-          <div class="ig-chart-card">
-            <div class="ig-chart-header">
-              <span class="ig-chart-title">Takipçi Büyümesi</span>
-              <div class="ig-chart-pills">
-                <button class="ig-chart-pill active" onclick="igSetGrowthPeriod(7,this)">7G</button>
-                <button class="ig-chart-pill" onclick="igSetGrowthPeriod(30,this)">30G</button>
-                <button class="ig-chart-pill" onclick="igSetGrowthPeriod(90,this)">90G</button>
-              </div>
-            </div>
-            <div class="ig-chart-canvas-wrap"><canvas id="ig-followers-chart"></canvas></div>
+
+        <!-- Meta Ads (top) -->
+        <div class="ig-ds-card" id="ig-ads-card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div class="ig-ds-title" style="margin-bottom:0">📢 Meta Reklam Performansı</div>
+            <button id="meta-ads-sync-btn" onclick="syncMetaAds()"
+              style="padding:6px 14px;font-size:12px;border-radius:6px;border:1px solid #3a3a3a;background:transparent;color:#aaa;cursor:pointer;font-family:inherit;transition:all 0.15s"
+              onmouseover="this.style.borderColor='#666';this.style.color='#fff'"
+              onmouseout="this.style.borderColor='#3a3a3a';this.style.color='#aaa'">
+              ↻ Reklamları Senkronize Et
+            </button>
           </div>
-          <div class="ig-chart-card">
-            <div class="ig-chart-header">
-              <span class="ig-chart-title">Günlük Erişim &amp; Gösterim</span>
-              <div class="ig-chart-pills">
-                <button class="ig-chart-pill active" onclick="igSetReachPeriod(7,this)">7G</button>
-                <button class="ig-chart-pill" onclick="igSetReachPeriod(30,this)">30G</button>
-              </div>
-            </div>
-            <div class="ig-chart-canvas-wrap" id="ig-reach-chart-wrap"><canvas id="ig-reach-chart"></canvas></div>
-          </div>
+          <div id="ig-ads-content" style="color:#555;font-size:13px">Yükleniyor…</div>
         </div>
+
+        <!-- KPI cards (only Takipçi + Son Sync) -->
+        <div class="ig-an-kpi-grid" id="ig-an-kpi-grid"></div>
+
+        <!-- Takipçi Büyümesi chart only -->
+        <div class="ig-chart-card" style="margin-bottom:20px">
+          <div class="ig-chart-header">
+            <span class="ig-chart-title">Takipçi Büyümesi</span>
+            <div class="ig-chart-pills">
+              <button class="ig-chart-pill active" onclick="igSetGrowthPeriod(7,this)">7G</button>
+              <button class="ig-chart-pill" onclick="igSetGrowthPeriod(30,this)">30G</button>
+              <button class="ig-chart-pill" onclick="igSetGrowthPeriod(90,this)">90G</button>
+            </div>
+          </div>
+          <div class="ig-chart-canvas-wrap"><canvas id="ig-followers-chart"></canvas></div>
+        </div>
+
         <div class="ig-perf-wrap">
           <div class="ig-perf-head">
             <span class="ig-perf-title">İçerik Performansı</span>
@@ -3708,19 +3715,6 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="ig-ds-grid" id="ig-ds-grid"></div>
         </div>
 
-        <!-- Meta Ads Section -->
-        <div class="ig-ds-card" id="ig-ads-card" style="margin-top:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-            <div class="ig-ds-title" style="margin-bottom:0">📢 Meta Reklam Performansı</div>
-            <button id="meta-ads-sync-btn" onclick="syncMetaAds()"
-              style="padding:6px 14px;font-size:12px;border-radius:6px;border:1px solid #3a3a3a;background:transparent;color:#aaa;cursor:pointer;font-family:inherit;transition:all 0.15s"
-              onmouseover="this.style.borderColor='#666';this.style.color='#fff'"
-              onmouseout="this.style.borderColor='#3a3a3a';this.style.color='#aaa'">
-              ↻ Reklamları Senkronize Et
-            </button>
-          </div>
-          <div id="ig-ads-content" style="color:#555;font-size:13px">Yükleniyor…</div>
-        </div>
       </div>
 
       <!-- Account stats row (content tab) -->
@@ -9766,59 +9760,28 @@ async function loadIgAnalytics() {
   try {
     await igLoadChartJs();
     igRenderFollowersChart();
-    igRenderReachChart();
   } catch(e) { console.warn('[analytics] Chart.js load failed:', e); }
 }
 
 function igRenderAnKPIs() {
   const grid = document.getElementById('ig-an-kpi-grid');
   if (!grid) return;
-  const snaps = igAnSnaps;
-  const media = igMedia;
+  const snaps    = igAnSnaps;
   const latest   = snaps.at(-1) ?? {};
-  const prev1    = snaps.at(-2)  ?? null;
-  const snap7ago = [...snaps].reverse().find(s => new Date(s.snapshot_date) <= new Date(Date.now() - 7  * 86400000));
-  const snap30ago= [...snaps].reverse().find(s => new Date(s.snapshot_date) <= new Date(Date.now() - 30 * 86400000));
-
+  const prev1    = snaps.at(-2) ?? null;
   const followers = latest.follower_count ?? null;
-  const chgDay  = prev1    != null && followers != null ? followers - (prev1.follower_count    ?? followers) : null;
-  const chg7d   = snap7ago != null && followers != null ? followers - (snap7ago.follower_count ?? followers) : null;
-  const chg30d  = snap30ago!= null && followers != null ? followers - (snap30ago.follower_count?? followers) : null;
-
-  const snaps7 = snaps.slice(-7);
-  const avgReach = snaps7.some(s => s.reach > 0)
-    ? Math.round(snaps7.reduce((a,s) => a + (s.reach ?? 0), 0) / snaps7.length) : null;
-  const avgImp   = snaps7.some(s => s.impressions > 0)
-    ? Math.round(snaps7.reduce((a,s) => a + (s.impressions ?? 0), 0) / snaps7.length) : null;
-
-  const mediaWithEng  = media.filter(m => m.engagement_rate != null);
-  const mediaWithViews= media.filter(m => (m.views ?? 0) > 0);
-  const avgEng  = mediaWithEng.length   ? (mediaWithEng.reduce((a,m) => a + m.engagement_rate, 0) / mediaWithEng.length) : null;
-  const avgViews= mediaWithViews.length ? Math.round(mediaWithViews.reduce((a,m) => a + m.views, 0) / mediaWithViews.length) : null;
+  const chgDay   = prev1 != null && followers != null ? followers - (prev1.follower_count ?? followers) : null;
   const lastSync = igConn?.last_synced_at
     ? new Date(igConn.last_synced_at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : null;
 
   const fmt  = n => n == null ? '—' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : Number(n).toLocaleString('tr-TR');
   const fmtD = n => n == null ? '—' : (n > 0 ? '+' : '') + fmt(n);
-  const deltaClass = n => n == null ? 'flat' : n > 0 ? 'up' : n < 0 ? 'down' : 'flat';
-  const deltaColor = n => n == null ? '' : n > 0 ? 'color:#22c55e' : n < 0 ? 'color:#ef4444' : '';
+  const dc   = n => n == null ? 'flat' : n > 0 ? 'up' : n < 0 ? 'down' : 'flat';
 
   const cards = [
-    { label:'Takipçi',            val: followers != null ? fmt(followers) : '—',
-      delta: chgDay != null ? `<span class="ig-an-kpi-delta ${deltaClass(chgDay)}">${fmtD(chgDay)} bugün</span>` : `<span class="ig-an-kpi-na">Veri yok</span>` },
-    { label:'7 Günlük Büyüme',    val: `<span style="${deltaColor(chg7d)}">${fmtD(chg7d)}</span>`,
-      delta: chg7d != null ? `<span class="ig-an-kpi-delta flat">son 7 gün</span>` : `<span class="ig-an-kpi-na">Yeterli veri yok</span>` },
-    { label:'30 Günlük Büyüme',   val: `<span style="${deltaColor(chg30d)}">${fmtD(chg30d)}</span>`,
-      delta: chg30d != null ? `<span class="ig-an-kpi-delta flat">son 30 gün</span>` : `<span class="ig-an-kpi-na">Yeterli veri yok</span>` },
-    { label:'Ort. Günlük Erişim', val: avgReach != null ? fmt(avgReach) : '—',
-      delta: avgReach == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son 7 gün ort.</span>` },
-    { label:'Ort. Gösterim',      val: avgImp != null ? fmt(avgImp) : '—',
-      delta: avgImp == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son 7 gün ort.</span>` },
-    { label:'Ort. Etkileşim %',   val: avgEng != null ? `%${avgEng.toFixed(2)}` : '—',
-      delta: media.length ? `<span class="ig-an-kpi-delta flat">son ${media.length} içerik</span>` : `<span class="ig-an-kpi-na">İçerik yok</span>` },
-    { label:'Ort. İzlenme',       val: avgViews != null ? fmt(avgViews) : '—',
-      delta: avgViews == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son ${mediaWithViews.length} içerik</span>` },
-    { label:'Son Sync',           val: lastSync ?? '—', delta: '' },
+    { label:'Takipçi', val: followers != null ? fmt(followers) : '—',
+      delta: chgDay != null ? `<span class="ig-an-kpi-delta ${dc(chgDay)}">${fmtD(chgDay)} bugün</span>` : `<span class="ig-an-kpi-na">Veri yok</span>` },
+    { label:'Son Sync', val: lastSync ?? '—', delta: '' },
   ];
   grid.innerHTML = cards.map(c => `
     <div class="ig-an-kpi-card">
