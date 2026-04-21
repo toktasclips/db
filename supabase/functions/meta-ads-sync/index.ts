@@ -55,8 +55,9 @@ serve(async (req: Request) => {
     console.error("[ads-sync] Decrypt failed:", decErr?.message);
     return json({ error: "decrypt_failed" }, 500);
   }
-  const token  = plainToken as string;
-  const today  = new Date().toISOString().split("T")[0];
+  const token = plainToken as string;
+  const today = new Date().toISOString().split("T")[0];
+  const since = new Date(Date.now() - 6 * 86400000).toISOString().split("T")[0]; // 7 days incl. today
 
   // ── Fetch ad accounts ─────────────────────────────────────────────────
   const acctRes  = await fetch(
@@ -67,31 +68,26 @@ serve(async (req: Request) => {
 
   if (acctData.error) {
     console.error("[ads-sync] Ad accounts error:", JSON.stringify(acctData.error));
-    return json({
-      error:  "ads_api_error",
-      detail: acctData.error.message,
-      code:   acctData.error.code,
-    }, 502);
+    return json({ error: "ads_api_error", detail: acctData.error.message, code: acctData.error.code }, 502);
   }
 
   const accounts: any[] = acctData.data ?? [];
   console.log(`[ads-sync] ${accounts.length} ad account(s) found`);
+  if (accounts.length === 0) return json({ success: true, accounts_found: 0, total_spend: 0 });
 
-  if (accounts.length === 0) {
-    return json({ success: true, accounts_found: 0, total_spend: 0 });
-  }
-
-  let totalSpend = 0;
+  let todaySpend = 0;
   const syncedAccounts: any[] = [];
 
   for (const acct of accounts) {
-    // account_status 1 = ACTIVE, 2 = DISABLED, etc.
-    const acctId = acct.id as string;
+    const acctId   = acct.id as string;
+    const currency = acct.currency ?? "TRY";
 
-    const insRes  = await fetch(
+    // Fetch last 7 days broken down by day (time_increment=1)
+    const insRes = await fetch(
       `https://graph.facebook.com/${GV}/${acctId}/insights` +
-      `?fields=spend,impressions,reach,clicks` +
-      `&time_range=${encodeURIComponent(JSON.stringify({ since: today, until: today }))}` +
+      `?fields=spend,impressions,reach,clicks,date_start` +
+      `&time_range=${encodeURIComponent(JSON.stringify({ since, until: today }))}` +
+      `&time_increment=1` +
       `&level=account` +
       `&access_token=${token}`,
     );
@@ -102,38 +98,42 @@ serve(async (req: Request) => {
       continue;
     }
 
-    const insight    = (insData.data ?? [])[0] ?? {};
-    const spend      = parseFloat(insight.spend       ?? "0");
-    const impressions = parseInt(insight.impressions   ?? "0");
-    const reach      = parseInt(insight.reach          ?? "0");
-    const clicks     = parseInt(insight.clicks         ?? "0");
+    const rows: any[] = insData.data ?? [];
+    console.log(`[ads-sync] ${acctId} (${acct.name}): ${rows.length} day(s) returned`);
 
-    totalSpend += spend;
+    for (const row of rows) {
+      const spend       = parseFloat(row.spend       ?? "0");
+      const impressions = parseInt(row.impressions    ?? "0");
+      const reach       = parseInt(row.reach          ?? "0");
+      const clicks      = parseInt(row.clicks         ?? "0");
+      const date        = (row.date_start as string)  ?? today;
 
-    const { error: upsertErr } = await sb.from("meta_ad_insights").upsert({
-      user_id:      userId,
-      account_id:   acctId,
-      account_name: acct.name  ?? null,
-      insight_date: today,
-      spend,
-      impressions,
-      reach,
-      clicks,
-      currency:     acct.currency ?? "TRY",
-      raw_payload:  insData,
-      updated_at:   new Date().toISOString(),
-    }, { onConflict: "user_id,account_id,insight_date" });
+      if (date === today) todaySpend += spend;
 
-    if (upsertErr) {
-      console.error(`[ads-sync] Upsert error ${acctId}:`, upsertErr.message);
-    } else {
-      syncedAccounts.push({ account_id: acctId, account_name: acct.name, spend, currency: acct.currency });
-      console.log(`[ads-sync] ${acctId} (${acct.name}): spend=${spend} impressions=${impressions}`);
+      const { error: upsertErr } = await sb.from("meta_ad_insights").upsert({
+        user_id:      userId,
+        account_id:   acctId,
+        account_name: acct.name ?? null,
+        insight_date: date,
+        spend,
+        impressions,
+        reach,
+        clicks,
+        currency,
+        raw_payload:  row,
+        updated_at:   new Date().toISOString(),
+      }, { onConflict: "user_id,account_id,insight_date" });
+
+      if (upsertErr) console.error(`[ads-sync] Upsert error ${acctId} ${date}:`, upsertErr.message);
     }
+
+    const acctTotal = rows.reduce((s, r) => s + parseFloat(r.spend ?? "0"), 0);
+    syncedAccounts.push({ account_id: acctId, account_name: acct.name, spend_7d: acctTotal, currency });
   }
 
-  console.log(`[ads-sync] Done. total_spend=${totalSpend}`);
-  return json({ success: true, accounts_found: accounts.length, total_spend: totalSpend, accounts: syncedAccounts });
+  const total7d = syncedAccounts.reduce((s, a) => s + a.spend_7d, 0);
+  console.log(`[ads-sync] Done. today=${todaySpend} 7d=${total7d}`);
+  return json({ success: true, accounts_found: accounts.length, total_spend: todaySpend, total_spend_7d: total7d, accounts: syncedAccounts });
 });
 
 function json(data: unknown, status = 200): Response {
