@@ -10135,25 +10135,32 @@ function igAdsRenderMetrics() {
   const totalSpend = filtered.reduce((s, r) => s + +r.spend, 0);
 
   // Cost per follower: spend / follower delta for the period
-  const snapMap = {};
-  for (const s of igAdsSnaps) snapMap[s.snapshot_date] = s.follower_count;
+  // Uses nearest available snapshot on or before each boundary (handles missing daily syncs)
+  const sortedSnaps = [...igAdsSnaps].sort((a,b) => a.snapshot_date.localeCompare(b.snapshot_date));
+
+  function nearestSnapBefore(date) {
+    // Latest snapshot whose date <= given date
+    return [...sortedSnaps].reverse().find(s => s.snapshot_date <= date) ?? null;
+  }
 
   let followerGain = null;
   if (igAdsPeriod === 'today') {
-    const cur  = snapMap[today];
-    const prev = snapMap[yesterday];
-    if (cur != null && prev != null) followerGain = cur - prev;
+    const cur  = nearestSnapBefore(today);
+    const prev = nearestSnapBefore(yesterday);
+    if (cur && prev && cur.snapshot_date !== prev.snapshot_date)
+      followerGain = cur.follower_count - prev.follower_count;
   } else if (igAdsPeriod === 'yesterday') {
     const dayBefore = new Date(Date.now() - 2*86400000).toISOString().split('T')[0];
-    const cur  = snapMap[yesterday];
-    const prev = snapMap[dayBefore];
-    if (cur != null && prev != null) followerGain = cur - prev;
+    const cur  = nearestSnapBefore(yesterday);
+    const prev = nearestSnapBefore(dayBefore);
+    if (cur && prev && cur.snapshot_date !== prev.snapshot_date)
+      followerGain = cur.follower_count - prev.follower_count;
   } else {
-    // 7d: newest minus oldest in the window
-    const sorted = igAdsSnaps.map(s => s.snapshot_date).sort();
-    const newest = snapMap[sorted.at(-1)];
-    const oldest = snapMap[sorted[0]];
-    if (newest != null && oldest != null) followerGain = newest - oldest;
+    // 7d: newest vs oldest available snapshot in the window
+    const cur  = sortedSnaps.at(-1) ?? null;
+    const prev = sortedSnaps[0]     ?? null;
+    if (cur && prev && cur.snapshot_date !== prev.snapshot_date)
+      followerGain = cur.follower_count - prev.follower_count;
   }
 
   const cpf = (followerGain != null && followerGain > 0) ? totalSpend / followerGain : null;
