@@ -9991,7 +9991,8 @@ let igAdsSnaps   = [];      // instagram_account_snapshots for CPF calculation
 
 async function loadIgAdsSection() {
   const content = document.getElementById('ig-ads-content'); if (!content) return;
-  const since7  = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]; // 8 days for delta
+  const since7  = new Date(Date.now() - 7  * 86400000).toISOString().split('T')[0];
+  const since14 = new Date(Date.now() - 14 * 86400000).toISOString().split('T')[0];
 
   const [{ data: rows }, { data: snaps }] = await Promise.all([
     sb.from('meta_ad_insights')
@@ -10002,7 +10003,7 @@ async function loadIgAdsSection() {
     sb.from('instagram_account_snapshots')
       .select('snapshot_date,follower_count')
       .eq('user_id', currentUser.email)
-      .gte('snapshot_date', since7)
+      .gte('snapshot_date', since14)   // 14 days for reliable baselines
       .order('snapshot_date', { ascending: true }),
   ]);
 
@@ -10108,22 +10109,25 @@ function igAdsRenderMetrics() {
   let followerGain = null;
   let followerSub  = 'veri yok';
 
+  // Period-boundary calculation: end snap vs start snap
+  const snapBefore = date => [...sortedSnaps].reverse().find(s => s.snapshot_date <= date) ?? null;
+
+  let endSnap, startSnap;
   if (igAdsPeriod === '7d') {
-    const cur  = sortedSnaps.at(-1);
-    const prev = sortedSnaps[0];
-    if (cur && prev && cur.snapshot_date !== prev.snapshot_date) {
-      followerGain = cur.follower_count - prev.follower_count;
-      followerSub  = `${prev.snapshot_date} → ${cur.snapshot_date}`;
-    }
+    endSnap   = sortedSnaps.at(-1) ?? null;
+    startSnap = sortedSnaps[0]     ?? null;
   } else {
-    // Bugün/Dün: cur = boundary günündeki en son snap, prev = boundary öncesindeki en son snap
-    const boundary = igAdsPeriod === 'today' ? today : yesterday;
-    const cur  = [...sortedSnaps].reverse().find(s => s.snapshot_date <= boundary) ?? null;
-    const prev = cur ? [...sortedSnaps].reverse().find(s => s.snapshot_date < cur.snapshot_date) ?? null : null;
-    if (cur && prev) {
-      followerGain = cur.follower_count - prev.follower_count;
-      followerSub  = `${prev.snapshot_date} → ${cur.snapshot_date}`;
-    }
+    const endDate   = igAdsPeriod === 'today' ? today : yesterday;
+    const startDate = igAdsPeriod === 'today'
+      ? yesterday
+      : new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+    endSnap   = snapBefore(endDate);
+    startSnap = snapBefore(startDate);
+  }
+
+  if (endSnap && startSnap && endSnap.snapshot_date !== startSnap.snapshot_date) {
+    followerGain = endSnap.follower_count - startSnap.follower_count;
+    followerSub  = `${startSnap.snapshot_date} → ${endSnap.snapshot_date}`;
   }
 
   const cpf = (followerGain != null && followerGain > 0) ? totalSpend / followerGain : null;
