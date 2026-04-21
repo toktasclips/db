@@ -10116,23 +10116,17 @@ function igAdsRenderMetrics() {
       followerSub  = `${prev.snapshot_date} → ${cur.snapshot_date}`;
     }
   } else {
-    // Bugün veya Dün: son iki snapshot arasındaki farkı kullan
-    // (günlük sync yoksa bile en yakın iki ölçüm arasındaki değişimi göster)
-    const boundary = igAdsPeriod === 'today' ? today : yesterday;
-    // en son snapshot on or before boundary
-    const cur  = [...sortedSnaps].reverse().find(s => s.snapshot_date <= boundary) ?? null;
-    // en son snapshot before cur
-    const prev = cur ? [...sortedSnaps].reverse().find(s => s.snapshot_date < cur.snapshot_date) ?? null : null;
+    // Bugün: cur=bugün, prev=dün — sadece o günün kazanımını göster
+    // Dün:   cur=dün,   prev=evvelsi gün
+    const curDay  = igAdsPeriod === 'today' ? today : yesterday;
+    const prevDay = igAdsPeriod === 'today' ? yesterday : new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+    const cur  = [...sortedSnaps].reverse().find(s => s.snapshot_date <= curDay)  ?? null;
+    const prev = sortedSnaps.find(s => s.snapshot_date === prevDay) ?? null;
     if (cur && prev) {
       followerGain = cur.follower_count - prev.follower_count;
       followerSub  = `${prev.snapshot_date} → ${cur.snapshot_date}`;
     } else if (cur && !prev) {
-      // Only one snapshot available — use 7d fallback
-      const oldest = sortedSnaps[0];
-      if (oldest && oldest.snapshot_date !== cur.snapshot_date) {
-        followerGain = cur.follower_count - oldest.follower_count;
-        followerSub  = `${oldest.snapshot_date} → ${cur.snapshot_date}`;
-      }
+      followerSub = 'önceki gün snapshot yok';
     }
   }
 
