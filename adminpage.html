@@ -1864,6 +1864,66 @@ select option { background: #232323; color: #e8e8e6; }
 .cb-doc-chip { display:inline-flex;align-items:center;gap:6px;background:var(--color-bg-tertiary);border:1px solid var(--color-border);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--color-text-secondary); }
 .cb-doc-chip button { background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:14px;line-height:1;padding:0; }
 
+/* ── Instagram Analytics Dashboard ───────────────────────────────────── */
+.ig-tab-nav { display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--color-border); }
+.ig-tab-btn { padding:9px 18px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s; }
+.ig-tab-btn.active { color:var(--color-accent);border-bottom-color:var(--color-accent); }
+.ig-tab-btn:hover:not(.active) { color:var(--color-text-primary); }
+.ig-an-kpi-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:20px; }
+.ig-an-kpi-card { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:16px;transition:box-shadow .15s; }
+.ig-an-kpi-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.08); }
+.ig-an-kpi-label { font-size:10px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-weight:600; }
+.ig-an-kpi-val { font-size:22px;font-weight:700;color:var(--color-text-primary);line-height:1; }
+.ig-an-kpi-delta { font-size:11px;margin-top:6px;font-weight:500; }
+.ig-an-kpi-delta.up { color:#22c55e; }
+.ig-an-kpi-delta.down { color:#ef4444; }
+.ig-an-kpi-delta.flat { color:var(--color-text-muted); }
+.ig-an-kpi-na { font-size:11px;color:var(--color-text-muted);margin-top:4px; }
+.ig-charts-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px; }
+.ig-chart-card { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:18px; }
+.ig-chart-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:14px; }
+.ig-chart-title { font-size:13px;font-weight:600;color:var(--color-text-primary); }
+.ig-chart-pills { display:flex;gap:4px; }
+.ig-chart-pill { font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all .15s; }
+.ig-chart-pill.active { background:var(--color-accent);color:#fff;border-color:var(--color-accent); }
+.ig-chart-canvas-wrap { position:relative;height:160px; }
+.ig-chart-empty { text-align:center;padding:40px 0;font-size:12px;color:var(--color-text-muted); }
+.ig-perf-wrap { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden; }
+.ig-perf-head { display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--color-border);flex-wrap:wrap;gap:8px; }
+.ig-perf-title { font-size:13px;font-weight:600;color:var(--color-text-primary); }
+.ig-perf-filters { display:flex;gap:8px;flex-wrap:wrap; }
+.ig-perf-table { width:100%;border-collapse:collapse;font-size:12px; }
+.ig-perf-table th { padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--color-border);white-space:nowrap; }
+.ig-perf-table td { padding:9px 12px;border-bottom:1px solid var(--color-border);vertical-align:middle;color:var(--color-text-primary); }
+.ig-perf-table tr:last-child td { border-bottom:none; }
+.ig-perf-table tbody tr:hover td { background:var(--color-bg-tertiary); }
+.ig-perf-thumb { width:38px;height:38px;border-radius:6px;object-fit:cover;background:var(--color-bg-tertiary);display:block; }
+.ig-type-badge { display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;text-transform:uppercase; }
+.ig-type-REELS { background:#8b5cf620;color:#8b5cf6; }
+.ig-type-IMAGE { background:#3b82f620;color:#3b82f6; }
+.ig-type-VIDEO { background:#f59e0b20;color:#f59e0b; }
+.ig-type-CAROUSEL_ALBUM { background:#10b98120;color:#10b981; }
+.ig-performers-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px; }
+.ig-performer-card { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:16px; }
+.ig-performer-card-title { font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px; }
+.ig-pf-item { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--color-border); }
+.ig-pf-item:last-child { border-bottom:none; }
+.ig-pf-rank { font-size:11px;font-weight:700;color:var(--color-text-muted);width:16px;flex-shrink:0;text-align:center; }
+.ig-pf-thumb { width:34px;height:34px;border-radius:6px;object-fit:cover;background:var(--color-bg-tertiary);flex-shrink:0; }
+.ig-pf-info { flex:1;min-width:0; }
+.ig-pf-caption { font-size:11px;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.ig-pf-meta { font-size:10px;color:var(--color-text-muted);margin-top:2px; }
+.ig-pf-score { font-size:12px;font-weight:700;color:var(--color-accent);flex-shrink:0; }
+.ig-ds-card { background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:16px;margin-bottom:20px; }
+.ig-ds-title { font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:12px; }
+.ig-ds-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px; }
+.ig-ds-item { display:flex;align-items:center;gap:8px;font-size:12px; }
+.ig-ds-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.ig-ds-dot.ok { background:#22c55e; }
+.ig-ds-dot.na { background:var(--color-border); }
+@media (max-width:900px) { .ig-charts-grid,.ig-performers-grid { grid-template-columns:1fr; } }
+@media (max-width:600px) { .ig-an-kpi-grid { grid-template-columns:1fr 1fr; } .ig-perf-table td,.ig-perf-table th { padding:7px 8px; } }
+
 /* Mobile */
 @media (max-width: 768px) {
   .ig-content-grid { grid-template-columns: repeat(2,1fr); gap: 8px; }
@@ -3571,7 +3631,88 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
       </div>
 
-      <!-- Account stats row -->
+      <!-- Tab navigation (shown when connected) -->
+      <div id="ig-tab-nav" style="display:none">
+        <div class="ig-tab-nav">
+          <button class="ig-tab-btn active" id="ig-tab-btn-analytics" onclick="igSwitchTab('analytics')">📊 Analitik</button>
+          <button class="ig-tab-btn" id="ig-tab-btn-content" onclick="igSwitchTab('content')">🖼 İçerikler</button>
+        </div>
+      </div>
+
+      <!-- Analytics dashboard -->
+      <div id="ig-analytics-section" style="display:none">
+        <div class="ig-an-kpi-grid" id="ig-an-kpi-grid"></div>
+        <div class="ig-charts-grid">
+          <div class="ig-chart-card">
+            <div class="ig-chart-header">
+              <span class="ig-chart-title">Takipçi Büyümesi</span>
+              <div class="ig-chart-pills">
+                <button class="ig-chart-pill active" onclick="igSetGrowthPeriod(7,this)">7G</button>
+                <button class="ig-chart-pill" onclick="igSetGrowthPeriod(30,this)">30G</button>
+                <button class="ig-chart-pill" onclick="igSetGrowthPeriod(90,this)">90G</button>
+              </div>
+            </div>
+            <div class="ig-chart-canvas-wrap"><canvas id="ig-followers-chart"></canvas></div>
+          </div>
+          <div class="ig-chart-card">
+            <div class="ig-chart-header">
+              <span class="ig-chart-title">Günlük Erişim &amp; Gösterim</span>
+              <div class="ig-chart-pills">
+                <button class="ig-chart-pill active" onclick="igSetReachPeriod(7,this)">7G</button>
+                <button class="ig-chart-pill" onclick="igSetReachPeriod(30,this)">30G</button>
+              </div>
+            </div>
+            <div class="ig-chart-canvas-wrap" id="ig-reach-chart-wrap"><canvas id="ig-reach-chart"></canvas></div>
+          </div>
+        </div>
+        <div class="ig-perf-wrap">
+          <div class="ig-perf-head">
+            <span class="ig-perf-title">İçerik Performansı</span>
+            <div class="ig-perf-filters">
+              <select class="ig-sel" id="ig-table-type" onchange="igRenderPerfTable()">
+                <option value="all">Tüm Türler</option>
+                <option value="REELS">Reels</option>
+                <option value="IMAGE">Fotoğraf</option>
+                <option value="VIDEO">Video</option>
+                <option value="CAROUSEL_ALBUM">Carousel</option>
+              </select>
+              <select class="ig-sel" id="ig-table-sort" onchange="igRenderPerfTable()">
+                <option value="newest">En Yeni</option>
+                <option value="most_views">En Çok İzlenme</option>
+                <option value="most_reach">En Çok Erişim</option>
+                <option value="most_engagement">En Çok Etkileşim</option>
+                <option value="top_eng_rate">En Yüksek Oran</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="ig-perf-table">
+              <thead><tr>
+                <th>İçerik</th><th>Tür</th><th>Tarih</th>
+                <th>❤️ Beğeni</th><th>💬 Yorum</th><th>👁 İzlenme</th>
+                <th>📡 Erişim</th><th>% Oran</th><th></th>
+              </tr></thead>
+              <tbody id="ig-perf-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="ig-performers-grid">
+          <div class="ig-performer-card">
+            <div class="ig-performer-card-title">🏆 En İyi 5 İçerik</div>
+            <div id="ig-top5"></div>
+          </div>
+          <div class="ig-performer-card">
+            <div class="ig-performer-card-title">📉 En Düşük 5 İçerik</div>
+            <div id="ig-bottom5"></div>
+          </div>
+        </div>
+        <div class="ig-ds-card">
+          <div class="ig-ds-title">Veri Durumu</div>
+          <div class="ig-ds-grid" id="ig-ds-grid"></div>
+        </div>
+      </div>
+
+      <!-- Account stats row (content tab) -->
       <div id="ig-account-detail-section" style="display:none">
         <div id="ig-account-detail"></div>
       </div>
@@ -9422,28 +9563,28 @@ async function loadInstagramPage() {
   _renderIgConnectionCard(card, conn);
 
   if (!conn?.is_active) {
+    document.getElementById('ig-tab-nav').style.display = 'none';
+    document.getElementById('ig-analytics-section').style.display = 'none';
     document.getElementById('ig-account-detail-section').style.display = 'none';
     document.getElementById('ig-main-area').style.display = 'none';
     document.getElementById('ig-setup-info').style.display = '';
     return;
   }
   document.getElementById('ig-setup-info').style.display = 'none';
+  document.getElementById('ig-tab-nav').style.display = '';
 
-  const { data: snap } = await sb
-    .from('instagram_account_snapshots')
-    .select('*').eq('user_id', currentUser.email)
-    .order('snapshot_date',{ascending:false}).limit(1).maybeSingle();
-  if (snap) { _renderIgAccountDetail(snap); document.getElementById('ig-account-detail-section').style.display=''; }
+  // Default: analytics tab
+  igSwitchTab('analytics');
 
+  // Load media for content tab (background)
   const { data: media } = await sb
     .from('instagram_media').select('*')
     .eq('user_id', currentUser.email)
     .order('published_at',{ascending:false}).limit(50);
-
   igMedia = media ?? [];
-  document.getElementById('ig-main-area').style.display = '';
-  igRenderToolbar();
-  igRenderGrid();
+
+  // Load analytics data
+  await loadIgAnalytics();
 }
 
 function _renderIgConnectionCard(card, conn) {
@@ -9469,6 +9610,300 @@ function _renderIgAccountDetail(snap) {
     ['Erişim', snap.reach], ['Gösterim', snap.impressions], ['Profil Görüntüleme', snap.profile_views],
   ].filter(([,v]) => v != null);
   detail.innerHTML = `<div class="ig-account-detail">${stats.map(([l,v],i)=>`${i>0?'<div class="ig-account-divider"></div>':''}<div class="ig-account-stat"><div class="ig-account-stat-val">${igFmt(v)}</div><div class="ig-account-stat-lbl">${l}</div></div>`).join('')}</div>`;
+}
+
+// ── Analytics Dashboard ───────────────────────────────────────────────
+let igAnSnaps = [];
+let igFollowersChart = null;
+let igReachChart = null;
+const igAnState = { growthPeriod: 7, reachPeriod: 7 };
+
+function igSwitchTab(tab) {
+  ['analytics','content'].forEach(t => {
+    const btn = document.getElementById(`ig-tab-btn-${t}`);
+    if (btn) btn.className = 'ig-tab-btn' + (t === tab ? ' active' : '');
+  });
+  document.getElementById('ig-analytics-section').style.display     = tab === 'analytics' ? '' : 'none';
+  document.getElementById('ig-main-area').style.display             = tab === 'content'   ? '' : 'none';
+  document.getElementById('ig-account-detail-section').style.display = tab === 'content'  ? '' : 'none';
+
+  if (tab === 'content' && igConn?.is_active) {
+    const { data: snap } = sb
+      .from('instagram_account_snapshots').select('*')
+      .eq('user_id', currentUser.email)
+      .order('snapshot_date',{ascending:false}).limit(1).maybeSingle()
+      .then(({ data }) => { if (data) { _renderIgAccountDetail(data); document.getElementById('ig-account-detail-section').style.display = ''; } });
+    igRenderToolbar();
+    igRenderGrid();
+  }
+}
+
+async function loadIgAnalytics() {
+  const since90 = new Date(Date.now() - 90 * 86400000).toISOString().split('T')[0];
+  const [{ data: snaps }, { data: media }] = await Promise.all([
+    sb.from('instagram_account_snapshots')
+      .select('snapshot_date,follower_count,follows_count,media_count,reach,impressions,profile_views,website_clicks,phone_call_clicks,email_contacts,total_interactions')
+      .eq('user_id', currentUser.email)
+      .gte('snapshot_date', since90)
+      .order('snapshot_date', { ascending: true }),
+    sb.from('instagram_media').select('*')
+      .eq('user_id', currentUser.email)
+      .order('published_at', { ascending: false })
+      .limit(50),
+  ]);
+  igAnSnaps = snaps ?? [];
+  igMedia   = media ?? [];
+
+  igRenderAnKPIs();
+  igRenderPerfTable();
+  igRenderPerformers();
+  igRenderDataStatus();
+
+  try {
+    await igLoadChartJs();
+    igRenderFollowersChart();
+    igRenderReachChart();
+  } catch(e) { console.warn('[analytics] Chart.js load failed:', e); }
+}
+
+function igRenderAnKPIs() {
+  const grid = document.getElementById('ig-an-kpi-grid');
+  if (!grid) return;
+  const snaps = igAnSnaps;
+  const media = igMedia;
+  const latest   = snaps.at(-1) ?? {};
+  const prev1    = snaps.at(-2)  ?? null;
+  const snap7ago = [...snaps].reverse().find(s => new Date(s.snapshot_date) <= new Date(Date.now() - 7  * 86400000));
+  const snap30ago= [...snaps].reverse().find(s => new Date(s.snapshot_date) <= new Date(Date.now() - 30 * 86400000));
+
+  const followers = latest.follower_count ?? null;
+  const chgDay  = prev1    != null && followers != null ? followers - (prev1.follower_count    ?? followers) : null;
+  const chg7d   = snap7ago != null && followers != null ? followers - (snap7ago.follower_count ?? followers) : null;
+  const chg30d  = snap30ago!= null && followers != null ? followers - (snap30ago.follower_count?? followers) : null;
+
+  const snaps7 = snaps.slice(-7);
+  const avgReach = snaps7.some(s => s.reach > 0)
+    ? Math.round(snaps7.reduce((a,s) => a + (s.reach ?? 0), 0) / snaps7.length) : null;
+  const avgImp   = snaps7.some(s => s.impressions > 0)
+    ? Math.round(snaps7.reduce((a,s) => a + (s.impressions ?? 0), 0) / snaps7.length) : null;
+
+  const mediaWithEng  = media.filter(m => m.engagement_rate != null);
+  const mediaWithViews= media.filter(m => (m.views ?? 0) > 0);
+  const avgEng  = mediaWithEng.length   ? (mediaWithEng.reduce((a,m) => a + m.engagement_rate, 0) / mediaWithEng.length) : null;
+  const avgViews= mediaWithViews.length ? Math.round(mediaWithViews.reduce((a,m) => a + m.views, 0) / mediaWithViews.length) : null;
+  const lastSync = igConn?.last_synced_at
+    ? new Date(igConn.last_synced_at).toLocaleString('tr-TR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : null;
+
+  const fmt  = n => n == null ? '—' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : Number(n).toLocaleString('tr-TR');
+  const fmtD = n => n == null ? '—' : (n > 0 ? '+' : '') + fmt(n);
+  const deltaClass = n => n == null ? 'flat' : n > 0 ? 'up' : n < 0 ? 'down' : 'flat';
+  const deltaColor = n => n == null ? '' : n > 0 ? 'color:#22c55e' : n < 0 ? 'color:#ef4444' : '';
+
+  const cards = [
+    { label:'Takipçi',            val: followers != null ? fmt(followers) : '—',
+      delta: chgDay != null ? `<span class="ig-an-kpi-delta ${deltaClass(chgDay)}">${fmtD(chgDay)} bugün</span>` : `<span class="ig-an-kpi-na">Veri yok</span>` },
+    { label:'7 Günlük Büyüme',    val: `<span style="${deltaColor(chg7d)}">${fmtD(chg7d)}</span>`,
+      delta: chg7d != null ? `<span class="ig-an-kpi-delta flat">son 7 gün</span>` : `<span class="ig-an-kpi-na">Yeterli veri yok</span>` },
+    { label:'30 Günlük Büyüme',   val: `<span style="${deltaColor(chg30d)}">${fmtD(chg30d)}</span>`,
+      delta: chg30d != null ? `<span class="ig-an-kpi-delta flat">son 30 gün</span>` : `<span class="ig-an-kpi-na">Yeterli veri yok</span>` },
+    { label:'Ort. Günlük Erişim', val: avgReach != null ? fmt(avgReach) : '—',
+      delta: avgReach == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son 7 gün ort.</span>` },
+    { label:'Ort. Gösterim',      val: avgImp != null ? fmt(avgImp) : '—',
+      delta: avgImp == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son 7 gün ort.</span>` },
+    { label:'Ort. Etkileşim %',   val: avgEng != null ? `%${avgEng.toFixed(2)}` : '—',
+      delta: media.length ? `<span class="ig-an-kpi-delta flat">son ${media.length} içerik</span>` : `<span class="ig-an-kpi-na">İçerik yok</span>` },
+    { label:'Ort. İzlenme',       val: avgViews != null ? fmt(avgViews) : '—',
+      delta: avgViews == null ? `<span class="ig-an-kpi-na">Bu hesapta mevcut değil</span>` : `<span class="ig-an-kpi-delta flat">son ${mediaWithViews.length} içerik</span>` },
+    { label:'Son Sync',           val: lastSync ?? '—', delta: '' },
+  ];
+  grid.innerHTML = cards.map(c => `
+    <div class="ig-an-kpi-card">
+      <div class="ig-an-kpi-label">${c.label}</div>
+      <div class="ig-an-kpi-val">${c.val}</div>
+      ${c.delta}
+    </div>`).join('');
+}
+
+async function igLoadChartJs() {
+  if (window.Chart) return;
+  await new Promise((res,rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+function igChartDefaults() {
+  const isDark = document.documentElement.classList.contains('dark') ||
+                 document.body.getAttribute('data-theme') === 'dark';
+  return {
+    gridColor:   isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+    tickColor:   isDark ? 'rgba(255,255,255,0.4)'  : 'rgba(0,0,0,0.4)',
+    accent:      '#6366f1', blue: '#3b82f6', orange: '#f59e0b', green: '#22c55e',
+  };
+}
+
+function igRenderFollowersChart() {
+  const canvas = document.getElementById('ig-followers-chart');
+  if (!canvas || !window.Chart) return;
+  const snaps = igAnSnaps.slice(-igAnState.growthPeriod);
+  if (!snaps.length) {
+    canvas.parentElement.innerHTML = '<div class="ig-chart-empty">Yeterli veri yok</div>'; return;
+  }
+  const C = igChartDefaults();
+  const labels    = snaps.map(s => new Date(s.snapshot_date).toLocaleDateString('tr-TR',{day:'numeric',month:'short'}));
+  const followers = snaps.map(s => s.follower_count ?? null);
+  if (igFollowersChart) igFollowersChart.destroy();
+  igFollowersChart = new Chart(canvas, {
+    type:'line',
+    data:{ labels, datasets:[{ label:'Takipçi', data:followers,
+      borderColor:C.accent, backgroundColor:C.accent+'18', fill:true, tension:.4, pointRadius:3, pointHoverRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false} },
+      scales:{
+        x:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,maxTicksLimit:7,font:{size:10}} },
+        y:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
+      }
+    }
+  });
+}
+
+function igRenderReachChart() {
+  const wrap   = document.getElementById('ig-reach-chart-wrap');
+  const canvas = document.getElementById('ig-reach-chart');
+  if (!wrap || !canvas || !window.Chart) return;
+  const snaps = igAnSnaps.slice(-igAnState.reachPeriod);
+  const hasData = snaps.some(s => (s.reach ?? 0) > 0 || (s.impressions ?? 0) > 0);
+  if (!hasData) {
+    wrap.innerHTML = '<div class="ig-chart-empty">Bu hesap için erişim/gösterim verisi mevcut değil.<br>Veriler bir sonraki sync sonrası görünür.</div>'; return;
+  }
+  const C = igChartDefaults();
+  const labels     = snaps.map(s => new Date(s.snapshot_date).toLocaleDateString('tr-TR',{day:'numeric',month:'short'}));
+  const reach      = snaps.map(s => s.reach       ?? null);
+  const impressions= snaps.map(s => s.impressions  ?? null);
+  if (igReachChart) igReachChart.destroy();
+  igReachChart = new Chart(canvas, {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'Erişim',   data:reach,       backgroundColor:C.blue  +'cc', borderRadius:3 },
+      { label:'Gösterim', data:impressions, backgroundColor:C.orange+'cc', borderRadius:3 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:true, labels:{color:C.tickColor,font:{size:11}}}, tooltip:{mode:'index',intersect:false} },
+      scales:{
+        x:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,maxTicksLimit:7,font:{size:10}} },
+        y:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
+      }
+    }
+  });
+}
+
+function igSetGrowthPeriod(p, btn) {
+  igAnState.growthPeriod = p;
+  btn.closest('.ig-chart-pills').querySelectorAll('.ig-chart-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  igRenderFollowersChart();
+}
+
+function igSetReachPeriod(p, btn) {
+  igAnState.reachPeriod = p;
+  btn.closest('.ig-chart-pills').querySelectorAll('.ig-chart-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  igRenderReachChart();
+}
+
+function igRenderPerfTable() {
+  const tbody = document.getElementById('ig-perf-tbody');
+  if (!tbody) return;
+  let media = [...igMedia];
+  const typeFilter = document.getElementById('ig-table-type')?.value ?? 'all';
+  const sortBy     = document.getElementById('ig-table-sort')?.value ?? 'newest';
+  if (typeFilter !== 'all') media = media.filter(m => m.media_type === typeFilter);
+  media.sort((a,b) => {
+    if (sortBy === 'newest')          return new Date(b.published_at) - new Date(a.published_at);
+    if (sortBy === 'most_views')      return (b.views ?? 0) - (a.views ?? 0);
+    if (sortBy === 'most_reach')      return (b.reach ?? 0) - (a.reach ?? 0);
+    if (sortBy === 'most_engagement') return ((b.like_count??0)+(b.comments_count??0)+(b.saves??0))-((a.like_count??0)+(a.comments_count??0)+(a.saves??0));
+    if (sortBy === 'top_eng_rate')    return (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0);
+    return 0;
+  });
+  if (!media.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--color-text-muted)">İçerik bulunamadı</td></tr>`; return;
+  }
+  const na = `<span style="color:var(--color-text-muted)">—</span>`;
+  const fmt = n => n != null && n > 0 ? (n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toLocaleString('tr-TR')) : na;
+  tbody.innerHTML = media.slice(0,30).map(m => {
+    const thumb = m.thumbnail_url || m.media_url;
+    const date  = m.published_at ? new Date(m.published_at).toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'2-digit'}) : '—';
+    const cap   = (m.caption ?? '').slice(0,50) + ((m.caption?.length ?? 0) > 50 ? '…' : '');
+    const badge = `<span class="ig-type-badge ig-type-${m.media_type}">${m.media_type === 'CAROUSEL_ALBUM' ? 'CAR.' : m.media_type}</span>`;
+    const engR  = m.engagement_rate != null ? `%${Number(m.engagement_rate).toFixed(2)}` : na;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;min-width:150px">
+        ${thumb ? `<img class="ig-perf-thumb" src="${escHtml(thumb)}" alt="" loading="lazy" onerror="this.style.opacity=0">` : `<div class="ig-perf-thumb"></div>`}
+        <span style="font-size:11px;color:var(--color-text-muted);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(m.caption??'')}}">${escHtml(cap)}</span>
+      </div></td>
+      <td>${badge}</td>
+      <td style="white-space:nowrap;font-size:11px">${date}</td>
+      <td>${fmt(m.like_count)}</td>
+      <td>${fmt(m.comments_count)}</td>
+      <td>${fmt(m.views)}</td>
+      <td>${fmt(m.reach)}</td>
+      <td style="font-weight:500">${engR}</td>
+      <td>${m.permalink ? `<a href="${escHtml(m.permalink)}" target="_blank" rel="noopener" style="color:var(--color-accent);font-size:13px">↗</a>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function igRenderPerformers() {
+  const withScore = [...igMedia].filter(m => (m.performance_score ?? 0) > 0);
+  const top5    = [...withScore].sort((a,b) => b.performance_score - a.performance_score).slice(0,5);
+  const bottom5 = [...withScore].sort((a,b) => a.performance_score - b.performance_score).slice(0,5);
+  const renderList = (items, elId) => {
+    const el = document.getElementById(elId); if (!el) return;
+    if (!items.length) { el.innerHTML = `<div style="font-size:12px;color:var(--color-text-muted);padding:8px 0">Yeterli veri yok</div>`; return; }
+    el.innerHTML = items.map((m,i) => {
+      const thumb = m.thumbnail_url || m.media_url;
+      const cap   = (m.caption ?? m.media_type ?? '').slice(0,60);
+      const date  = m.published_at ? new Date(m.published_at).toLocaleDateString('tr-TR',{day:'numeric',month:'short'}) : '';
+      return `<div class="ig-pf-item">
+        <span class="ig-pf-rank">${i+1}</span>
+        ${thumb ? `<img class="ig-pf-thumb" src="${escHtml(thumb)}" alt="" loading="lazy" onerror="this.style.opacity=0">` : `<div class="ig-pf-thumb"></div>`}
+        <div class="ig-pf-info">
+          <div class="ig-pf-caption">${escHtml(cap) || '(caption yok)'}</div>
+          <div class="ig-pf-meta">${m.media_type} · ${date}</div>
+        </div>
+        <span class="ig-pf-score">${Number(m.performance_score).toFixed(1)}</span>
+      </div>`;
+    }).join('');
+  };
+  renderList(top5,    'ig-top5');
+  renderList(bottom5, 'ig-bottom5');
+}
+
+function igRenderDataStatus() {
+  const grid = document.getElementById('ig-ds-grid'); if (!grid) return;
+  const s = igAnSnaps; const m = igMedia;
+  const checks = [
+    { label:'Takipçi sayısı',     ok: s.some(x => (x.follower_count ?? 0) > 0) },
+    { label:'Günlük erişim',      ok: s.some(x => (x.reach         ?? 0) > 0) },
+    { label:'Gösterim verisi',    ok: s.some(x => (x.impressions    ?? 0) > 0) },
+    { label:'Profil görüntüleme', ok: s.some(x => (x.profile_views  ?? 0) > 0) },
+    { label:'Web tıklamaları',    ok: s.some(x => (x.website_clicks ?? 0) > 0) },
+    { label:'Telefon tıklamaları',ok: s.some(x => (x.phone_call_clicks ?? 0) > 0) },
+    { label:'E-posta tıklamaları',ok: s.some(x => (x.email_contacts ?? 0) > 0) },
+    { label:'İçerik verisi',      ok: m.length > 0 },
+    { label:'İçerik erişimi',     ok: m.some(x => (x.reach   ?? 0) > 0) },
+    { label:'İçerik izlenme',     ok: m.some(x => (x.views   ?? 0) > 0) },
+    { label:'Kaydetme sayısı',    ok: m.some(x => (x.saves   ?? 0) > 0) },
+    { label:'Paylaşım sayısı',    ok: m.some(x => (x.shares  ?? 0) > 0) },
+  ];
+  grid.innerHTML = checks.map(c => `
+    <div class="ig-ds-item">
+      <span class="ig-ds-dot ${c.ok ? 'ok' : 'na'}"></span>
+      <span style="color:${c.ok ? 'var(--color-text-primary)' : 'var(--color-text-muted)'}">${c.label}${c.ok ? '' : ' <small>(mevcut değil)</small>'}</span>
+    </div>`).join('');
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────

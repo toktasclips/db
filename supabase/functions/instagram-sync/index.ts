@@ -50,8 +50,6 @@ serve(async (req: Request) => {
     return json({ error: "no_active_connection" }, 404);
   }
 
-  console.log(`[sync] Connection found: ig_id=${conn.instagram_user_id} page_id=${conn.page_id}`);
-
   // ── Token expiry check ────────────────────────────────────────────────
   if (conn.token_expires_at && new Date(conn.token_expires_at) < new Date()) {
     await sb.from("instagram_connections")
@@ -92,30 +90,47 @@ serve(async (req: Request) => {
 
   console.log(`[sync] Profile OK: @${profile.username} followers=${profile.followers_count}`);
 
-  // ── 2. Daily account insights (optional — needs instagram_manage_insights) ──
+  // ── 2. Daily account insights ─────────────────────────────────────────
   const since = dateDaysAgo(2);
   let reach = 0, impressions = 0, profileViews = 0;
+  let websiteClicks: number | null = null;
+  let phoneCallClicks: number | null = null;
+  let emailContacts: number | null = null;
+  let totalInteractions: number | null = null;
+  let insightsRaw: unknown = null;
+
   try {
+    const insMetrics = [
+      "impressions", "reach", "profile_views",
+      "website_clicks", "phone_call_clicks", "email_contacts", "total_interactions",
+    ].join(",");
+
     const insRes = await fetch(
       `https://graph.facebook.com/${GV}/${igId}/insights` +
-      `?metric=impressions,reach,profile_views` +
+      `?metric=${insMetrics}` +
       `&period=day&since=${since}&until=${today}` +
       `&access_token=${token}`,
     );
     const insData = await insRes.json();
+
     if (insData.error) {
       console.warn("[sync] Insights not available:", insData.error.code, insData.error.message);
     } else {
+      insightsRaw = insData;
       for (const metric of (insData.data ?? [])) {
         const todayVal = (metric.values ?? []).find(
           (v: any) => v.end_time?.startsWith(today),
         );
         const val = todayVal?.value ?? 0;
-        if (metric.name === "reach")         reach         = val;
-        if (metric.name === "impressions")   impressions   = val;
-        if (metric.name === "profile_views") profileViews  = val;
+        if (metric.name === "reach")               reach              = val;
+        if (metric.name === "impressions")         impressions        = val;
+        if (metric.name === "profile_views")       profileViews       = val;
+        if (metric.name === "website_clicks")      websiteClicks      = val;
+        if (metric.name === "phone_call_clicks")   phoneCallClicks    = val;
+        if (metric.name === "email_contacts")      emailContacts      = val;
+        if (metric.name === "total_interactions")  totalInteractions  = val;
       }
-      console.log(`[sync] Insights OK: reach=${reach} impressions=${impressions} profile_views=${profileViews}`);
+      console.log(`[sync] Insights OK: reach=${reach} impressions=${impressions} profile_views=${profileViews} website_clicks=${websiteClicks}`);
     }
   } catch (e) {
     console.warn("[sync] Insights fetch threw:", e);
@@ -123,16 +138,21 @@ serve(async (req: Request) => {
 
   // Upsert daily snapshot
   const { error: snapErr } = await sb.from("instagram_account_snapshots").upsert({
-    user_id:           userId,
-    instagram_user_id: igId,
-    snapshot_date:     today,
-    follower_count:    profile.followers_count ?? 0,
-    follows_count:     profile.follows_count   ?? 0,
-    media_count:       profile.media_count     ?? 0,
+    user_id:             userId,
+    instagram_user_id:   igId,
+    snapshot_date:       today,
+    follower_count:      profile.followers_count  ?? 0,
+    follows_count:       profile.follows_count    ?? 0,
+    media_count:         profile.media_count      ?? 0,
     reach,
     impressions,
-    profile_views:     profileViews,
-    updated_at:        now(),
+    profile_views:       profileViews,
+    website_clicks:      websiteClicks,
+    phone_call_clicks:   phoneCallClicks,
+    email_contacts:      emailContacts,
+    total_interactions:  totalInteractions,
+    raw_payload:         insightsRaw,
+    updated_at:          now(),
   }, { onConflict: "user_id,instagram_user_id,snapshot_date" });
   if (snapErr) console.error("[sync] Snapshot upsert error:", snapErr.message);
   else console.log("[sync] Snapshot upserted.");
@@ -161,6 +181,7 @@ serve(async (req: Request) => {
     const metrics = metricsForType[item.media_type] ?? ["impressions", "reach"];
 
     let views = 0, mReach = 0, saves = 0, shares = 0;
+    let mediaInsightsRaw: unknown = null;
     try {
       const miRes  = await fetch(
         `https://graph.facebook.com/${GV}/${item.id}/insights` +
@@ -170,6 +191,7 @@ serve(async (req: Request) => {
       if (miData.error) {
         console.warn(`[sync] Media insights error for ${item.id}:`, miData.error.code);
       } else {
+        mediaInsightsRaw = miData;
         for (const m of (miData.data ?? [])) {
           const val = m.values?.[0]?.value ?? 0;
           if (m.name === "plays" || m.name === "impressions") views  = val;
@@ -185,10 +207,12 @@ serve(async (req: Request) => {
     const likes    = item.like_count     ?? 0;
     const comments = item.comments_count ?? 0;
     const followers = profile.followers_count ?? 1;
+    // engagement_rate = (likes + comments + saves) / followers * 100
     const engRate   = followers > 0
       ? parseFloat(((likes + comments + saves) / followers * 100).toFixed(4))
       : 0;
     const viewRatio  = followers > 0 ? views / followers : 0;
+    // performance_score: weighted sum of engagement + view ratio
     const perfScore  = parseFloat((engRate * 8 + viewRatio * 100 * 2).toFixed(2));
 
     const { error: mediaUpsertErr } = await sb.from("instagram_media").upsert({
@@ -209,10 +233,26 @@ serve(async (req: Request) => {
       shares,
       engagement_rate:   engRate,
       performance_score: perfScore,
+      raw_payload:       mediaInsightsRaw,
       updated_at:        now(),
     }, { onConflict: "media_id" });
     if (mediaUpsertErr) console.error(`[sync] Media upsert error ${item.id}:`, mediaUpsertErr.message);
-    else mediaSynced++;
+    else {
+      mediaSynced++;
+      // Daily stats snapshot for this media
+      await sb.from("instagram_media_daily_stats").upsert({
+        user_id:            userId,
+        media_id:           item.id,
+        snapshot_date:      today,
+        like_count:         likes,
+        comments_count:     comments,
+        reach:              mReach,
+        impressions:        views,
+        views,
+        total_interactions: likes + comments + saves + shares,
+        raw_payload:        mediaInsightsRaw,
+      }, { onConflict: "media_id,snapshot_date" });
+    }
   }
 
   // ── 4. Update connection metadata ─────────────────────────────────────
