@@ -2784,7 +2784,10 @@ select option { background: #232323; color: #e8e8e6; }
               </div>
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Takipçi Başına Maliyet</label>
-                <input class="form-input" type="number" id="kpi-tpm" placeholder="0" step="0.01" min="0" />
+                <div style="height:36px;padding:0 12px;background:#1a1a1a;border:1px solid #2c2c2c;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px">
+                  <span id="kpi-tpm-val" style="color:#eaeaea;font-weight:500">—</span>
+                  <span style="font-size:11px;color:#555;margin-left:auto">Meta Ads</span>
+                </div>
               </div>
             </div>
 
@@ -3709,10 +3712,6 @@ select option { background: #232323; color: #e8e8e6; }
             <div class="ig-performer-card-title">📉 En Düşük 5 İçerik</div>
             <div id="ig-bottom5"></div>
           </div>
-        </div>
-        <div class="ig-ds-card">
-          <div class="ig-ds-title">Veri Durumu</div>
-          <div class="ig-ds-grid" id="ig-ds-grid"></div>
         </div>
 
       </div>
@@ -4848,6 +4847,7 @@ function showDailyWelcome(){
 
 let igDailyFollowers = 0;
 let igDailyAdSpend   = 0;
+let igDailyCPF       = 0;
 
 async function prefillTakipciFromIG(dateStr){
   if(!dateStr) dateStr = document.getElementById('daily-entry-date').value || new Date().toISOString().split('T')[0];
@@ -4891,21 +4891,34 @@ async function prefillTakipciFromIG(dateStr){
     updateIcerikBadge(null);
   }
 
-  // Ad spend: sum of all accounts for the date
+  // Ad spend + prev snapshot (for CPF) — fetch in parallel
   try {
-    const { data: adRows } = await sb
-      .from('meta_ad_insights')
-      .select('spend')
-      .eq('user_id', currentUser.email)
-      .eq('insight_date', dateStr);
-    const totalSpend = (adRows ?? []).reduce((s, r) => s + (+r.spend || 0), 0);
+    const [adResult, prevSnapResult] = await Promise.all([
+      sb.from('meta_ad_insights').select('spend')
+        .eq('user_id', currentUser.email).eq('insight_date', dateStr),
+      sb.from('instagram_account_snapshots').select('follower_count,snapshot_date')
+        .eq('user_id', currentUser.email).lt('snapshot_date', dateStr)
+        .order('snapshot_date', { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    const totalSpend = (adResult.data ?? []).reduce((s, r) => s + (+r.spend || 0), 0);
     igDailyAdSpend = totalSpend;
     const reklamEl = document.getElementById('kpi-reklam-val');
     if(reklamEl) reklamEl.textContent = totalSpend > 0 ? totalSpend.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+
+    // CPF = spend / follower gain
+    const prevSnap = prevSnapResult.data;
+    const curFollowers = igDailyFollowers;
+    const prevFollowers = prevSnap?.follower_count ?? null;
+    const gain = (curFollowers > 0 && prevFollowers != null) ? curFollowers - prevFollowers : null;
+    igDailyCPF = (gain != null && gain > 0 && totalSpend > 0) ? totalSpend / gain : 0;
+    const tpmEl = document.getElementById('kpi-tpm-val');
+    if(tpmEl) tpmEl.textContent = igDailyCPF > 0 ? igDailyCPF.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   } catch(e) {
-    igDailyAdSpend = 0;
+    igDailyAdSpend = 0; igDailyCPF = 0;
     const reklamEl = document.getElementById('kpi-reklam-val');
     if(reklamEl) reklamEl.textContent = '—';
+    const tpmEl = document.getElementById('kpi-tpm-val');
+    if(tpmEl) tpmEl.textContent = '—';
   }
 }
 
@@ -6178,7 +6191,7 @@ async function saveDaily(){
     mail:      +document.getElementById('kpi-mail').value||0,
     icerik:    icerikPaylasildi?1:0,
     reklam:    igDailyAdSpend,
-    tpm:       +document.getElementById('kpi-tpm').value||0,
+    tpm:       igDailyCPF,
     hotlist:   +document.getElementById('kpi-hotlist').value||0,
     musteri:   +document.getElementById('kpi-musteri').value||0,
     teklif:    +document.getElementById('kpi-teklif').value||0,
@@ -6220,7 +6233,7 @@ async function saveDaily(){
   }
 
   // Formu temizle
-  ['kpi-mail','kpi-tpm','kpi-hotlist','kpi-musteri','kpi-teklif','kpi-alinan','kpi-anlasma','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
+  ['kpi-mail','kpi-hotlist','kpi-musteri','kpi-teklif','kpi-alinan','kpi-anlasma','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
   const todayStr = new Date().toISOString().split('T')[0];
   document.getElementById('daily-entry-date').value = todayStr;
   prefillTakipciFromIG(todayStr);
@@ -9754,7 +9767,6 @@ async function loadIgAnalytics() {
   igRenderAnKPIs();
   igRenderPerfTable();
   igRenderPerformers();
-  igRenderDataStatus();
   loadIgAdsSection();
 
   try {
