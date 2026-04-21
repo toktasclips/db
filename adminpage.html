@@ -10851,10 +10851,10 @@ async function cbOpenChat(botId) {
       </div>
       <div class="cb-chat-messages" id="cb-msgs">
         <div class="cb-msg assistant">Merhaba! Size nasıl yardımcı olabilirim?</div>
-        ${(cbActiveBot.starter_questions||[]).length > 0 ? `<div id="cb-starters" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:0 4px">
-          ${(cbActiveBot.starter_questions||[]).map(q => `<button style="font-size:12px;padding:7px 14px;border-radius:20px;text-align:left;background:transparent;border:1.5px solid var(--color-accent);color:var(--color-accent);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--color-accent)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--color-accent)'" onclick="cbSendStarter(this,'${q.replace(/'/g,"&#39;")}')">${q}</button>`).join('')}
-        </div>` : ''}
       </div>
+      ${(cbActiveBot.starter_questions||[]).length > 0 ? `<div id="cb-starters" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border-top:1px solid var(--color-border)">
+        ${(cbActiveBot.starter_questions||[]).map(q => `<button style="font-size:12px;padding:7px 14px;border-radius:20px;text-align:left;background:transparent;border:1.5px solid var(--color-accent);color:var(--color-accent);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--color-accent)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--color-accent)'" onclick="cbSendStarter(this,'${q.replace(/'/g,"&#39;")}')">${q}</button>`).join('')}
+      </div>` : ''}
       <div class="cb-chat-input-row">
         <textarea class="cb-chat-input" id="cb-input" placeholder="Mesajınızı yazın..." rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cbSend()}"></textarea>
