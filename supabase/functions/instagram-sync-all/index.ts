@@ -31,19 +31,22 @@ serve(async () => {
 
   for (const { user_id } of connections) {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/functions/v1/instagram-sync`,
-        {
-          method:  "POST",
-          headers: {
-            "Content-Type":  "application/json",
-            "Authorization": `Bearer ${SUPABASE_SERVICE_KEY}`,
-          },
-          body: JSON.stringify({ user_id }),
-        },
-      );
-      const data = await res.json();
-      results[user_id] = data.success ? "ok" : (data.error ?? "failed");
+      const headers = {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${SUPABASE_SERVICE_KEY}`,
+      };
+      const body = JSON.stringify({ user_id });
+
+      const [igRes, adsRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/functions/v1/instagram-sync`,  { method: "POST", headers, body }),
+        fetch(`${SUPABASE_URL}/functions/v1/meta-ads-sync`,   { method: "POST", headers, body }),
+      ]);
+
+      const [igData, adsData] = await Promise.all([igRes.json(), adsRes.json()]);
+      results[user_id] = {
+        ig:  igData.success  ? "ok" : (igData.error  ?? "failed"),
+        ads: adsData.success ? "ok" : (adsData.error ?? "failed"),
+      };
     } catch (e) {
       results[user_id] = "exception";
       console.error(`Sync failed for user (masked):`, (e as Error).message);
