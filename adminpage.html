@@ -10852,7 +10852,7 @@ async function cbOpenChat(botId) {
       <div class="cb-chat-messages" id="cb-msgs">
         <div class="cb-msg assistant">Merhaba! Size nasıl yardımcı olabilirim?</div>
         ${(cbActiveBot.starter_questions||[]).length > 0 ? `<div id="cb-starters" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:0 4px">
-          ${(cbActiveBot.starter_questions||[]).map(q => `<button class="btn btn-ghost" style="font-size:12px;padding:6px 12px;border-radius:20px;text-align:left" onclick="cbSendStarter(this,'${q.replace(/'/g,"&#39;")}')">${q}</button>`).join('')}
+          ${(cbActiveBot.starter_questions||[]).map(q => `<button style="font-size:12px;padding:7px 14px;border-radius:20px;text-align:left;background:transparent;border:1.5px solid var(--color-accent);color:var(--color-accent);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--color-accent)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--color-accent)'" onclick="cbSendStarter(this,'${q.replace(/'/g,"&#39;")}')">${q}</button>`).join('')}
         </div>` : ''}
       </div>
       <div class="cb-chat-input-row">
