@@ -10016,6 +10016,9 @@ function igRenderDataStatus() {
 let igAdsData   = [];
 let igAdsChart  = null;
 
+// Persisted set of hidden account IDs (by account_name or account_id)
+let igAdsHidden = new Set(JSON.parse(localStorage.getItem('ig_ads_hidden') || '[]'));
+
 async function loadIgAdsSection() {
   const content = document.getElementById('ig-ads-content'); if (!content) return;
   const since7  = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
@@ -10033,18 +10036,77 @@ async function loadIgAdsSection() {
       <div style="padding:16px 0;color:#555;font-size:13px;line-height:1.7">
         Henüz reklam verisi yok.<br>
         <span style="font-size:12px">
-          Meta Ads verisi çekmek için hesabın <strong style="color:#888">ads_read</strong> iznine ihtiyaç var.
-          Sayfanın üstündeki <strong style="color:#888">↺ Yeniden Bağla</strong> butonuyla OAuth'u yenileyin,
+          Meta Ads verisi çekmek için <strong style="color:#888">↺ Yeniden Bağla</strong> ile OAuth'u yenileyin,
           ardından <em>Reklamları Senkronize Et</em>'e tıklayın.
         </span>
       </div>`;
     return;
   }
 
-  // Aggregate by date (sum across accounts)
+  // All unique accounts from data
+  const allAccounts = [...new Map(igAdsData.map(r => [r.account_id, r.account_name || r.account_id])).entries()];
+
+  // Build skeleton HTML with badge row + placeholders
+  const currency = igAdsData.find(r => r.currency)?.currency ?? 'TRY';
+  const sym = currency === 'TRY' ? '₺' : '$';
+
+  const badgeHtml = allAccounts.map(([id, name]) => {
+    const hidden = igAdsHidden.has(id);
+    return `<span onclick="igAdsToggleAccount('${id}',this)"
+      data-acct="${id}"
+      style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;user-select:none;transition:all 0.15s;
+        background:${hidden ? 'transparent' : '#2a2a2a'};
+        color:${hidden ? '#444' : '#ccc'};
+        border:1px solid ${hidden ? '#2a2a2a' : '#555'};
+        text-decoration:${hidden ? 'line-through' : 'none'}"
+    >${escHtml(name)}</span>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+      <span style="font-size:12px;color:#555;margin-right:2px">Hesaplar:</span>${badgeHtml}
+      <span style="font-size:11px;color:#444;margin-left:auto">Son 7 gün</span>
+    </div>
+    <div class="ig-an-kpi-grid" style="margin-bottom:16px" id="ig-ads-kpi-grid"></div>
+    <div class="ig-chart-card" style="margin-bottom:0">
+      <div class="ig-chart-header"><span class="ig-chart-title">Günlük Harcama (${currency})</span></div>
+      <div class="ig-chart-canvas-wrap"><canvas id="ig-ads-chart"></canvas></div>
+    </div>`;
+
+  igAdsRenderMetrics();
+}
+
+function igAdsToggleAccount(id, el) {
+  if (igAdsHidden.has(id)) {
+    igAdsHidden.delete(id);
+    el.style.background    = '#2a2a2a';
+    el.style.color         = '#ccc';
+    el.style.borderColor   = '#555';
+    el.style.textDecoration= 'none';
+  } else {
+    igAdsHidden.add(id);
+    el.style.background    = 'transparent';
+    el.style.color         = '#444';
+    el.style.borderColor   = '#2a2a2a';
+    el.style.textDecoration= 'line-through';
+  }
+  localStorage.setItem('ig_ads_hidden', JSON.stringify([...igAdsHidden]));
+  igAdsRenderMetrics();
+}
+
+function igAdsRenderMetrics() {
+  const currency = igAdsData.find(r => r.currency)?.currency ?? 'TRY';
+  const sym      = currency === 'TRY' ? '₺' : '$';
+  const fmtCur   = n => n.toLocaleString('tr-TR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const fmtN     = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toLocaleString('tr-TR');
+
+  // Filter to active accounts only
+  const visible = igAdsData.filter(r => !igAdsHidden.has(r.account_id));
+
+  // Aggregate by date
   const byDate = {};
-  for (const r of igAdsData) {
-    if (!byDate[r.insight_date]) byDate[r.insight_date] = { spend:0, impressions:0, reach:0, clicks:0, currency: r.currency };
+  for (const r of visible) {
+    if (!byDate[r.insight_date]) byDate[r.insight_date] = { spend:0, impressions:0, reach:0, clicks:0 };
     byDate[r.insight_date].spend       += +r.spend;
     byDate[r.insight_date].impressions += +r.impressions;
     byDate[r.insight_date].reach       += +r.reach;
@@ -10052,42 +10114,24 @@ async function loadIgAdsSection() {
   }
   const dates  = Object.keys(byDate).sort();
   const totals = dates.map(d => byDate[d]);
-  const last   = totals.at(-1) ?? {};
-  const currency = last.currency ?? 'TRY';
 
   const totalSpend = totals.reduce((s,t) => s + t.spend, 0);
   const totalImpr  = totals.reduce((s,t) => s + t.impressions, 0);
   const totalReach = totals.reduce((s,t) => s + t.reach, 0);
   const totalClk   = totals.reduce((s,t) => s + t.clicks, 0);
-  const cpm        = totalImpr > 0 ? (totalSpend / totalImpr * 1000) : 0;
-  const cpc        = totalClk  > 0 ? (totalSpend / totalClk)         : 0;
-  const fmtCur = n => n.toLocaleString('tr-TR', { minimumFractionDigits:2, maximumFractionDigits:2 });
-  const fmtN   = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toLocaleString('tr-TR');
-
-  const accounts = [...new Set(igAdsData.map(r => r.account_name || r.account_id))];
-  const acctBadges = accounts.map(a => `<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#222;color:#888;border:1px solid #333">${escHtml(a)}</span>`).join(' ');
-
-  content.innerHTML = `
-    <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-      <span style="font-size:12px;color:#555">Hesaplar:</span> ${acctBadges}
-      <span style="font-size:11px;color:#444;margin-left:auto">Son 7 gün</span>
-    </div>
-    <div class="ig-an-kpi-grid" style="margin-bottom:16px" id="ig-ads-kpi-grid"></div>
-    <div class="ig-chart-card" style="margin-bottom:0" id="ig-ads-chart-wrap">
-      <div class="ig-chart-header"><span class="ig-chart-title">Günlük Harcama (${currency})</span></div>
-      <div class="ig-chart-canvas-wrap"><canvas id="ig-ads-chart"></canvas></div>
-    </div>`;
+  const cpm        = totalImpr > 0 ? totalSpend / totalImpr * 1000 : 0;
+  const cpc        = totalClk  > 0 ? totalSpend / totalClk         : 0;
 
   // KPI cards
   const kpiGrid = document.getElementById('ig-ads-kpi-grid');
   if (kpiGrid) {
     const kpis = [
-      { label:'Toplam Harcama', val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(totalSpend)}`, sub: 'son 7 gün' },
-      { label:'Gösterim',       val: fmtN(totalImpr),   sub: 'son 7 gün' },
-      { label:'Tıklama',        val: fmtN(totalClk),    sub: 'son 7 gün' },
-      { label:'BGBM',           val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(cpm)}`,        sub: 'bin gösterim başına' },
-      { label:'TBM',            val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(cpc)}`,        sub: 'tıklama başına maliyet' },
-      { label:'Erişim',         val: fmtN(totalReach),  sub: 'son 7 gün' },
+      { label:'Toplam Harcama', val:`${sym}${fmtCur(totalSpend)}`,  sub:'son 7 gün' },
+      { label:'Gösterim',       val:fmtN(totalImpr),                sub:'son 7 gün' },
+      { label:'Tıklama',        val:fmtN(totalClk),                 sub:'son 7 gün' },
+      { label:'BGBM',           val:`${sym}${fmtCur(cpm)}`,         sub:'bin gösterim başına' },
+      { label:'TBM',            val:`${sym}${fmtCur(cpc)}`,         sub:'tıklama başına maliyet' },
+      { label:'Erişim',         val:fmtN(totalReach),               sub:'son 7 gün' },
     ];
     kpiGrid.innerHTML = kpis.map(k => `
       <div class="ig-an-kpi-card">
@@ -10097,29 +10141,27 @@ async function loadIgAdsSection() {
       </div>`).join('');
   }
 
-  // Spend chart
-  try {
-    await igLoadChartJs();
+  // Chart
+  igLoadChartJs().then(() => {
     const canvas = document.getElementById('ig-ads-chart');
-    if (canvas && window.Chart) {
-      const C      = igChartDefaults();
-      const labels = dates.map(d => new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short' }));
-      const spends = totals.map(t => +t.spend.toFixed(2));
-      if (igAdsChart) igAdsChart.destroy();
-      igAdsChart = new Chart(canvas, {
-        type:'bar',
-        data:{ labels, datasets:[{ label:`Harcama (${currency})`, data:spends,
-          backgroundColor: C.orange+'99', borderColor: C.orange, borderWidth:1, borderRadius:4 }] },
-        options:{ responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false} },
-          scales:{
-            x:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
-            y:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
-          }
+    if (!canvas || !window.Chart) return;
+    const C      = igChartDefaults();
+    const labels = dates.map(d => new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short' }));
+    const spends = totals.map(t => +t.spend.toFixed(2));
+    if (igAdsChart) igAdsChart.destroy();
+    igAdsChart = new Chart(canvas, {
+      type:'bar',
+      data:{ labels, datasets:[{ label:`Harcama (${currency})`, data:spends,
+        backgroundColor:C.orange+'99', borderColor:C.orange, borderWidth:1, borderRadius:4 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false} },
+        scales:{
+          x:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
+          y:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
         }
-      });
-    }
-  } catch(e) { console.warn('[ads-section] Chart failed:', e); }
+      }
+    });
+  }).catch(e => console.warn('[ads-chart] failed:', e));
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────
