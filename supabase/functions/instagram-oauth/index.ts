@@ -235,6 +235,17 @@ serve(async (req: Request) => {
     return closePopup("error", "Token sifreleme basarisiz.");
   }
 
+  // ── Encrypt user token (for Ads API — ads_read scope) ─────────────
+  const { data: encUserToken } = await sb.rpc("encrypt_ig_token", {
+    plain_token: userToken,
+    secret_key:  TOKEN_ENCRYPTION_KEY,
+  });
+  if (encUserToken) {
+    console.log("[IG OAuth] User token encrypted for Ads API");
+  } else {
+    console.warn("[IG OAuth] User token encryption failed — Ads API unavailable");
+  }
+
   // ── Upsert connection record ───────────────────────────────────────
   const { error: dbErr } = await sb.from("instagram_connections").upsert({
     user_id:                userId,
@@ -242,6 +253,7 @@ serve(async (req: Request) => {
     instagram_username:     igUsername,
     instagram_account_name: igName,
     encrypted_access_token: encToken,
+    encrypted_user_token:   encUserToken ?? null,
     page_id:                pageId,
     token_expires_at:       expiresAt,
     is_active:              true,

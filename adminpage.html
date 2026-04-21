@@ -2777,7 +2777,10 @@ select option { background: #232323; color: #e8e8e6; }
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Reklam Harcama (₺)</label>
-                <input class="form-input" type="number" id="kpi-reklam" placeholder="0" min="0" />
+                <div style="height:36px;padding:0 12px;background:#1a1a1a;border:1px solid #2c2c2c;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px">
+                  <span id="kpi-reklam-val" style="color:#eaeaea;font-weight:500">—</span>
+                  <span style="font-size:11px;color:#555;margin-left:auto">Meta Ads</span>
+                </div>
               </div>
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Takipçi Başına Maliyet</label>
@@ -3704,6 +3707,20 @@ select option { background: #232323; color: #e8e8e6; }
           <div class="ig-ds-title">Veri Durumu</div>
           <div class="ig-ds-grid" id="ig-ds-grid"></div>
         </div>
+
+        <!-- Meta Ads Section -->
+        <div class="ig-ds-card" id="ig-ads-card" style="margin-top:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div class="ig-ds-title" style="margin-bottom:0">📢 Meta Reklam Performansı</div>
+            <button id="meta-ads-sync-btn" onclick="syncMetaAds()"
+              style="padding:6px 14px;font-size:12px;border-radius:6px;border:1px solid #3a3a3a;background:transparent;color:#aaa;cursor:pointer;font-family:inherit;transition:all 0.15s"
+              onmouseover="this.style.borderColor='#666';this.style.color='#fff'"
+              onmouseout="this.style.borderColor='#3a3a3a';this.style.color='#aaa'">
+              ↻ Reklamları Senkronize Et
+            </button>
+          </div>
+          <div id="ig-ads-content" style="color:#555;font-size:13px">Yükleniyor…</div>
+        </div>
       </div>
 
       <!-- Account stats row (content tab) -->
@@ -4515,9 +4532,10 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // META_APP_ID: Meta Developer Console'dan alın (App Settings → Basic → App ID)
 // Bu değer public'tir (client_id), frontend'de tutulması güvenlidir.
 // App Secret ASLA buraya yazılmaz — Supabase Edge Function secret olarak tanımlanır.
-const META_APP_ID   = '1534643378177320';
-const IG_OAUTH_FN   = `${SUPABASE_URL}/functions/v1/instagram-oauth`;
-const IG_SYNC_FN      = `${SUPABASE_URL}/functions/v1/instagram-sync`;
+const META_APP_ID       = '1534643378177320';
+const IG_OAUTH_FN       = `${SUPABASE_URL}/functions/v1/instagram-oauth`;
+const IG_SYNC_FN        = `${SUPABASE_URL}/functions/v1/instagram-sync`;
+const META_ADS_SYNC_FN  = `${SUPABASE_URL}/functions/v1/meta-ads-sync`;
 const IG_RESEARCH_FN    = `${SUPABASE_URL}/functions/v1/instagram-research`;
 const CHATBOT_INGEST_FN = `${SUPABASE_URL}/functions/v1/chatbot-ingest`;
 const CHATBOT_CHAT_FN   = `${SUPABASE_URL}/functions/v1/chatbot-chat`;
@@ -4835,6 +4853,7 @@ function showDailyWelcome(){
 }
 
 let igDailyFollowers = 0;
+let igDailyAdSpend   = 0;
 
 async function prefillTakipciFromIG(dateStr){
   if(!dateStr) dateStr = document.getElementById('daily-entry-date').value || new Date().toISOString().split('T')[0];
@@ -4876,6 +4895,23 @@ async function prefillTakipciFromIG(dateStr){
     updateIcerikBadge(hasContent);
   } catch(e) {
     updateIcerikBadge(null);
+  }
+
+  // Ad spend: sum of all accounts for the date
+  try {
+    const { data: adRows } = await sb
+      .from('meta_ad_insights')
+      .select('spend')
+      .eq('user_id', currentUser.email)
+      .eq('insight_date', dateStr);
+    const totalSpend = (adRows ?? []).reduce((s, r) => s + (+r.spend || 0), 0);
+    igDailyAdSpend = totalSpend;
+    const reklamEl = document.getElementById('kpi-reklam-val');
+    if(reklamEl) reklamEl.textContent = totalSpend > 0 ? totalSpend.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  } catch(e) {
+    igDailyAdSpend = 0;
+    const reklamEl = document.getElementById('kpi-reklam-val');
+    if(reklamEl) reklamEl.textContent = '—';
   }
 }
 
@@ -6147,7 +6183,7 @@ async function saveDaily(){
     takipci:   igDailyFollowers,
     mail:      +document.getElementById('kpi-mail').value||0,
     icerik:    icerikPaylasildi?1:0,
-    reklam:    +document.getElementById('kpi-reklam').value||0,
+    reklam:    igDailyAdSpend,
     tpm:       +document.getElementById('kpi-tpm').value||0,
     hotlist:   +document.getElementById('kpi-hotlist').value||0,
     musteri:   +document.getElementById('kpi-musteri').value||0,
@@ -6190,7 +6226,7 @@ async function saveDaily(){
   }
 
   // Formu temizle
-  ['kpi-mail','kpi-reklam','kpi-tpm','kpi-hotlist','kpi-musteri','kpi-teklif','kpi-alinan','kpi-anlasma','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
+  ['kpi-mail','kpi-tpm','kpi-hotlist','kpi-musteri','kpi-teklif','kpi-alinan','kpi-anlasma','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
   const todayStr = new Date().toISOString().split('T')[0];
   document.getElementById('daily-entry-date').value = todayStr;
   prefillTakipciFromIG(todayStr);
@@ -9148,6 +9184,7 @@ function connectInstagram() {
     'pages_read_engagement',
     'instagram_basic',
     'business_management',
+    'ads_read',
   ].join(',');
 
   const oauthUrl =
@@ -9197,7 +9234,7 @@ async function syncInstagram() {
   const btn = document.getElementById('ig-sync-btn');
   if (btn) { btn.disabled = true; btn.textContent = '↻ Senkronize ediliyor…'; }
 
-  const result = await _callSyncFn();
+  const [result] = await Promise.all([_callSyncFn(), _callAdsSync()]);
 
   if (btn) { btn.disabled = false; btn.textContent = '↻ Senkronize Et'; }
 
@@ -9215,12 +9252,43 @@ async function syncInstagram() {
 
 // Silent sync (no UI feedback, used after OAuth)
 async function syncInstagramSilent() {
-  await _callSyncFn();
+  await Promise.all([_callSyncFn(), _callAdsSync()]);
 }
 
 async function _callSyncFn() {
   try {
     const res = await fetch(IG_SYNC_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      body: JSON.stringify({ user_id: currentUser.email }),
+    });
+    return await res.json();
+  } catch {
+    return { error: 'network_error' };
+  }
+}
+
+// ── Meta Ads sync ─────────────────────────────────────────────────────
+async function syncMetaAds() {
+  const btn = document.getElementById('meta-ads-sync-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ Senkronize ediliyor…'; }
+  const result = await _callAdsSync();
+  if (btn) { btn.disabled = false; btn.textContent = '↻ Reklamları Senkronize Et'; }
+
+  if (result.success) {
+    const spend = (result.total_spend ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
+    toast(`✓ Reklam verisi güncellendi — ₺${spend} harcama`);
+    loadIgAdsSection();
+  } else if (result.error === 'no_ads_token') {
+    toast('ℹ️ Reklam verisi için yeniden bağlanın (ads_read izni gerekli).');
+  } else {
+    toast(`⚠️ Reklam senkronizasyonu başarısız: ${result.detail || result.error || 'bilinmeyen hata'}`);
+  }
+}
+
+async function _callAdsSync() {
+  try {
+    const res = await fetch(META_ADS_SYNC_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
       body: JSON.stringify({ user_id: currentUser.email }),
@@ -9693,6 +9761,7 @@ async function loadIgAnalytics() {
   igRenderPerfTable();
   igRenderPerformers();
   igRenderDataStatus();
+  loadIgAdsSection();
 
   try {
     await igLoadChartJs();
@@ -9941,6 +10010,116 @@ function igRenderDataStatus() {
       <span class="ig-ds-dot ${c.ok ? 'ok' : 'na'}"></span>
       <span style="color:${c.ok ? 'var(--color-text-primary)' : 'var(--color-text-muted)'}">${c.label}${c.ok ? '' : ' <small>(mevcut değil)</small>'}</span>
     </div>`).join('');
+}
+
+// ── Meta Ads Section ──────────────────────────────────────────────────
+let igAdsData   = [];
+let igAdsChart  = null;
+
+async function loadIgAdsSection() {
+  const content = document.getElementById('ig-ads-content'); if (!content) return;
+  const since7  = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
+  const { data: rows } = await sb
+    .from('meta_ad_insights')
+    .select('insight_date,account_id,account_name,spend,impressions,reach,clicks,currency')
+    .eq('user_id', currentUser.email)
+    .gte('insight_date', since7)
+    .order('insight_date', { ascending: true });
+
+  igAdsData = rows ?? [];
+
+  if (!igAdsData.length) {
+    content.innerHTML = `
+      <div style="padding:16px 0;color:#555;font-size:13px;line-height:1.7">
+        Henüz reklam verisi yok.<br>
+        <span style="font-size:12px">
+          Meta Ads verisi çekmek için hesabın <strong style="color:#888">ads_read</strong> iznine ihtiyaç var.
+          Sayfanın üstündeki <strong style="color:#888">↺ Yeniden Bağla</strong> butonuyla OAuth'u yenileyin,
+          ardından <em>Reklamları Senkronize Et</em>'e tıklayın.
+        </span>
+      </div>`;
+    return;
+  }
+
+  // Aggregate by date (sum across accounts)
+  const byDate = {};
+  for (const r of igAdsData) {
+    if (!byDate[r.insight_date]) byDate[r.insight_date] = { spend:0, impressions:0, reach:0, clicks:0, currency: r.currency };
+    byDate[r.insight_date].spend       += +r.spend;
+    byDate[r.insight_date].impressions += +r.impressions;
+    byDate[r.insight_date].reach       += +r.reach;
+    byDate[r.insight_date].clicks      += +r.clicks;
+  }
+  const dates  = Object.keys(byDate).sort();
+  const totals = dates.map(d => byDate[d]);
+  const last   = totals.at(-1) ?? {};
+  const currency = last.currency ?? 'TRY';
+
+  const totalSpend = totals.reduce((s,t) => s + t.spend, 0);
+  const totalImpr  = totals.reduce((s,t) => s + t.impressions, 0);
+  const totalReach = totals.reduce((s,t) => s + t.reach, 0);
+  const totalClk   = totals.reduce((s,t) => s + t.clicks, 0);
+  const cpm        = totalImpr > 0 ? (totalSpend / totalImpr * 1000) : 0;
+  const cpc        = totalClk  > 0 ? (totalSpend / totalClk)         : 0;
+  const fmtCur = n => n.toLocaleString('tr-TR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const fmtN   = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toLocaleString('tr-TR');
+
+  const accounts = [...new Set(igAdsData.map(r => r.account_name || r.account_id))];
+  const acctBadges = accounts.map(a => `<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#222;color:#888;border:1px solid #333">${escHtml(a)}</span>`).join(' ');
+
+  content.innerHTML = `
+    <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+      <span style="font-size:12px;color:#555">Hesaplar:</span> ${acctBadges}
+      <span style="font-size:11px;color:#444;margin-left:auto">Son 7 gün</span>
+    </div>
+    <div class="ig-an-kpi-grid" style="margin-bottom:16px" id="ig-ads-kpi-grid"></div>
+    <div class="ig-chart-card" style="margin-bottom:0" id="ig-ads-chart-wrap">
+      <div class="ig-chart-header"><span class="ig-chart-title">Günlük Harcama (${currency})</span></div>
+      <div class="ig-chart-canvas-wrap"><canvas id="ig-ads-chart"></canvas></div>
+    </div>`;
+
+  // KPI cards
+  const kpiGrid = document.getElementById('ig-ads-kpi-grid');
+  if (kpiGrid) {
+    const kpis = [
+      { label:'Toplam Harcama', val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(totalSpend)}`, sub: 'son 7 gün' },
+      { label:'Gösterim',       val: fmtN(totalImpr),   sub: 'son 7 gün' },
+      { label:'Tıklama',        val: fmtN(totalClk),    sub: 'son 7 gün' },
+      { label:'BGBM',           val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(cpm)}`,        sub: 'bin gösterim başına' },
+      { label:'TBM',            val: `${currency === 'TRY' ? '₺' : '$'}${fmtCur(cpc)}`,        sub: 'tıklama başına maliyet' },
+      { label:'Erişim',         val: fmtN(totalReach),  sub: 'son 7 gün' },
+    ];
+    kpiGrid.innerHTML = kpis.map(k => `
+      <div class="ig-an-kpi-card">
+        <div class="ig-an-kpi-label">${k.label}</div>
+        <div class="ig-an-kpi-val">${k.val}</div>
+        <span class="ig-an-kpi-delta flat">${k.sub}</span>
+      </div>`).join('');
+  }
+
+  // Spend chart
+  try {
+    await igLoadChartJs();
+    const canvas = document.getElementById('ig-ads-chart');
+    if (canvas && window.Chart) {
+      const C      = igChartDefaults();
+      const labels = dates.map(d => new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short' }));
+      const spends = totals.map(t => +t.spend.toFixed(2));
+      if (igAdsChart) igAdsChart.destroy();
+      igAdsChart = new Chart(canvas, {
+        type:'bar',
+        data:{ labels, datasets:[{ label:`Harcama (${currency})`, data:spends,
+          backgroundColor: C.orange+'99', borderColor: C.orange, borderWidth:1, borderRadius:4 }] },
+        options:{ responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false} },
+          scales:{
+            x:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
+            y:{ grid:{color:C.gridColor}, ticks:{color:C.tickColor,font:{size:10}} },
+          }
+        }
+      });
+    }
+  } catch(e) { console.warn('[ads-section] Chart failed:', e); }
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────
