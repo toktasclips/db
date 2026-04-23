@@ -2791,31 +2791,18 @@ select option { background: #232323; color: #e8e8e6; }
               </div>
             </div>
 
-            <!-- Satır 2: Hot-List + Müşteri + Teklif -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-              <div>
-                <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Yeni Hot-List</label>
-                <input class="form-input" type="number" id="kpi-hotlist" placeholder="0" min="0" />
-              </div>
-              <div>
-                <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Yeni Müşteri</label>
-                <input class="form-input" type="number" id="kpi-musteri" placeholder="0" min="0" />
-              </div>
+            <!-- Satır 2: Teklif + Cha-Ching -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end">
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Yapılan Teklif</label>
                 <input class="form-input" type="number" id="kpi-teklif" placeholder="0" min="0" />
               </div>
-            </div>
-
-            <!-- Satır 3: Alınan + Anlaşma -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
-                <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Alınan Tutar (₺)</label>
-                <input class="form-input" type="number" id="kpi-alinan" placeholder="0" min="0" />
-              </div>
-              <div>
-                <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Anlaşma Tutarı (₺)</label>
-                <input class="form-input" type="number" id="kpi-anlasma" placeholder="0" min="0" />
+                <button onclick="openChaChing()"
+                  style="width:100%;padding:9px 14px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;letter-spacing:0.2px"
+                  onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                  💰 Cha-Ching! Yeni Satış Bildir
+                </button>
               </div>
             </div>
           </div>
@@ -4458,17 +4445,9 @@ select option { background: #232323; color: #e8e8e6; }
         <label class="form-label">Takipçi/Maliyet</label>
         <input class="form-input" type="number" id="ed-tpm" placeholder="0" step="0.01" min="0" />
       </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Hot-List</label>
-        <input class="form-input" type="number" id="ed-hotlist" placeholder="0" min="0" />
-      </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Yeni Müşteri</label>
-        <input class="form-input" type="number" id="ed-musteri" placeholder="0" min="0" />
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
       <div class="form-group" style="margin:0">
         <label class="form-label">Yapılan Teklif</label>
         <input class="form-input" type="number" id="ed-teklif" placeholder="0" min="0" />
@@ -4482,17 +4461,6 @@ select option { background: #232323; color: #e8e8e6; }
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Alınan Tutar (₺)</label>
-        <input class="form-input" type="number" id="ed-alinan" placeholder="0" min="0" />
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Anlaşma Tutarı (₺)</label>
-        <input class="form-input" type="number" id="ed-anlasma" placeholder="0" min="0" />
-      </div>
-    </div>
-
     <div class="form-group" style="margin-bottom:20px">
       <label class="form-label">Not</label>
       <textarea class="form-input form-textarea" id="ed-yorum" placeholder="Notlar..." style="min-height:72px;resize:none"></textarea>
@@ -4501,6 +4469,42 @@ select option { background: #232323; color: #e8e8e6; }
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('modal-edit-daily')">İptal</button>
       <button class="btn btn-primary" onclick="saveEditedDaily()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHA-CHING MODAL ===== -->
+<div class="modal-bg" id="modal-chaching" onclick="if(event.target===this)closeModal('modal-chaching')">
+  <div class="modal" style="max-width:480px;width:95vw">
+    <div class="modal-head" style="border-bottom:1px solid #2a2a2a;padding-bottom:16px;margin-bottom:20px">
+      <div style="font-size:22px;margin-bottom:4px">💰</div>
+      <div class="modal-title" style="font-size:18px">Cha-Ching! Yeni Satış</div>
+      <button class="modal-close" onclick="closeModal('modal-chaching')">✕</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:12px;color:var(--text-3);font-weight:500;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Hangi paketten sattın?</label>
+      <input class="form-input" type="text" id="cc-paket" placeholder="Paket adı..." />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <label style="font-size:12px;color:var(--text-3);font-weight:500;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Alınan Ödeme (₺)</label>
+        <input class="form-input" type="number" id="cc-alinan" placeholder="0" min="0" step="0.01" />
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-3);font-weight:500;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Toplam Paket Tutarı (₺)</label>
+        <input class="form-input" type="number" id="cc-toplam" placeholder="0" min="0" step="0.01" />
+      </div>
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="font-size:12px;color:var(--text-3);font-weight:500;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Not (opsiyonel)</label>
+      <textarea class="form-input form-textarea" id="cc-not" placeholder="Kim satın aldı, nasıl oldu..." style="min-height:72px;resize:none"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-chaching')">İptal</button>
+      <button id="cc-save-btn" onclick="saveChaChing()"
+        style="padding:10px 20px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+        💰 Kaydet
+      </button>
     </div>
   </div>
 </div>
@@ -6185,11 +6189,7 @@ async function saveDaily(){
     icerik:    icerikPaylasildi?1:0,
     reklam:    igDailyAdSpend,
     tpm:       igDailyCPF,
-    hotlist:   +document.getElementById('kpi-hotlist').value||0,
-    musteri:   +document.getElementById('kpi-musteri').value||0,
     teklif:    +document.getElementById('kpi-teklif').value||0,
-    alinan:    +document.getElementById('kpi-alinan').value||0,
-    anlasma:   +document.getElementById('kpi-anlasma').value||0,
     yorum:     document.getElementById('kpi-yorum').value
   };
 
@@ -6226,7 +6226,7 @@ async function saveDaily(){
   }
 
   // Formu temizle
-  ['kpi-mail','kpi-hotlist','kpi-musteri','kpi-teklif','kpi-alinan','kpi-anlasma','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
+  ['kpi-mail','kpi-teklif','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
   const todayStr = new Date().toISOString().split('T')[0];
   document.getElementById('daily-entry-date').value = todayStr;
   prefillTakipciFromIG(todayStr);
@@ -6243,11 +6243,7 @@ async function editDailyEntry(id){
   document.getElementById('ed-mail').value    = d.mail||0;
   document.getElementById('ed-reklam').value  = d.reklam||0;
   document.getElementById('ed-tpm').value     = d.tpm||0;
-  document.getElementById('ed-hotlist').value = d.hotlist||0;
-  document.getElementById('ed-musteri').value = d.musteri||0;
   document.getElementById('ed-teklif').value  = d.teklif||0;
-  document.getElementById('ed-alinan').value  = d.alinan||0;
-  document.getElementById('ed-anlasma').value = d.anlasma||0;
   document.getElementById('ed-icerik').value  = d.icerik||0;
   document.getElementById('ed-yorum').value   = d.yorum||'';
   openModal('modal-edit-daily');
@@ -6264,11 +6260,7 @@ async function saveEditedDaily(){
     mail:       +document.getElementById('ed-mail').value||0,
     reklam:     +document.getElementById('ed-reklam').value||0,
     tpm:        +document.getElementById('ed-tpm').value||0,
-    hotlist:    +document.getElementById('ed-hotlist').value||0,
-    musteri:    +document.getElementById('ed-musteri').value||0,
     teklif:     +document.getElementById('ed-teklif').value||0,
-    alinan:     +document.getElementById('ed-alinan').value||0,
-    anlasma:    +document.getElementById('ed-anlasma').value||0,
     icerik:     +document.getElementById('ed-icerik').value||0,
     yorum:      document.getElementById('ed-yorum').value
   };
@@ -9023,6 +9015,47 @@ The policies above are for reference / production hardening.
 */
 
 /* ============================================
+   CHA-CHING — Satış Bildirimi
+   ============================================ */
+function openChaChing() {
+  ['cc-paket','cc-not'].forEach(id => document.getElementById(id).value = '');
+  ['cc-alinan','cc-toplam'].forEach(id => document.getElementById(id).value = '');
+  openModal('modal-chaching');
+  setTimeout(() => document.getElementById('cc-paket').focus(), 100);
+}
+
+async function saveChaChing() {
+  const paket  = document.getElementById('cc-paket').value.trim();
+  const alinan = +document.getElementById('cc-alinan').value || 0;
+  const toplam = +document.getElementById('cc-toplam').value || 0;
+  const not    = document.getElementById('cc-not').value.trim();
+
+  if (!paket)  { toast('Paket adı gir'); return; }
+  if (!alinan) { toast('Alınan ödemeyi gir'); return; }
+
+  const btn = document.getElementById('cc-save-btn');
+  btn.disabled = true; btn.textContent = 'Kaydediliyor…';
+
+  const today = new Date().toISOString().split('T')[0];
+  const { error } = await sb.from('sales').insert({
+    user_id:         currentUser.email,
+    sale_date:       today,
+    package_name:    paket,
+    amount_received: alinan,
+    total_amount:    toplam || alinan,
+    note:            not || null,
+  });
+
+  btn.disabled = false; btn.innerHTML = '💰 Kaydet';
+
+  if (error) { toast('❌ Hata: ' + error.message); return; }
+
+  closeModal('modal-chaching');
+  toast('💰 Cha-Ching! Satış kaydedildi!');
+  loadSalesTicker(); // activity stream'i güncelle
+}
+
+/* ============================================
    ACTIVITY STREAM — Güncel Aktiviteler
    ============================================ */
 const _AS_SUBS = [
@@ -9037,28 +9070,23 @@ async function loadSalesTicker() {
   const inner = document.getElementById('as-inner');
   if (!inner) return;
 
-  // Fetch all entries with alinan > 0, ordered by date descending
   const { data, error } = await sb
-    .from('daily_entries')
-    .select('user_id, entry_date, alinan')
-    .gt('alinan', 0)
-    .order('entry_date', { ascending: false })
-    .limit(200);
+    .from('sales')
+    .select('user_id, sale_date, package_name, amount_received')
+    .order('created_at', { ascending: false })
+    .limit(50);
 
   if (error || !data) { _renderActivityCards(inner, []); return; }
 
-  // Deduplicate: only registered users, most-recent-first, max 10 unique
-  const seen = new Set();
   const items = [];
-  let subIdx = 0;
   for (const row of data) {
-    if (!row.user_id || seen.has(row.user_id)) continue;
     const found = (typeof users !== 'undefined' && Array.isArray(users))
       ? users.find(x => x.email === row.user_id)
       : null;
     if (!found) continue;
-    seen.add(row.user_id);
-    items.push({ name: found.name, sub: _AS_SUBS[subIdx++ % _AS_SUBS.length] });
+    const amt = (+row.amount_received).toLocaleString('tr-TR', { minimumFractionDigits: 0 });
+    const pkg = row.package_name ? ` — ${row.package_name}` : '';
+    items.push({ name: found.name, sub: `₺${amt} satış bildirdi${pkg}` });
     if (items.length >= 10) break;
   }
 
