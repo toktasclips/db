@@ -2362,6 +2362,11 @@ select option { background: #232323; color: #e8e8e6; }
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
       Günlük Giriş
     </div>
+    <div onclick="openChaChing()"
+      style="margin:2px 8px 4px;padding:8px 12px;background:linear-gradient(135deg,#b8860b,#c8960e);color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity 0.15s"
+      onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+      <span style="font-size:15px">💰</span> Cha-Ching!
+    </div>
     <div class="nav-item" onclick="go('implementation',this)">
       <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3"/><path d="M3 4.5h10" stroke-width="1"/></svg>
       Uygulama Planı
@@ -2791,19 +2796,10 @@ select option { background: #232323; color: #e8e8e6; }
               </div>
             </div>
 
-            <!-- Satır 2: Teklif + Cha-Ching -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end">
-              <div>
-                <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Yapılan Teklif</label>
-                <input class="form-input" type="number" id="kpi-teklif" placeholder="0" min="0" />
-              </div>
-              <div>
-                <button onclick="openChaChing()"
-                  style="width:100%;padding:9px 14px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;letter-spacing:0.2px"
-                  onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                  💰 Cha-Ching! Yeni Satış Bildir
-                </button>
-              </div>
+            <!-- Satır 2: Teklif -->
+            <div>
+              <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Yapılan Teklif</label>
+              <input class="form-input" type="number" id="kpi-teklif" placeholder="0" min="0" />
             </div>
           </div>
 
