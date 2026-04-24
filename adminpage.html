@@ -9079,10 +9079,13 @@ async function loadSalesTicker() {
     const found = (typeof users !== 'undefined' && Array.isArray(users))
       ? users.find(x => x.email === row.user_id)
       : null;
-    if (!found) continue;
+    // Fallback: currentUser veya email'den isim türet
+    const name = found?.name
+      ?? (currentUser?.email === row.user_id ? (currentUser?.name || row.user_id.split('@')[0]) : null);
+    if (!name) continue;
     const amt = (+row.amount_received).toLocaleString('tr-TR', { minimumFractionDigits: 0 });
     const pkg = row.package_name ? ` — ${row.package_name}` : '';
-    items.push({ name: found.name, sub: `₺${amt} satış bildirdi${pkg}` });
+    items.push({ name, sub: `₺${amt} satış bildirdi${pkg}` });
     if (items.length >= 10) break;
   }
 
