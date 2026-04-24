@@ -9033,6 +9033,8 @@ async function saveChaChing() {
   btn.disabled = true; btn.textContent = 'Kaydediliyor…';
 
   const today = new Date().toISOString().split('T')[0];
+
+  // 1. sales tablosuna kaydet
   const { error } = await sb.from('sales').insert({
     user_id:         currentUser.email,
     sale_date:       today,
@@ -9042,13 +9044,33 @@ async function saveChaChing() {
     note:            not || null,
   });
 
+  if (error) {
+    btn.disabled = false; btn.innerHTML = '💰 Kaydet';
+    toast('❌ Hata: ' + error.message); return;
+  }
+
+  // 2. O günün toplam satışını hesapla → daily_entries.alinan güncelle
+  const { data: daySales } = await sb.from('sales')
+    .select('amount_received')
+    .eq('user_id', currentUser.email)
+    .eq('sale_date', today);
+  const totalAlinan = (daySales ?? []).reduce((s, r) => s + (+r.amount_received || 0), 0);
+
+  const { data: existing } = await sb.from('daily_entries')
+    .select('id').eq('user_id', currentUser.email).eq('entry_date', today).maybeSingle();
+  if (existing?.id) {
+    await sb.from('daily_entries').update({ alinan: totalAlinan }).eq('id', existing.id);
+  }
+
+  // 3. local state güncelle
+  const local = (state.daily || []).find(d => d.date === today || d.entry_date === today);
+  if (local) local.alinan = totalAlinan;
+
   btn.disabled = false; btn.innerHTML = '💰 Kaydet';
-
-  if (error) { toast('❌ Hata: ' + error.message); return; }
-
   closeModal('modal-chaching');
   toast('💰 Cha-Ching! Satış kaydedildi!');
-  loadSalesTicker(); // activity stream'i güncelle
+  loadSalesTicker();
+  render();
 }
 
 /* ============================================
@@ -9079,7 +9101,9 @@ async function loadSalesTicker() {
     const found = (typeof users !== 'undefined' && Array.isArray(users))
       ? users.find(x => x.email === row.user_id)
       : null;
-    // Fallback: currentUser veya email'den isim türet
+    // Admin satışları akışa dahil etme
+    if (row.user_id === currentUser?.email && currentUser?.role === 'admin') continue;
+    // Fallback: users listesinde yoksa email'den isim türet
     const name = found?.name
       ?? (currentUser?.email === row.user_id ? (currentUser?.name || row.user_id.split('@')[0]) : null);
     if (!name) continue;
