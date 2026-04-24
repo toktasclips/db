@@ -9057,40 +9057,39 @@ async function saveChaChing() {
   const totalAlinan = (daySales ?? []).reduce((s, r) => s + (+r.amount_received || 0), 0);
 
   // 3. daily_entries güncelle veya oluştur
-  const { data: existing } = await sb.from('daily_entries')
-    .select('id').eq('user_id', currentUser.email).eq('entry_date', today).maybeSingle();
+  const { data: existingRows } = await sb.from('daily_entries')
+    .select('id').eq('user_id', currentUser.email).eq('entry_date', today).limit(1);
+  const existing = existingRows?.[0] ?? null;
   if (existing?.id) {
     await sb.from('daily_entries').update({ alinan: totalAlinan }).eq('id', existing.id);
     const local = (state.daily || []).find(d => d.date === today);
-    if (local) local.alinan = totalAlinan;
+    if (local) { local.alinan = totalAlinan; }
+    else {
+      state.daily = state.daily || [];
+      state.daily.unshift({ id: existing.id, date: today, dateShort: today, mood: '🙂',
+        takipci: igDailyFollowers||0, mail:0, icerik:0, reklam: igDailyAdSpend||0,
+        tpm: igDailyCPF||0, hotlist:0, musteri:0, teklif:0, alinan: totalAlinan, anlasma:0, yorum:'', win:'' });
+    }
   } else {
-    // Bugün henüz günlük giriş yok — minimal bir satır oluştur
     const { data: newRow } = await sb.from('daily_entries').insert({
-      user_id: currentUser.email,
-      entry_date: today,
-      mood: '🙂',
-      alinan: totalAlinan,
-      takipci: igDailyFollowers || 0,
-      reklam: igDailyAdSpend || 0,
-      tpm: igDailyCPF || 0,
-      mail: 0, icerik: 0, teklif: 0, anlasma: 0, yorum: ''
-    }).select().maybeSingle();
+      user_id: currentUser.email, entry_date: today, mood: '🙂',
+      alinan: totalAlinan, takipci: igDailyFollowers||0,
+      reklam: igDailyAdSpend||0, tpm: igDailyCPF||0,
+      mail:0, icerik:0, teklif:0, anlasma:0, yorum:''
+    }).select().single();
     if (newRow) {
       state.daily = state.daily || [];
-      state.daily.unshift({
-        id: newRow.id, date: today, dateShort: today, mood: '🙂',
-        takipci: newRow.takipci||0, mail: 0, icerik: 0,
-        reklam: newRow.reklam||0, tpm: newRow.tpm||0, hotlist: 0,
-        musteri: 0, teklif: 0, alinan: totalAlinan, anlasma: 0, yorum: '', win: ''
-      });
+      state.daily.unshift({ id: newRow.id, date: today, dateShort: today, mood: '🙂',
+        takipci: newRow.takipci||0, mail:0, icerik:0, reklam: newRow.reklam||0,
+        tpm: newRow.tpm||0, hotlist:0, musteri:0, teklif:0, alinan: totalAlinan, anlasma:0, yorum:'', win:'' });
     }
   }
 
   btn.disabled = false; btn.innerHTML = '💰 Kaydet';
   closeModal('modal-chaching');
   toast('💰 Cha-Ching! Satış kaydedildi!');
-  loadSalesTicker();
   render();
+  loadSalesTicker();
 }
 
 /* ============================================
