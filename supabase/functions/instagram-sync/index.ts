@@ -82,10 +82,23 @@ serve(async (req: Request) => {
   const profile = await profileRes.json();
   if (profile.error) {
     console.error("[sync] Profile API error:", JSON.stringify(profile.error));
+    // Code 200 = OAuthException: missing page/instagram permissions
+    const isPermError =
+      profile.error.code === 200 ||
+      String(profile.error.message ?? "").includes("impersonat") ||
+      String(profile.error.message ?? "").includes("permission") ||
+      String(profile.error.message ?? "").includes("pages_read_engagement");
+    const syncError = isPermError
+      ? "requires_reconnect"
+      : `api_error:${profile.error.code}:${profile.error.type}`;
     await sb.from("instagram_connections")
-      .update({ sync_error: `api_error:${profile.error.code}:${profile.error.type}`, updated_at: now() })
+      .update({ sync_error: syncError, updated_at: now() })
       .eq("user_id", userId);
-    return json({ error: "api_error", detail: profile.error.message, code: profile.error.code }, 502);
+    return json({
+      error:  isPermError ? "requires_reconnect" : "api_error",
+      detail: profile.error.message,
+      code:   profile.error.code,
+    }, isPermError ? 403 : 502);
   }
 
   console.log(`[sync] Profile OK: @${profile.username} followers=${profile.followers_count}`);
