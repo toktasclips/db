@@ -2101,7 +2101,23 @@ select option { background: #232323; color: #e8e8e6; }
 .forum-card-body { padding:0 18px 16px; font-size:13.5px; color:rgba(255,255,255,0.65); line-height:1.7; white-space:pre-wrap; }
 .forum-card-video { margin:0 18px 16px; border-radius:10px; overflow:hidden; aspect-ratio:16/9; background:#000; }
 .forum-card-video iframe, .forum-card-video video { width:100%; height:100%; border:none; display:block; }
-.forum-card-admin { padding:8px 18px 14px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,0.06); }
+.forum-card-footer { padding:10px 18px 12px; display:flex; align-items:center; gap:10px; border-top:1px solid rgba(255,255,255,0.06); }
+.forum-reaction-btn { background:none; border:1px solid rgba(255,255,255,0.1); border-radius:20px; color:rgba(255,255,255,0.4); font-size:12px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; padding:5px 12px; transition:all 0.15s; font-family:inherit; }
+.forum-reaction-btn:hover { border-color:rgba(239,68,68,0.4); color:rgba(239,68,68,0.8); }
+.forum-reaction-btn.liked { border-color:rgba(239,68,68,0.5); color:#ef4444; background:rgba(239,68,68,0.08); }
+.forum-comment-btn { background:none; border:1px solid rgba(255,255,255,0.1); border-radius:20px; color:rgba(255,255,255,0.4); font-size:12px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:5px; padding:5px 12px; transition:all 0.15s; font-family:inherit; }
+.forum-comment-btn:hover, .forum-comment-btn.active { border-color:rgba(99,179,237,0.4); color:rgba(99,179,237,0.9); background:rgba(99,179,237,0.06); }
+.forum-comments { padding:12px 18px 14px; border-top:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; gap:10px; }
+.forum-comment { display:flex; align-items:flex-start; gap:10px; }
+.forum-comment-avatar { width:28px; height:28px; border-radius:50%; background:rgba(99,179,237,0.15); color:#63b3ed; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.forum-comment-body { flex:1; min-width:0; }
+.forum-comment-author { font-size:12px; font-weight:600; color:rgba(255,255,255,0.7); margin-bottom:2px; }
+.forum-comment-text { font-size:13px; color:rgba(255,255,255,0.55); line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+.forum-comment-input-row { display:flex; gap:8px; margin-top:4px; }
+.forum-comment-input { flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px 12px; font-size:13px; color:#e8e8e6; outline:none; font-family:inherit; transition:border-color 0.15s; }
+.forum-comment-input:focus { border-color:rgba(99,179,237,0.4); }
+.forum-comment-send { background:rgba(99,179,237,0.15); border:none; border-radius:8px; padding:8px 14px; font-size:12px; font-weight:600; color:#63b3ed; cursor:pointer; font-family:inherit; transition:background 0.15s; white-space:nowrap; }
+.forum-comment-send:hover { background:rgba(99,179,237,0.25); }
 
 .ig-info-box {
   background: rgba(193,100,200,0.06); border: 1px solid rgba(193,100,200,0.15);
@@ -11922,52 +11938,153 @@ async function cbDeleteBot(id) {
 /* ============================================================
    FORUM
    ============================================================ */
+const forumState = { posts: [], comments: {}, reactionCounts: {}, myReactions: new Set(), openComments: new Set() };
+
 async function loadForum() {
   const addBtn = document.getElementById('forum-add-btn');
   if (addBtn) addBtn.style.display = currentUser?.role === 'admin' ? '' : 'none';
 
-  const { data, error } = await sb
-    .from('forum_posts')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const [postsRes, commentsRes, reactionsRes] = await Promise.all([
+    sb.from('forum_posts').select('*').order('created_at', { ascending: false }),
+    sb.from('forum_comments').select('*').order('created_at', { ascending: true }),
+    sb.from('forum_reactions').select('post_id, user_id'),
+  ]);
 
+  forumState.posts = postsRes.data || [];
+
+  forumState.comments = {};
+  for (const c of (commentsRes.data || [])) {
+    if (!forumState.comments[c.post_id]) forumState.comments[c.post_id] = [];
+    forumState.comments[c.post_id].push(c);
+  }
+
+  forumState.reactionCounts = {};
+  forumState.myReactions = new Set();
+  for (const r of (reactionsRes.data || [])) {
+    forumState.reactionCounts[r.post_id] = (forumState.reactionCounts[r.post_id] || 0) + 1;
+    if (r.user_id === currentUser?.email) forumState.myReactions.add(+r.post_id);
+  }
+
+  renderForum();
+}
+
+function renderForum() {
   const el = document.getElementById('forum-list');
   if (!el) return;
-
-  if (error || !data?.length) {
+  if (!forumState.posts.length) {
     el.innerHTML = '<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0">Henüz paylaşım yok.</div>';
     return;
   }
-
-  el.innerHTML = data.map(p => forumRenderCard(p)).join('');
+  el.innerHTML = forumState.posts.map(p => forumRenderCard(p)).join('');
 }
 
 function forumRenderCard(p) {
-  const isAdmin = currentUser?.role === 'admin';
-  const date = new Date(p.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
+  const isAdmin  = currentUser?.role === 'admin';
+  const date     = new Date(p.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
   const videoHtml = p.video_url ? `<div class="forum-card-video">${forumVideoEmbed(p.video_url)}</div>` : '';
-  const adminBar = isAdmin ? `
-    <div class="forum-card-admin">
-      <button class="eg-pill-btn" onclick="openForumModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">düzenle</button>
-      <button class="eg-pill-btn red" onclick="deleteForumPost(${p.id})">sil</button>
+  const liked    = forumState.myReactions.has(+p.id);
+  const likeCount = forumState.reactionCounts[p.id] || 0;
+  const comments  = forumState.comments[p.id] || [];
+  const commentsOpen = forumState.openComments.has(+p.id);
+
+  const commentsHtml = commentsOpen ? `
+    <div class="forum-comments" id="forum-comments-${p.id}">
+      ${comments.length ? comments.map(c => `
+        <div class="forum-comment">
+          <div class="forum-comment-avatar">${escHtml((c.author_name||'?')[0].toUpperCase())}</div>
+          <div class="forum-comment-body">
+            <div class="forum-comment-author">${escHtml(c.author_name||'Kullanıcı')}</div>
+            <div class="forum-comment-text">${escHtml(c.body)}</div>
+          </div>
+          ${(isAdmin || c.user_id === currentUser?.email) ? `<button onclick="deleteForumComment(${c.id},${p.id})" style="background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:13px;padding:2px 4px;line-height:1;flex-shrink:0" title="Sil">✕</button>` : ''}
+        </div>`).join('') : '<div style="font-size:12px;color:rgba(255,255,255,0.2);padding:4px 0 8px">Henüz yorum yok.</div>'}
+      <div class="forum-comment-input-row">
+        <input class="forum-comment-input" id="fc-input-${p.id}" placeholder="Yorum yaz..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addForumComment(${p.id})}" />
+        <button class="forum-comment-send" onclick="addForumComment(${p.id})">Gönder</button>
+      </div>
     </div>` : '';
+
+  const adminBtns = isAdmin ? `
+    <button class="eg-pill-btn" onclick="openForumModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">düzenle</button>
+    <button class="eg-pill-btn red" onclick="deleteForumPost(${p.id})">sil</button>` : '';
+
   return `<div class="forum-card" id="forum-card-${p.id}">
     <div class="forum-card-head">
       <div class="forum-card-title">${escHtml(p.title)}</div>
-      <div class="forum-card-date">${date}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="forum-card-date">${date}</div>
+        ${adminBtns}
+      </div>
     </div>
     ${p.body ? `<div class="forum-card-body">${escHtml(p.body)}</div>` : ''}
     ${videoHtml}
-    ${adminBar}
+    <div class="forum-card-footer">
+      <button class="forum-reaction-btn ${liked ? 'liked' : ''}" onclick="toggleForumReaction(${p.id})">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="${liked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s-6-3.9-6-8a4 4 0 0 1 7.4-2.1A4 4 0 0 1 14 6c0 4.1-6 8-6 8z"/></svg>
+        ${likeCount > 0 ? likeCount : ''}
+      </button>
+      <button class="forum-comment-btn ${commentsOpen ? 'active' : ''}" onclick="forumToggleComments(${p.id})">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h12a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5l-3 2V4a1 1 0 0 1 1-1z"/></svg>
+        ${comments.length > 0 ? comments.length : ''} Yorum
+      </button>
+    </div>
+    ${commentsHtml}
   </div>`;
 }
 
 function forumVideoEmbed(url) {
   const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  if (ytMatch) {
-    return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
-  }
+  if (ytMatch) return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
   return `<video src="${escHtml(url)}" controls></video>`;
+}
+
+function forumToggleComments(postId) {
+  if (forumState.openComments.has(+postId)) forumState.openComments.delete(+postId);
+  else forumState.openComments.add(+postId);
+  renderForum();
+  if (forumState.openComments.has(+postId)) {
+    setTimeout(() => document.getElementById(`fc-input-${postId}`)?.focus(), 50);
+  }
+}
+
+async function toggleForumReaction(postId) {
+  const liked = forumState.myReactions.has(+postId);
+  if (liked) {
+    await sb.from('forum_reactions').delete().eq('post_id', postId).eq('user_id', currentUser.email);
+    forumState.myReactions.delete(+postId);
+    forumState.reactionCounts[postId] = Math.max(0, (forumState.reactionCounts[postId] || 1) - 1);
+  } else {
+    await sb.from('forum_reactions').insert({ post_id: postId, user_id: currentUser.email });
+    forumState.myReactions.add(+postId);
+    forumState.reactionCounts[postId] = (forumState.reactionCounts[postId] || 0) + 1;
+  }
+  renderForum();
+}
+
+async function addForumComment(postId) {
+  const input = document.getElementById(`fc-input-${postId}`);
+  const body = input?.value.trim();
+  if (!body) return;
+
+  const { data } = await sb.from('forum_comments').insert({
+    post_id: postId,
+    user_id: currentUser.email,
+    author_name: currentUser.name || currentUser.email.split('@')[0],
+    body,
+  }).select().single();
+
+  if (data) {
+    if (!forumState.comments[postId]) forumState.comments[postId] = [];
+    forumState.comments[postId].push(data);
+    renderForum();
+    setTimeout(() => document.getElementById(`fc-input-${postId}`)?.focus(), 50);
+  }
+}
+
+async function deleteForumComment(commentId, postId) {
+  await sb.from('forum_comments').delete().eq('id', commentId);
+  forumState.comments[postId] = (forumState.comments[postId] || []).filter(c => c.id !== commentId);
+  renderForum();
 }
 
 function openForumModal(post) {
@@ -11984,17 +12101,10 @@ async function saveForumPost() {
   const title = document.getElementById('forum-post-title').value.trim();
   const body  = document.getElementById('forum-post-body').value.trim();
   const video = document.getElementById('forum-post-video').value.trim();
-
   if (!title) { toast('Başlık gerekli'); return; }
-
   const payload = { title, body: body||null, video_url: video||null };
-
-  if (id) {
-    await sb.from('forum_posts').update(payload).eq('id', id);
-  } else {
-    await sb.from('forum_posts').insert(payload);
-  }
-
+  if (id) await sb.from('forum_posts').update(payload).eq('id', id);
+  else     await sb.from('forum_posts').insert(payload);
   closeModal('modal-forum-post');
   toast(id ? 'Paylaşım güncellendi ✓' : 'Paylaşım eklendi ✓');
   loadForum();
