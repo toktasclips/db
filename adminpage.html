@@ -3991,34 +3991,9 @@ select option { background: #232323; color: #e8e8e6; }
           <input class="form-input" id="ed2-title" placeholder="Ders başlığı..." style="margin-bottom:12px"/>
           <label class="form-label">Açıklama / Notlar</label>
           <textarea class="form-input" id="ed2-desc" rows="3" style="resize:none;margin-bottom:12px" placeholder="Ders içeriği..."></textarea>
-          <label class="form-label">Video</label>
-          <input type="hidden" id="ed2-video"/>
-          <div id="ed2-video-drop"
-            style="border:2px dashed rgba(255,255,255,0.12);border-radius:10px;padding:22px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:12px;position:relative"
-            onclick="document.getElementById('ed2-video-file').click()"
-            ondragover="event.preventDefault();this.style.borderColor='#c9905a';this.style.background='rgba(201,144,90,0.06)'"
-            ondragleave="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background=''"
-            ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='';egitimUploadVideo(event.dataTransfer.files[0])">
-            <div id="ed2-video-placeholder">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" style="margin-bottom:8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <div style="font-size:12.5px;color:rgba(255,255,255,0.35)">Videoyu sürükle veya <span style="color:#c9905a">tıkla seç</span></div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.2);margin-top:4px">MP4, MOV, WebM · Maks. 500 MB</div>
-            </div>
-            <div id="ed2-video-preview" style="display:none">
-              <div style="display:flex;align-items:center;gap:10px;justify-content:center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#c9905a" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M6 6l4 2-4 2z" fill="#c9905a" stroke="none"/></svg>
-                <span id="ed2-video-name" style="font-size:12.5px;color:#e8e8e6;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-                <button type="button" onclick="event.stopPropagation();egitimClearVideo()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);font-size:16px;line-height:1;padding:0">×</button>
-              </div>
-            </div>
-            <div id="ed2-video-progress" style="display:none;margin-top:12px">
-              <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden">
-                <div id="ed2-video-bar" style="height:100%;background:#c9905a;border-radius:2px;width:0%;transition:width .2s"></div>
-              </div>
-              <div id="ed2-video-pct" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px">Yükleniyor...</div>
-            </div>
-          </div>
-          <input type="file" id="ed2-video-file" accept="video/*" style="display:none" onchange="egitimUploadVideo(this.files[0])"/>
+          <label class="form-label">Wistia Video URL</label>
+          <input class="form-input" id="ed2-video" placeholder="https://fast.wistia.com/medias/..." style="margin-bottom:4px"/>
+          <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:12px">Wistia'da video sayfasını aç → Share → Copy Link</div>
           <label class="form-label">Kaynak URL</label>
           <input class="form-input" id="ed2-resource" placeholder="https://..." style="margin-bottom:12px"/>
           <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
@@ -11413,15 +11388,17 @@ function renderEgitimLessonContent(lessonId) {
   if (l.video_url) {
     const url = l.video_url;
     let videoEl = '';
-    if (url.includes('vimeo.com')) {
+    const wistiaMatch = url.match(/wistia\.(?:com|net)\/(?:medias|embed\/iframe)\/([a-zA-Z0-9]+)/);
+    if (wistiaMatch) {
+      videoEl = `<iframe src="https://fast.wistia.net/embed/iframe/${wistiaMatch[1]}?videoFoam=true&playerColor=c9905a" allowfullscreen allowtransparency></iframe>`;
+    } else if (url.includes('vimeo.com')) {
       const id = url.split('/').filter(Boolean).pop();
       videoEl = `<iframe src="https://player.vimeo.com/video/${id}" allowfullscreen></iframe>`;
     } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
       const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
       if (match) videoEl = `<iframe src="https://www.youtube.com/embed/${match[1]}" allowfullscreen></iframe>`;
     } else {
-      // Direct file (Supabase Storage or other)
-      videoEl = `<video src="${escHtml(url)}" controls controlsList="nodownload" style="width:100%;height:100%;outline:none;background:#000"></video>`;
+      videoEl = `<video src="${escHtml(url)}" controls style="width:100%;height:100%;background:#000"></video>`;
     }
     videoSectionHtml = `<div class="ec-video-container"><div class="ec-video-wrap">${videoEl}</div></div>`;
   } else {
@@ -11638,58 +11615,6 @@ async function deleteEgitimKonu(id) {
   else renderEgitimGrid();
 }
 
-// ── Video upload helpers ────────────────────────────────────────
-function egitimShowVideoPreview(name) {
-  document.getElementById('ed2-video-placeholder').style.display = 'none';
-  document.getElementById('ed2-video-progress').style.display = 'none';
-  document.getElementById('ed2-video-preview').style.display = '';
-  document.getElementById('ed2-video-name').textContent = name;
-}
-
-function egitimClearVideo() {
-  document.getElementById('ed2-video').value = '';
-  document.getElementById('ed2-video-file').value = '';
-  document.getElementById('ed2-video-preview').style.display = 'none';
-  document.getElementById('ed2-video-progress').style.display = 'none';
-  document.getElementById('ed2-video-placeholder').style.display = '';
-}
-
-async function egitimUploadVideo(file) {
-  if (!file) return;
-  const maxBytes = 500 * 1024 * 1024;
-  if (file.size > maxBytes) { alert('Video 500 MB limitini aşıyor.'); return; }
-
-  // Show progress UI
-  document.getElementById('ed2-video-placeholder').style.display = 'none';
-  document.getElementById('ed2-video-preview').style.display = 'none';
-  document.getElementById('ed2-video-progress').style.display = '';
-  document.getElementById('ed2-video-bar').style.width = '0%';
-  document.getElementById('ed2-video-pct').textContent = 'Yükleniyor...';
-
-  const ext  = file.name.split('.').pop();
-  const path = `lessons/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
-  const { data, error } = await sb.storage.from('lesson-videos').upload(path, file, {
-    cacheControl: '3600',
-    upsert: false,
-    onUploadProgress: (p) => {
-      const pct = Math.round((p.loaded / p.total) * 100);
-      document.getElementById('ed2-video-bar').style.width = pct + '%';
-      document.getElementById('ed2-video-pct').textContent = `${pct}% yüklendi`;
-    },
-  });
-
-  if (error) {
-    egitimClearVideo();
-    alert('Video yüklenemedi: ' + error.message);
-    return;
-  }
-
-  const { data: { publicUrl } } = sb.storage.from('lesson-videos').getPublicUrl(path);
-  document.getElementById('ed2-video').value = publicUrl;
-  egitimShowVideoPreview(file.name);
-}
-
 function openEgitimDersModal(topicId, lessonId) {
   const l = lessonId ? egitimLessons.find(x => x.id === lessonId) : null;
   document.getElementById('egitim-ders-modal-title').textContent = l ? 'Dersi Düzenle' : 'Yeni Ders';
@@ -11700,13 +11625,7 @@ function openEgitimDersModal(topicId, lessonId) {
   document.getElementById('ed2-resource').value = l ? (l.resource_url||'') : '';
   document.getElementById('ed2-order').value = l ? l.order_index : (egitimLessons.filter(x=>x.topic_id==topicId).length + 1);
   document.getElementById('ed2-visible').checked = l ? l.is_visible !== false : true;
-  // Reset video UI then populate if existing
-  egitimClearVideo();
-  if (l?.video_url) {
-    document.getElementById('ed2-video').value = l.video_url;
-    const name = decodeURIComponent(l.video_url.split('/').pop().split('?')[0]);
-    egitimShowVideoPreview(name);
-  }
+  document.getElementById('ed2-video').value = l ? (l.video_url || '') : '';
   document.getElementById('modal-egitim-ders').classList.add('open');
 }
 
