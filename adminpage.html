@@ -13847,7 +13847,7 @@ async function deleteForumPost(id) {
     const finishError=(msg)=>{alert(msg);if(btn){btn.disabled=false;btn.textContent='Kaydet';}};
     const name=document.getElementById('sanal-ed-name').value.trim();
     if(!name){finishError('Barista adı gerekli.');return;}
-    const existingId=isUuid(id)?id:'';
+    const existingId=validUuid(id)?id:'';
     const item=normalizeBot({id:existingId||uid('barista'),name,icon:document.getElementById('sanal-ed-icon').value.trim()||'☕',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked,sort_order:existingId?(botById(existingId).sort_order||0):botsCache.length+1,status:document.getElementById('sanal-ed-active').checked?'active':'inactive'});
     let saved=false;
     try{
