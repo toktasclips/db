@@ -13691,46 +13691,27 @@ async function deleteForumPost(id) {
   }
   async function saveBotToDb(item){
     item.id=ensureUuid(item.id);
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
-    saveDebug(`Kaydetme başladı\nid: ${item.id}\nurl: ${url?url:'YOK'}\nkey: ${key?'var':'YOK'}`);
-    if(!url||!key){window.__lastKisiselBaristanError='Supabase URL veya anon key bulunamadı.';return false;}
+    const db=getSb();
+    if(!db){window.__lastKisiselBaristanError='Supabase client bulunamadı.';return false;}
     const payload={
       id:item.id,
       name:item.name,
-      description:item.description,
-      system_prompt:item.system_prompt,
-      avatar_emoji:item.icon,
+      description:item.description||'',
+      system_prompt:item.system_prompt||'',
+      avatar_emoji:item.icon||'☕',
       starter_questions:item.starters||[],
-      is_active:item.is_active
+      is_active:item.is_active!==false
     };
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),8000);
     try{
-      saveDebug(`Supabase REST isteği gönderiliyor...\nTablo: chatbots\nid: ${item.id}`);
-      const res=await fetch(`${url}/rest/v1/chatbots?on_conflict=id`,{
-        method:'POST',
-        headers:{
-          apikey:key,
-          Authorization:`Bearer ${key}`,
-          'Content-Type':'application/json',
-          Prefer:'resolution=merge-duplicates,return=representation'
-        },
-        body:JSON.stringify(payload),
-        signal:controller.signal
-      });
-      clearTimeout(timer);
-      saveDebug(`Supabase cevap verdi\nstatus: ${res.status} ${res.statusText}`);
-      if(res.ok) return true;
-      const err=await res.json().catch(()=>({message:res.statusText}));
-      window.__lastKisiselBaristanError=err.message||err.details||JSON.stringify(err);
-      saveDebug(`Supabase hata verdi\n${window.__lastKisiselBaristanError}`);
-      console.warn('[Kişisel Baristan] Supabase kayıt hatası:',err);
-      return false;
+      const {error}=await db.from('chatbots').upsert(payload,{onConflict:'id'});
+      if(error){
+        window.__lastKisiselBaristanError=error.message||error.details||JSON.stringify(error);
+        console.warn('[Kişisel Baristan] Supabase kayıt hatası:',error);
+        return false;
+      }
+      return true;
     }catch(e){
-      clearTimeout(timer);
-      window.__lastKisiselBaristanError=e.name==='AbortError'?'Supabase isteği 8 saniyede tamamlanmadı.':(e.message||String(e));
-      saveDebug(`İstek yakalandı / hata\n${window.__lastKisiselBaristanError}`);
+      window.__lastKisiselBaristanError=e.message||String(e);
       console.warn('[Kişisel Baristan] Supabase kayıt hatası:',e);
       return false;
     }
