@@ -13524,11 +13524,13 @@ async function deleteForumPost(id) {
     let bots=getBots(); bots=id?bots.map(b=>b.id===id?{...b,...item}:b):[...bots,item]; saveBots(bots); activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
   window.sanalRender=function(){ renderShell(); };
-  /* Bu IIFE kendi renderShell'ini çalıştırmaz; kisisel modülüne devreder */
-  function init(){ if(window.kisiselRender) window.kisiselRender(); }
+  /* Render kisisel modülüne devredildi — bu IIFE sadece window.go'yu sarar */
   const oldGo=window.go;
-  window.go=function(page,el){ const r=oldGo?oldGo.apply(this,arguments):undefined; if(page==='sanal') setTimeout(()=>window.kisiselRender&&window.kisiselRender(),0); return r; };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300)); else setTimeout(init,300);
+  window.go=function(page,el){
+    const r=oldGo?oldGo.apply(this,arguments):undefined;
+    if(page==='sanal') setTimeout(()=>{ if(window.kisiselRender && typeof botsCache!=='undefined' && botsCache.length) window.kisiselRender(); },50);
+    return r;
+  };
 })();
 </script>
 
