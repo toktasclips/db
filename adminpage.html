@@ -13524,10 +13524,7 @@ async function deleteForumPost(id) {
     let bots=getBots(); bots=id?bots.map(b=>b.id===id?{...b,...item}:b):[...bots,item]; saveBots(bots); activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
   window.sanalRender=function(){ renderShell(); };
-  function init(){ if(document.getElementById('page-sanal')?.classList.contains('active')) renderShell(); }
-  const oldGo=window.go;
-  window.go=function(page,el){ const r=oldGo?oldGo.apply(this,arguments):undefined; if(page==='sanal') setTimeout(renderShell,0); return r; };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300)); else setTimeout(init,300);
+  /* Devre dışı: kisisel IIFE tüm render'ı yönetiyor */
 })();
 </script>
 
