@@ -13471,9 +13471,7 @@ async function deleteForumPost(id) {
     }).join('');
   }
   function starters(bot){
-    const arr=(bot.starters||[]).filter(Boolean);
-    const fallback=['Ne üzerinde çalışmak istediğimi netleştir','Bugün işimde en önemli aksiyon ne?','Bu fikri satışa bağla','Bana sonraki adımları çıkar'];
-    return [0,1,2,3].map(i=>arr[i]||fallback[i]);
+    return (bot.starters||[]).filter(Boolean);
   }
   function renderShell(){
     const root=document.getElementById('sanal-app'); if(!root) return;
