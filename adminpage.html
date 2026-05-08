@@ -13734,34 +13734,31 @@ async function deleteForumPost(id) {
   }
   async function ensureConversation(){
     if(activeThreadId) return activeThreadId;
-    const bot=botById(activeBotId); const first=(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70);
+    const bot=botById(activeBotId); const first=(tempMessages.find(m=>m.role===’user’)?.text||bot.name).slice(0,70);
     const db=getSb();
     if(db && getCurrentUser()){
       try{
-        const {data,error}=await db.from('chatbot_conversations').insert({chatbot_id:activeBotId,user_id:userKey(),title:first}).select().single();
-        if(error) throw error;
-        if(data?.id){activeThreadId=data.id;return data.id;}
-      }catch(e){}
+        const {data,error}=await db.from(‘chatbot_conversations’).insert({chatbot_id:activeBotId,user_id:userKey(),title:first}).select().single();
+        if(!error && data?.id){activeThreadId=data.id;return data.id;}
+        console.warn(‘[Kişisel Baristan] Conversation DB error:’,error?.message);
+      }catch(e){console.warn(‘[Kişisel Baristan] Conversation error:’,e.message);}
     }
-    alert('Supabase konuşma kaydı oluşturulamadı. Mesaj veritabanına kaydedilmeyecek.');
-    return null;
+    activeThreadId=’local-’+genUuid();
+    return activeThreadId;
   }
   async function saveMsg(role,text){
     const cid=await ensureConversation();
-    if(!cid) return false;
     const db=getSb();
-    if(db && getCurrentUser()){
+    if(db && getCurrentUser() && !cid.startsWith(‘local-’)){
       try{
-        const ins=await db.from('chatbot_messages').insert({conversation_id:cid,role,content:text});
+        const ins=await db.from(‘chatbot_messages’).insert({conversation_id:cid,role,content:text});
         if(ins?.error) throw ins.error;
-        await db.from('chatbot_conversations').update({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role==='user')?.text||botById(activeBotId).name).slice(0,70)}).eq('id',cid);
+        await db.from(‘chatbot_conversations’).update({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role===’user’)?.text||botById(activeBotId).name).slice(0,70)}).eq(‘id’,cid);
       }catch(e){
-        console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',e.message||e);
-        alert('Mesaj Supabase’e kaydedilemedi. LocalStorage kullanılmıyor.');
-        return false;
+        console.warn(‘[Kişisel Baristan] Supabase mesaj kayıt hatası:’,e.message||e);
       }
     }
-    const bot=botById(activeBotId); const item={id:cid,botId:activeBotId,title:(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70),updatedAt:Date.now(),messages:tempMessages};
+    const bot=botById(activeBotId); const item={id:cid,botId:activeBotId,title:(tempMessages.find(m=>m.role===’user’)?.text||bot.name).slice(0,70),updatedAt:Date.now(),messages:tempMessages};
     histCache=[item,...histCache.filter(h=>h.id!==cid)];
     return true;
   }
@@ -13774,7 +13771,7 @@ async function deleteForumPost(id) {
     if(!histCache.length) return '<div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div>';
     return histCache.slice(0,18).map(h=>{const b=botById(h.botId);return `<div class="sanal-history-row" onclick="kisiselOpenHistory('${esc(h.id)}')"><div class="sanal-history-icon">${esc(botIcon(b))}</div><div style="min-width:0;flex:1"><div class="sanal-history-title">${esc(h.title||b.name)}</div><div class="sanal-history-meta">${esc(b.name)} · ${timeLabel(h.updatedAt)}</div></div></div>`}).join('');
   }
-  function starters(bot){const arr=(bot.starters||[]).filter(Boolean);const fb=['Başlamak için beni yönlendir','Hedefimi netleştir','Aklımdakileri toparla','Sonraki adımları çıkar'];return [0,1,2,3].map(i=>arr[i]||fb[i]);}
+  function starters(bot){const arr=(bot.starters||[]).filter(Boolean);return arr.length?arr:[];}
   function renderShell(){
     const root=document.getElementById('sanal-app'); if(!root) return;
     const bot=botById(activeBotId); activeBotId=bot.id;
