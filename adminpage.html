@@ -3379,7 +3379,7 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
 
     <!-- ===== SANAL MEHMET ===== -->
     <div class="page active" id="page-sanal" style="max-width:none;padding:0">
-      <div id="sanal-app"><div class="sanal-shell"><aside class="sanal-panel"><div class="sanal-panel-head"><div class="sanal-panel-title">Kişisel Baristan</div></div><div class="sanal-panel-scroll"><div class="sanal-list-label">BARİSTALAR 3</div><div class="sanal-bot-row active" onclick="kisiselOpenBot(&#39;ffcffe6d-e61b-4534-b59f-b4247156fa42&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">7 Günlük Kampanya Kurgusu</div><div class="sanal-bot-desc">Geliştiriliyor...</div></div></div><div class="sanal-bot-row " onclick="kisiselOpenBot(&#39;7e987a08-0fb7-4a54-a7ba-9c447b8eef38&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">Holistik Story Kurgusu</div><div class="sanal-bot-desc">Geliştiriliyor...</div></div></div><div class="sanal-bot-row " onclick="kisiselOpenBot(&#39;ac320a53-9692-4cc9-a0ae-7eccd3290433&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">Oto Müşteri İçeriği</div><div class="sanal-bot-desc">Konuşma başlat</div></div></div><div class="sanal-list-label" style="margin-top:24px;display:flex;justify-content:space-between;align-items:center"><span>YAKIN ZAMANDAKİLER</span><button onclick="kisiselNewChat()" style="border:0;background:transparent;color:#8B6B4F;font-size:11px;font-weight:700;cursor:pointer">Yeni sohbet</button></div><div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div></div></aside><main class="sanal-main"><div class="sanal-chat-top"><div class="sanal-bot-icon">🤖</div><div><div class="sanal-chat-title">7 Günlük Kampanya Kurgusu</div><div class="sanal-chat-sub">Geliştiriliyor...</div></div></div><div class="sanal-stage"><div class="sanal-welcome" id="sanal-welcome"><div class="sanal-welcome-line"><div class="sanal-greet-avatar">🤖</div><div>Merhaba, ben 7 Günlük Kampanya Kurgusu. Bugün nasıl yardımcı olayım?</div></div><div class="sanal-prompt-grid"><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Başlamak için beni yönlendir&#39;)"><div class="sanal-prompt-title">Başlamak için beni yönlendir</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Hedefimi netleştir&#39;)"><div class="sanal-prompt-title">Hedefimi netleştir</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card wide" onclick="kisiselStarter(&#39;Aklımdakileri toparla&#39;)"><div class="sanal-prompt-title">Aklımdakileri toparla</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Sonraki adımları çıkar&#39;)"><div class="sanal-prompt-title">Sonraki adımları çıkar</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div></div></div><div class="sanal-messages" id="sanal-messages"></div><div class="sanal-inputbar"><span style="font-size:22px;color:#B9AEA3">+</span><textarea id="sanal-input" placeholder="7 Günlük Kampanya Kurgusu ile konuş..." rows="1" onkeydown="if(event.key===&#39;Enter&#39;&amp;&amp;!event.shiftKey){event.preventDefault();kisiselSend()}"></textarea><button onclick="kisiselSend()">↑</button></div></div></main></div></div>
+      <div id="sanal-app" style="display:flex;align-items:center;justify-content:center;height:100%;color:#B6AB9F;font-size:14px;font-family:inherit">Barista yükleniyor…</div>
     </div>
 
     <!-- ===== DASHBOARD ===== -->
@@ -13608,279 +13608,585 @@ async function deleteForumPost(id) {
 .ec-download-item{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:20px;padding:15px 18px;border:1px solid rgba(33,26,20,.09);border-radius:14px;background:#FFFDFC;color:#211A14;text-decoration:none;font-size:13px;font-weight:650;}
 .ec-download-item:hover{background:#F7F3ED;border-color:rgba(33,26,20,.16);}
 @media(max-width:1000px){.sanal-shell{grid-template-columns:1fr!important}.sanal-panel{display:block!important;height:42vh}.sanal-messages{padding:22px 18px 110px!important}.sanal-msg{max-width:88%!important}}
+/* ── Starter editor (admin) ─────────────────────────────────── */
+.ked-starters-section{margin-bottom:12px;padding:16px;background:#FDFBF8;border:1px solid rgba(33,26,20,.09);border-radius:16px;}
+.ked-starter-list{display:flex;flex-direction:column;gap:8px;min-height:20px;}
+.ked-starter-item{display:flex;align-items:flex-start;gap:8px;background:#FFFFFF;border:1px solid rgba(33,26,20,.09);border-radius:12px;padding:10px 12px;transition:border-color .15s,box-shadow .15s;}
+.ked-starter-item.dragging{opacity:.45;border-color:#A45F24;}
+.ked-starter-item.drag-over{border-color:#A45F24;box-shadow:0 0 0 2px rgba(164,95,36,.18);}
+.ked-starter-drag{font-size:18px;color:#C8BAAB;cursor:grab;user-select:none;flex-shrink:0;margin-top:6px;line-height:1;}
+.ked-starter-drag:active{cursor:grabbing;}
+.ked-starter-fields{flex:1;display:flex;flex-direction:column;gap:6px;}
+.ked-starter-fields .form-input{margin-bottom:0!important;}
+.ked-starter-del{flex-shrink:0;width:28px;height:28px;border:1px solid rgba(33,26,20,.09);background:transparent;border-radius:8px;cursor:pointer;font-size:15px;color:#9D9186;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;margin-top:4px;}
+.ked-starter-del:hover{background:#FEF2F2;border-color:rgba(184,50,50,.3);color:#B83232;}
+.ked-starter-empty{font-size:12.5px;color:#B6AB9F;padding:8px 0;text-align:center;}
+.ked-add-starter-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#8B6B4F;background:transparent;border:1px dashed rgba(33,26,20,.18);border-radius:10px;padding:8px 14px;cursor:pointer;width:100%;justify-content:center;margin-top:6px;transition:all .15s;}
+.ked-add-starter-btn:hover{background:#F7F3ED;border-color:rgba(164,95,36,.35);color:#A45F24;}
 </style>
 
 <script id="kisisel-baristan-final-script">
 (function(){
-  const LOCAL_BOTS='kisiselBaristan.bots.v2';
-  const LOCAL_HIST='kisiselBaristan.history.v2';
-  let botsCache=[];
-  let histCache=[];
-  let activeBotId=null;
-  let activeThreadId=null;
-  let tempMessages=[];
+  /* ── State ─────────────────────────────────────────────────── */
+  let botsCache   = [];   // rows from chatbots table
+  let startersCache = {}; // { [botId]: [{id,chatbot_id,title,prompt,sort_order}] }
+  let histCache   = [];   // [{id,botId,title,updatedAt}]
+  let activeBotId = null;
+  let activeThreadId = null;
+  let tempMessages = [];
 
-  const coffeeIcons=['☕','🥛','🍵','🫖','🥤','🧋','☕'];
-  const defaults=[
-    {id:'onboarding-ai',name:'Onboarding AI',icon:'☕',description:'Başlangıç ve kurulum için yol gösterir',system_prompt:'Kullanıcıyı başlangıç ve kurulum sürecinde sade, net, adım adım yönlendir.',starters:['Başlangıç için beni yönlendir','Hedefimi netleştir','Aklımdakileri toparla','Sonraki adımları çıkar'],is_active:true,sort_order:1,status:'active'},
-    {id:'menucard-maker',name:'Menucard Maker',icon:'🫖',description:'Teklifini ve ürün menünü netleştirir',system_prompt:'Kullanıcının teklifini, paketlerini ve değer merdivenini netleştir.',starters:['Teklifimi netleştir','Ürün menümü kur','Paketlerimi sadeleştir','Fiyatlandırmayı düşünelim'],is_active:true,sort_order:2,status:'active'},
-    {id:'daily-writer',name:'The Daily Writer',icon:'🍵',description:'Günlük içerik ve email fikirleri üretir',system_prompt:'Kullanıcıya marka diliyle, sade ve satışa bağlanan içerik fikirleri üret.',starters:['Bugünkü içeriğimi yaz','Email fikri ver','Story akışı çıkar','Bir fikri post yap'],is_active:true,sort_order:3,status:'active'},
-    {id:'campaign-coach',name:'Campaign Coach',icon:'☕',description:'Kampanya ve satış akışı kurar',system_prompt:'Kullanıcıya kampanya, lansman ve satış süreci konusunda stratejik destek ver.',starters:['Kampanya planı çıkar','Satış mesajımı güçlendir','Lansman akışı kur','Takip mesajları yaz'],is_active:true,sort_order:4,status:'active'}
-  ];
-  try{localStorage.removeItem(LOCAL_BOTS);localStorage.removeItem(LOCAL_HIST);}catch(e){}
-  const esc=(v)=>String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
-  const uid=(p='id')=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
-  const getCurrentUser=()=>typeof currentUser!=='undefined'&&currentUser?currentUser:(window.currentUser||null);
-  const getSb=()=>typeof sb!=='undefined'&&sb?sb:(window.sb||null);
-  const admin=()=>getCurrentUser()?.role==='admin' || document.body.classList.contains('admin');
-  const userKey=()=>getCurrentUser()?.id || getCurrentUser()?.email || 'local-user';
-  const botIcon=(b,i=0)=>b.icon || b.avatar_emoji || b.emoji || coffeeIcons[i%coffeeIcons.length] || '☕';
-  const saveDebug=(msg)=>{const el=document.getElementById('sanal-save-debug');if(el){el.style.display='block';el.textContent=msg;}console.log('[Kişisel Baristan]',msg);};
-  const normalizeBot=(b,i=0)=>({
-    id:b.id, name:b.name||'Yeni Barista', description:b.description||'', icon:b.icon||b.avatar_emoji||b.emoji||coffeeIcons[i%coffeeIcons.length],
-    system_prompt:b.system_prompt||'', starters:b.starters||b.starter_questions||[], is_active:b.is_active!==false,
-    sort_order:b.sort_order??i, status:b.status||'active'
-  });
-  function setLocalBots(b){}
-  function getLocalBots(){return [];}
-  function setLocalHist(h){}
-  function getLocalHist(){return [];}
-  function botById(id){return botsCache.find(b=>b.id===id) || botsCache[0] || defaults[0];}
-  function timeLabel(ts){const d=new Date(ts||Date.now()),n=new Date();const diff=Math.floor((n-d)/86400000);if(diff<=0)return'Bugün';if(diff===1)return'Dün';if(diff<7)return diff+' gün önce';return d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});}
-
-  async function loadBots(){
-    botsCache=[];
-    const db=getSb();
-    if(db){
-      try{
-        let q=db.from('chatbots').select('*').eq('is_active',true).order('sort_order',{ascending:true});
-        const {data,error}=await q;
-        if(!error && Array.isArray(data) && data.length){botsCache=data.map(normalizeBot); setLocalBots(botsCache);}
-        else{
-          let fallback=db.from('chatbots').select('*').eq('is_active',true).order('created_at',{ascending:true});
-          const fb=await fallback;
-          if(!fb.error && Array.isArray(fb.data) && fb.data.length){botsCache=fb.data.map(normalizeBot); setLocalBots(botsCache);}
-        }
-      }catch(e){console.warn('[Kişisel Baristan] Supabase bot okuma hatası:',e.message||e);}
-    }
-    if(!botsCache.length && !db) botsCache=defaults.slice();
-    if(!activeBotId) activeBotId=(botsCache.find(b=>b.is_active!==false)||botsCache[0]||defaults[0]).id;
-  }
-  async function loadHistory(){
-    histCache=[];
-    const db=getSb();
-    if(db && getCurrentUser()){
-      try{
-        const {data,error}=await db.from('chatbot_conversations').select('*').eq('user_id',userKey()).order('updated_at',{ascending:false}).limit(30);
-        if(!error && Array.isArray(data)){
-          histCache=data.map(x=>({id:x.id,botId:x.chatbot_id,title:x.title,updatedAt:x.updated_at||x.created_at,messages:[]}));
-          setLocalHist(histCache);
-        }
-      }catch(e){}
-    }
-  }
-  async function loadMessages(threadId){
-    const db=getSb();
-    if(db && threadId){
-      try{
-        const {data,error}=await db.from('chatbot_messages').select('*').eq('conversation_id',threadId).order('created_at',{ascending:true});
-        if(!error && Array.isArray(data)) return data.map(m=>({role:m.role,text:m.content}));
-      }catch(e){}
-    }
-    return (histCache.find(h=>h.id===threadId)?.messages)||[];
-  }
-  async function saveBotToDb(item){
-    item.id=ensureUuid(item.id);
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
-    saveDebug(`Kaydetme başladı\nid: ${item.id}\nurl: ${url?url:'YOK'}\nkey: ${key?'var':'YOK'}`);
-    if(!url||!key){window.__lastKisiselBaristanError='Supabase URL veya anon key bulunamadı.';return false;}
-    const payload={
-      id:item.id,
-      name:item.name,
-      description:item.description,
-      system_prompt:item.system_prompt,
-      avatar_emoji:item.icon,
-      starter_questions:item.starters||[],
-      is_active:item.is_active,
-      status:item.status||'active',
-      sort_order:item.sort_order||0
-    };
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),8000);
-    try{
-      saveDebug(`Supabase REST isteği gönderiliyor...\nTablo: chatbots\nid: ${item.id}`);
-      const res=await fetch(`${url}/rest/v1/chatbots?on_conflict=id`,{
-        method:'POST',
-        headers:{
-          apikey:key,
-          Authorization:`Bearer ${key}`,
-          'Content-Type':'application/json',
-          Prefer:'resolution=merge-duplicates,return=representation'
-        },
-        body:JSON.stringify(payload),
-        signal:controller.signal
+  /* ── Helpers ────────────────────────────────────────────────── */
+  const esc = v => String(v ?? '').replace(/[&<>'"]/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
+  const genUuid = () => {
+    try { return crypto.randomUUID(); } catch(e) {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8); return v.toString(16);
       });
-      clearTimeout(timer);
-      saveDebug(`Supabase cevap verdi\nstatus: ${res.status} ${res.statusText}`);
-      if(res.ok) return true;
-      const err=await res.json().catch(()=>({message:res.statusText}));
-      window.__lastKisiselBaristanError=err.message||err.details||JSON.stringify(err);
-      saveDebug(`Supabase hata verdi\n${window.__lastKisiselBaristanError}`);
-      console.warn('[Kişisel Baristan] Supabase kayıt hatası:',err);
-      return false;
-    }catch(e){
-      clearTimeout(timer);
-      window.__lastKisiselBaristanError=e.name==='AbortError'?'Supabase isteği 8 saniyede tamamlanmadı.':(e.message||String(e));
-      saveDebug(`İstek yakalandı / hata\n${window.__lastKisiselBaristanError}`);
-      console.warn('[Kişisel Baristan] Supabase kayıt hatası:',e);
-      return false;
     }
+  };
+  const validUuid = v =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||''));
+  const getSb          = () => (typeof sb!=='undefined'&&sb) ? sb : (window.sb||null);
+  const getCurrentUser = () => (typeof currentUser!=='undefined'&&currentUser) ? currentUser : (window.currentUser||null);
+  const isAdmin        = () => getCurrentUser()?.role==='admin' || document.body.classList.contains('admin');
+  const userKey        = () => getCurrentUser()?.id || getCurrentUser()?.email || 'local-user';
+  const botIcon        = b  => b?.avatar_emoji || b?.icon || b?.emoji || '☕';
+  const timeLabel = ts => {
+    const d = new Date(ts||Date.now()), n = new Date();
+    const diff = Math.floor((n-d)/86400000);
+    if (diff<=0) return 'Bugün'; if (diff===1) return 'Dün';
+    if (diff<7)  return diff+' gün önce';
+    return d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+  };
+
+  /* ── Data: bots ─────────────────────────────────────────────── */
+  async function loadBots() {
+    botsCache = [];
+    const db = getSb(); if (!db) return;
+    try {
+      const { data, error } = await db.from('chatbots')
+        .select('id,name,description,avatar_emoji,system_prompt,is_active,sort_order')
+        .eq('is_active', true)
+        .order('sort_order', {ascending:true});
+      if (!error && Array.isArray(data)) botsCache = data;
+    } catch(e) { console.warn('[Baristan] Bot yükleme hatası:', e.message); }
+    if (!activeBotId && botsCache.length) activeBotId = botsCache[0].id;
   }
-  async function deactivateBot(id){
-    botsCache=botsCache.filter(b=>b.id!==id);
-    const db=getSb();
-    if(db){
-      try{
-        let res=await db.from('chatbots').update({is_active:false,status:'inactive'}).eq('id',id);
-        if(res?.error) res=await db.from('chatbots').update({is_active:false}).eq('id',id);
-        if(res?.error) throw res.error;
-      }catch(e){
-        console.warn('[Kişisel Baristan] Supabase silme/pasife alma hatası:',e.message||e);
-        alert('Supabase kaydı güncellenemedi. Sayfa içinde kaldırdım ama veritabanı izni/kolonları kontrol edilmeli.');
+
+  /* ── Data: starters ─────────────────────────────────────────── */
+  async function loadStarters(botId) {
+    if (!botId) return [];
+    const db = getSb(); if (!db) { startersCache[botId]=[]; return []; }
+    try {
+      const { data, error } = await db.from('conversation_starters')
+        .select('id,chatbot_id,title,prompt,sort_order')
+        .eq('chatbot_id', botId)
+        .order('sort_order', {ascending:true});
+      if (!error && Array.isArray(data)) { startersCache[botId]=data; return data; }
+    } catch(e) { console.warn('[Baristan] Starter yükleme hatası:', e.message); }
+    startersCache[botId] = [];
+    return [];
+  }
+
+  function getStarters(botId) { return startersCache[botId] || []; }
+
+  /* ── Data: history ──────────────────────────────────────────── */
+  async function loadHistory() {
+    histCache = [];
+    const db = getSb(); if (!db || !getCurrentUser()) return;
+    try {
+      const { data, error } = await db.from('chatbot_conversations')
+        .select('id,chatbot_id,title,updated_at,created_at')
+        .eq('user_id', userKey())
+        .order('updated_at', {ascending:false})
+        .limit(30);
+      if (!error && Array.isArray(data))
+        histCache = data.map(x => ({id:x.id, botId:x.chatbot_id, title:x.title, updatedAt:x.updated_at||x.created_at}));
+    } catch(e) {}
+  }
+
+  async function loadMessages(threadId) {
+    const db = getSb(); if (!db || !threadId) return [];
+    try {
+      const { data, error } = await db.from('chatbot_messages')
+        .select('role,content')
+        .eq('conversation_id', threadId)
+        .order('created_at', {ascending:true});
+      if (!error && Array.isArray(data)) return data.map(m => ({role:m.role, text:m.content}));
+    } catch(e) {}
+    return [];
+  }
+
+  /* ── Data: save bot ─────────────────────────────────────────── */
+  async function saveBotToDb(bot) {
+    if (!validUuid(bot.id)) bot.id = genUuid();
+    const db = getSb();
+    if (!db) return { ok:false, error:'Supabase bağlantısı yok.' };
+    const payload = {
+      id:           bot.id,
+      name:         bot.name,
+      description:  bot.description  || '',
+      system_prompt:bot.system_prompt || '',
+      avatar_emoji: bot.avatar_emoji  || '☕',
+      is_active:    bot.is_active !== false,
+      sort_order:   bot.sort_order    || 0
+    };
+    try {
+      const { error } = await db.from('chatbots').upsert(payload, {onConflict:'id'});
+      if (error) return { ok:false, error:error.message||JSON.stringify(error) };
+      return { ok:true };
+    } catch(e) { return { ok:false, error:e.message||String(e) }; }
+  }
+
+  /* ── Data: save starters ────────────────────────────────────── */
+  async function saveStartersToDb(botId, starters) {
+    const db = getSb();
+    if (!db) return { ok:false, error:'Supabase bağlantısı yok.' };
+    try {
+      // Delete all existing starters for this bot, then re-insert
+      const { error:delErr } = await db.from('conversation_starters').delete().eq('chatbot_id', botId);
+      if (delErr) return { ok:false, error:delErr.message };
+      if (starters.length) {
+        const rows = starters.map((s, i) => ({
+          id:         validUuid(s.id) ? s.id : genUuid(),
+          chatbot_id: botId,
+          title:      s.title  || '',
+          prompt:     s.prompt || s.title || '',
+          sort_order: i
+        }));
+        const { error:insErr } = await db.from('conversation_starters').insert(rows);
+        if (insErr) return { ok:false, error:insErr.message };
+        startersCache[botId] = rows;
+      } else {
+        startersCache[botId] = [];
       }
+      return { ok:true };
+    } catch(e) { return { ok:false, error:e.message||String(e) }; }
+  }
+
+  /* ── Data: deactivate bot ───────────────────────────────────── */
+  async function deactivateBot(id) {
+    botsCache = botsCache.filter(b => b.id !== id);
+    delete startersCache[id];
+    const db = getSb(); if (!db) return;
+    try {
+      const { error } = await db.from('chatbots').update({is_active:false}).eq('id', id);
+      if (error) throw error;
+    } catch(e) {
+      console.warn('[Baristan] Pasife alma hatası:', e.message);
+      alert('Veritabanı güncellenemedi. Sayfa yenilendikten sonra tekrar görünebilir.');
     }
   }
-  async function ensureConversation(){
-    if(activeThreadId) return activeThreadId;
-    const bot=botById(activeBotId); const first=(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70);
-    const db=getSb();
-    if(db && getCurrentUser()){
-      try{
-        const {data,error}=await db.from('chatbot_conversations').insert({chatbot_id:activeBotId,user_id:userKey(),title:first}).select().single();
-        if(error) throw error;
-        if(data?.id){activeThreadId=data.id;return data.id;}
-      }catch(e){}
+
+  /* ── Conversation / messaging ───────────────────────────────── */
+  async function ensureConversation() {
+    if (activeThreadId) return activeThreadId;
+    const db = getSb();
+    if (db && getCurrentUser()) {
+      try {
+        const bot = botById(activeBotId);
+        const { data, error } = await db.from('chatbot_conversations')
+          .insert({chatbot_id:activeBotId, user_id:userKey(), title:bot?.name||'Konuşma'})
+          .select().single();
+        if (!error && data?.id) { activeThreadId = data.id; return data.id; }
+        console.warn('[Baristan] Conversation oluşturulamadı:', error?.message);
+      } catch(e) { console.warn('[Baristan]', e.message); }
     }
-    alert('Supabase konuşma kaydı oluşturulamadı. Mesaj veritabanına kaydedilmeyecek.');
-    return null;
+    activeThreadId = 'local-' + genUuid();
+    return activeThreadId;
   }
-  async function saveMsg(role,text){
-    const cid=await ensureConversation();
-    if(!cid) return false;
-    const db=getSb();
-    if(db && getCurrentUser()){
-      try{
-        const ins=await db.from('chatbot_messages').insert({conversation_id:cid,role,content:text});
-        if(ins?.error) throw ins.error;
-        await db.from('chatbot_conversations').update({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role==='user')?.text||botById(activeBotId).name).slice(0,70)}).eq('id',cid);
-      }catch(e){
-        console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',e.message||e);
-        alert('Mesaj Supabase’e kaydedilemedi. LocalStorage kullanılmıyor.');
-        return false;
-      }
+
+  async function saveMsg(role, text) {
+    const cid = await ensureConversation();
+    const db  = getSb();
+    if (db && getCurrentUser() && cid && !cid.startsWith('local-')) {
+      try {
+        await db.from('chatbot_messages').insert({conversation_id:cid, role, content:text});
+        const title = (tempMessages.find(m=>m.role==='user')?.text || botById(activeBotId)?.name||'').slice(0,70);
+        await db.from('chatbot_conversations').update({updated_at:new Date().toISOString(), title}).eq('id', cid);
+      } catch(e) { console.warn('[Baristan] Mesaj kayıt hatası:', e.message); }
     }
-    const bot=botById(activeBotId); const item={id:cid,botId:activeBotId,title:(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70),updatedAt:Date.now(),messages:tempMessages};
-    histCache=[item,...histCache.filter(h=>h.id!==cid)];
-    return true;
+    const bot  = botById(activeBotId);
+    const item = {id:cid, botId:activeBotId,
+      title:(tempMessages.find(m=>m.role==='user')?.text||bot?.name||'').slice(0,70),
+      updatedAt:Date.now()};
+    histCache = [item, ...histCache.filter(h=>h.id!==cid)];
   }
-  async function refresh(){await loadBots();await loadHistory();renderShell();}
-  function botRows(){
-    const visible=botsCache.filter(b=>b.is_active!==false);
-    return visible.map((b,i)=>`<div class="sanal-bot-row ${activeBotId===b.id?'active':''}" onclick="kisiselOpenBot('${esc(b.id)}')"><div class="sanal-bot-icon">${esc(botIcon(b,i))}</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">${esc(b.name)}</div><div class="sanal-bot-desc">${esc(b.description||'Konuşma başlat')}</div></div>${admin()?`<div class="sanal-row-actions"><button class="sanal-mini-btn" onclick="event.stopPropagation();kisiselEditBot('${esc(b.id)}')">✎</button><button class="sanal-mini-btn" onclick="event.stopPropagation();kisiselDeleteBot('${esc(b.id)}')">×</button></div>`:''}</div>`).join('') || '<div class="sanal-empty">Henüz barista yok.</div>';
-  }
-  function historyRows(){
-    if(!histCache.length) return '<div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div>';
-    return histCache.slice(0,18).map(h=>{const b=botById(h.botId);return `<div class="sanal-history-row" onclick="kisiselOpenHistory('${esc(h.id)}')"><div class="sanal-history-icon">${esc(botIcon(b))}</div><div style="min-width:0;flex:1"><div class="sanal-history-title">${esc(h.title||b.name)}</div><div class="sanal-history-meta">${esc(b.name)} · ${timeLabel(h.updatedAt)}</div></div></div>`}).join('');
-  }
-  function starters(bot){const arr=(bot.starters||[]).filter(Boolean);const fb=['Başlamak için beni yönlendir','Hedefimi netleştir','Aklımdakileri toparla','Sonraki adımları çıkar'];return [0,1,2,3].map(i=>arr[i]||fb[i]);}
-  function renderShell(){
-    const root=document.getElementById('sanal-app'); if(!root) return;
-    const bot=botById(activeBotId); activeBotId=bot.id;
-    root.innerHTML=`<div class="sanal-shell"><aside class="sanal-panel"><div class="sanal-panel-head"><div class="sanal-panel-title">Kişisel Baristan</div>${admin()?'<button class="sanal-new-btn" onclick="kisiselNewBot()">+ Yeni Barista</button>':''}</div><div class="sanal-panel-scroll"><div class="sanal-list-label">BARİSTALAR ${botsCache.length}</div>${botRows()}<div class="sanal-list-label" style="margin-top:24px;display:flex;justify-content:space-between;align-items:center"><span>YAKIN ZAMANDAKİLER</span><button onclick="kisiselNewChat()" style="border:0;background:transparent;color:#8B6B4F;font-size:11px;font-weight:700;cursor:pointer">Yeni sohbet</button></div>${historyRows()}</div></aside><main class="sanal-main"><div class="sanal-chat-top"><div class="sanal-bot-icon">${esc(botIcon(bot))}</div><div><div class="sanal-chat-title">${esc(bot.name)}</div><div class="sanal-chat-sub">${esc(bot.description||'Kişisel baristan')}</div></div>${admin()?`<button class="btn btn-ghost" style="margin-left:auto" onclick="kisiselEditBot('${esc(bot.id)}')">Baristayı Düzenle</button>`:''}</div><div class="sanal-stage"><div class="sanal-welcome" id="sanal-welcome"><div class="sanal-welcome-line"><div class="sanal-greet-avatar">${esc(botIcon(bot))}</div><div>Merhaba, ben ${esc(bot.name)}. Bugün nasıl yardımcı olayım?</div></div><div class="sanal-prompt-grid">${starters(bot).map((x,i)=>`<div class="sanal-prompt-card ${i===2?'wide':''}" onclick="kisiselStarter('${esc(x)}')"><div class="sanal-prompt-title">${esc(x)}</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div>`).join('')}</div></div><div class="sanal-messages" id="sanal-messages"></div><div class="sanal-inputbar"><span style="font-size:22px;color:#B9AEA3">+</span><textarea id="sanal-input" placeholder="${esc(bot.name)} ile konuş..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();kisiselSend()}"></textarea><button onclick="kisiselSend()">↑</button></div></div></main></div>`;
-  }
-  function showMessages(){
-    const welcome=document.getElementById('sanal-welcome'), box=document.getElementById('sanal-messages');
-    if(welcome) welcome.style.display='none'; if(box) box.style.display='flex'; if(!box)return;
-    box.innerHTML=tempMessages.map((m,i)=>`<div class="sanal-msg ${m.role==='user'?'user':'assistant'}">${esc(m.text)}${m.role==='assistant'?`<div class="sanal-msg-copy" onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(m.text).replace(/</g,'\\u003c')})">▢ Copy</div>`:''}</div>`).join('');
-    box.scrollTop=box.scrollHeight;
-  }
-  async function assistantReply(text){
-    const bot=botById(activeBotId);
-    if(window.CHATBOT_CHAT_FN||typeof CHATBOT_CHAT_FN!=='undefined'){
-      try{
-        const fn=window.CHATBOT_CHAT_FN||CHATBOT_CHAT_FN;
-        const key=window.SUPABASE_KEY||SUPABASE_KEY;
-        const res=await fetch(fn,{
+
+  async function assistantReply(text) {
+    const bot = botById(activeBotId);
+    if (window.CHATBOT_CHAT_FN || typeof CHATBOT_CHAT_FN !== 'undefined') {
+      try {
+        const fn  = window.CHATBOT_CHAT_FN || CHATBOT_CHAT_FN;
+        const key = window.SUPABASE_KEY    || SUPABASE_KEY;
+        const res = await fetch(fn, {
           method:'POST',
           headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-          body:JSON.stringify({chatbot_id:bot.id,session_id:activeThreadId,user_id:getCurrentUser()?.email||userKey(),message:text})
+          body:JSON.stringify({chatbot_id:bot?.id, session_id:activeThreadId,
+            user_id:getCurrentUser()?.email||userKey(), message:text})
         });
-        const data=await res.json();
-        if(data.reply) return data.reply;
-      }catch(e){}
+        const data = await res.json();
+        if (data.reply) return data.reply;
+      } catch(e) {}
     }
-    return `${bot.name} olarak not aldım.\n\nŞunu netleştirelim: ${text}\n\nBurada amaç seni ikna etmek değil; doğru soruyla zaten bildiğin cevabı ortaya çıkarmak. Şimdi bunu tek net aksiyona indirelim.`;
+    return `${bot?.name||'Barista'} olarak not aldım.\n\nŞunu netleştirelim: ${text}\n\nBurada amaç seni ikna etmek değil; doğru soruyla zaten bildiğin cevabı ortaya çıkarmak. Şimdi bunu tek net aksiyona indirelim.`;
   }
-  window.kisiselOpenBot=function(id){activeBotId=id;activeThreadId=null;tempMessages=[];renderShell();};
-  window.kisiselNewChat=function(){activeThreadId=null;tempMessages=[];renderShell();};
-  window.kisiselOpenHistory=async function(id){const h=histCache.find(x=>x.id===id); if(!h)return; activeBotId=h.botId; activeThreadId=h.id; tempMessages=await loadMessages(id); renderShell(); setTimeout(showMessages,0);};
-  window.kisiselStarter=function(text){const inp=document.getElementById('sanal-input'); if(inp){inp.value=text;window.kisiselSend();}};
-  window.kisiselSend=async function(){const inp=document.getElementById('sanal-input'); if(!inp)return; const text=inp.value.trim(); if(!text)return; inp.value=''; tempMessages.push({role:'user',text}); showMessages(); const userSaved=await saveMsg('user',text); if(!userSaved)return; const reply=await assistantReply(text); tempMessages.push({role:'assistant',text:reply}); showMessages(); const assistantSaved=await saveMsg('assistant',reply); if(!assistantSaved)return; await loadHistory(); renderShell(); setTimeout(showMessages,0);};
-  function requireAdminAction(){if(admin())return true;alert('Bu alan sadece admin tarafından düzenlenebilir.');return false;}
-  function botExportPayload(bot){
-    const b=bot||botById(activeBotId);
-    return {name:b.name||'',icon:botIcon(b),description:b.description||'',system_prompt:b.system_prompt||'',starters:starters(b),is_active:b.is_active!==false};
+
+  /* ── Lookup ─────────────────────────────────────────────────── */
+  function botById(id) { return botsCache.find(b=>b.id===id) || botsCache[0] || null; }
+
+  /* ── Render: sidebar rows ───────────────────────────────────── */
+  function botRows() {
+    if (!botsCache.length) return '<div class="sanal-empty">Henüz barista yok.</div>';
+    return botsCache.map(b => `
+      <div class="sanal-bot-row${activeBotId===b.id?' active':''}" onclick="kisiselOpenBot('${esc(b.id)}')">
+        <div class="sanal-bot-icon">${esc(botIcon(b))}</div>
+        <div style="min-width:0;flex:1">
+          <div class="sanal-bot-name">${esc(b.name)}</div>
+          <div class="sanal-bot-desc">${esc(b.description||'Konuşma başlat')}</div>
+        </div>
+        ${isAdmin()?`<div class="sanal-row-actions">
+          <button class="sanal-mini-btn" onclick="event.stopPropagation();kisiselEditBot('${esc(b.id)}')">✎</button>
+          <button class="sanal-mini-btn" onclick="event.stopPropagation();kisiselDeleteBot('${esc(b.id)}')">×</button>
+        </div>`:''}
+      </div>`).join('');
   }
-  window.kisiselNewBot=function(){if(!requireAdminAction())return;renderEditor();};
-  window.kisiselEditBot=function(id){if(!requireAdminAction())return;renderEditor(botById(id));};
-  window.kisiselDeleteBot=async function(id){if(!requireAdminAction())return;if(!confirm('Bu barista pasife alınsın mı?'))return; await deactivateBot(id); activeBotId=(botsCache.find(b=>b.is_active!==false)||botsCache[0]||defaults[0]).id; renderShell();};
-  function renderEditor(bot){
-    const root=document.getElementById('sanal-app'); if(!root)return; const qs=bot?.starters||[];
-    const sample=JSON.stringify(botExportPayload(bot||{}),null,2);
-    root.innerHTML=`<div style="height:100%;overflow:auto;padding:32px"><div class="sanal-editor"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div class="sanal-editor-title">${bot?'Baristayı Düzenle':'Yeni Barista Oluştur'}</div><div style="font-size:11px;color:#8B6B4F;background:#F7F3ED;border:1px solid rgba(33,26,20,.10);border-radius:999px;padding:5px 10px">SUPABASE_FIX_V3</div></div><div class="sanal-editor-grid"><div><small>Kahve İkonu</small><input id="sanal-ed-icon" value="${esc(bot?.icon||'☕')}" style="width:64px;font-size:24px;text-align:center;background:#EFE7DD;border:1px solid rgba(26,21,16,.10);border-radius:13px;padding:8px;color:#1A1510"></div><div><small>Barista Adı</small><input id="sanal-ed-name" class="form-input" value="${esc(bot?.name||'')}" placeholder="örn. Campaign Coach"></div></div><div style="margin-bottom:12px"><small>Kısa Açıklama</small><input id="sanal-ed-desc" class="form-input" value="${esc(bot?.description||'')}" placeholder="Kullanıcının göreceği kısa açıklama"></div><div style="margin-bottom:12px"><small>Sistem Promptu / Yapay Zeka Talimatı</small><textarea id="sanal-ed-prompt" class="form-input" rows="7" placeholder="Bu barista nasıl davranacak? Hangi konuda uzman olacak?">${esc(bot?.system_prompt||'')}</textarea></div><div style="margin-bottom:12px"><small>Konuşma Başlatıcılar</small>${[0,1,2,3].map(i=>`<input id="sanal-ed-st-${i}" class="form-input" style="margin-bottom:7px" value="${esc(qs[i]||'')}" placeholder="Başlatıcı ${i+1}">`).join('')}</div><div style="display:flex;align-items:center;gap:9px;margin-bottom:16px"><input id="sanal-ed-active" type="checkbox" ${bot?.is_active!==false?'checked':''} style="width:16px;height:16px;accent-color:#6E5E51"><label for="sanal-ed-active" style="font-size:13px;color:#5C4B38;cursor:pointer">Aktif — kullanıcılar görebilir ve konuşabilir</label></div><div class="sanal-editor-actions"><button class="btn btn-primary" onclick="kisiselSaveBot('${esc(bot?.id||'')}')">Kaydet</button><button class="btn btn-ghost" onclick="kisiselRender()">İptal</button></div><div class="sanal-import-box"><div class="sanal-import-head"><div class="sanal-import-title">JSON ile içe aktar / dışa aktar</div><button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="kisiselExportBot()">Dışa Aktar</button></div><div class="sanal-import-help">Başka yerde hazırladığın chatbot/barista konfigürasyonunu buraya yapıştırıp alanlara aktarabilirsin. Desteklenen alanlar: name, icon, description, system_prompt, starters, is_active.</div><textarea id="sanal-ed-import" class="form-input" placeholder='${esc(sample)}'></textarea><div class="sanal-editor-actions" style="margin-top:10px"><button class="btn btn-ghost" onclick="kisiselImportBot()">JSON'u Alanlara Aktar</button></div></div></div></div>`;
+
+  function historyRows() {
+    if (!histCache.length) return '<div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div>';
+    return histCache.slice(0,18).map(h => {
+      const b = botById(h.botId) || {name:'?',avatar_emoji:'☕'};
+      return `<div class="sanal-history-row" onclick="kisiselOpenHistory('${esc(h.id)}')">
+        <div class="sanal-history-icon">${esc(botIcon(b))}</div>
+        <div style="min-width:0;flex:1">
+          <div class="sanal-history-title">${esc(h.title||b.name)}</div>
+          <div class="sanal-history-meta">${esc(b.name)} · ${timeLabel(h.updatedAt)}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
-  window.kisiselImportBot=function(){
-    if(!requireAdminAction())return;
-    const raw=document.getElementById('sanal-ed-import')?.value.trim();
-    if(!raw){alert('Önce JSON konfigürasyonunu yapıştır.');return;}
-    let data;try{data=JSON.parse(raw)}catch(e){alert('JSON okunamadı. Virgül, tırnak ve köşeli parantezleri kontrol et.');return;}
-    const first=Array.isArray(data)?data[0]:data;
-    if(!first||typeof first!=='object'){alert('Geçerli bir barista objesi bulunamadı.');return;}
-    document.getElementById('sanal-ed-name').value=first.name||first.title||'';
-    document.getElementById('sanal-ed-icon').value=first.icon||first.emoji||'☕';
-    document.getElementById('sanal-ed-desc').value=first.description||first.desc||'';
-    document.getElementById('sanal-ed-prompt').value=first.system_prompt||first.prompt||first.instructions||'';
-    const importedStarters=first.starters||first.starter_questions||first.openers||[];
-    [0,1,2,3].forEach(i=>{const el=document.getElementById('sanal-ed-st-'+i);if(el)el.value=importedStarters[i]||'';});
-    document.getElementById('sanal-ed-active').checked=first.is_active!==false;
+
+  /* ── Render: starter cards (Supabase only, no fallback) ─────── */
+  function starterCardsHtml(botId) {
+    const starters = getStarters(botId);
+    if (!starters.length) return '';
+    return `<div class="sanal-prompt-grid">${starters.map((s,i) => `
+      <div class="sanal-prompt-card${i===2?' wide':''}" onclick="kisiselStarter('${esc(s.prompt||s.title)}')">
+        <div class="sanal-prompt-title">${esc(s.title)}</div>
+        <div class="sanal-prompt-type">Başlat</div>
+        <div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div>
+      </div>`).join('')}</div>`;
+  }
+
+  /* ── Render: shell ──────────────────────────────────────────── */
+  function renderShell() {
+    const root = document.getElementById('sanal-app'); if (!root) return;
+    const bot  = botById(activeBotId);
+    if (!bot) {
+      root.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;
+        height:100%;color:#B6AB9F;font-size:14px">
+        ${getSb()?'Barista bulunamadı.':'Supabase bağlantısı gerekli.'}</div>`;
+      return;
+    }
+    root.innerHTML = `
+      <div class="sanal-shell">
+        <aside class="sanal-panel">
+          <div class="sanal-panel-head">
+            <div class="sanal-panel-title">Kişisel Baristan</div>
+            ${isAdmin()?'<button class="sanal-new-btn" onclick="kisiselNewBot()">+ Yeni Barista</button>':''}
+          </div>
+          <div class="sanal-panel-scroll">
+            <div class="sanal-list-label">BARİSTALAR ${botsCache.length}</div>
+            ${botRows()}
+            <div class="sanal-list-label" style="margin-top:24px;display:flex;align-items:center;justify-content:space-between">
+              <span>YAKIN ZAMANDAKİLER</span>
+              <button onclick="kisiselNewChat()" style="border:0;background:transparent;color:#8B6B4F;font-size:11px;font-weight:700;cursor:pointer">Yeni sohbet</button>
+            </div>
+            ${historyRows()}
+          </div>
+        </aside>
+        <main class="sanal-main">
+          <div class="sanal-chat-top">
+            <div class="sanal-bot-icon">${esc(botIcon(bot))}</div>
+            <div>
+              <div class="sanal-chat-title">${esc(bot.name)}</div>
+              <div class="sanal-chat-sub">${esc(bot.description||'')}</div>
+            </div>
+            ${isAdmin()?`<button class="btn btn-ghost" style="margin-left:auto" onclick="kisiselEditBot('${esc(bot.id)}')">Düzenle</button>`:''}
+          </div>
+          <div class="sanal-stage">
+            <div class="sanal-welcome" id="sanal-welcome">
+              <div class="sanal-welcome-line">
+                <div class="sanal-greet-avatar">${esc(botIcon(bot))}</div>
+                <div>Merhaba, ben ${esc(bot.name)}. Bugün nasıl yardımcı olayım?</div>
+              </div>
+              ${starterCardsHtml(bot.id)}
+            </div>
+            <div class="sanal-messages" id="sanal-messages"></div>
+            <div class="sanal-inputbar">
+              <span style="font-size:22px;color:#B9AEA3">+</span>
+              <textarea id="sanal-input" placeholder="${esc(bot.name)} ile konuş..." rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();kisiselSend()}"></textarea>
+              <button onclick="kisiselSend()">↑</button>
+            </div>
+          </div>
+        </main>
+      </div>`;
+  }
+
+  function showMessages() {
+    const welcome = document.getElementById('sanal-welcome');
+    const box     = document.getElementById('sanal-messages');
+    if (welcome) welcome.style.display = 'none';
+    if (!box) return;
+    box.style.display = 'flex';
+    box.innerHTML = tempMessages.map(m => `
+      <div class="sanal-msg ${m.role==='user'?'user':'assistant'}">${esc(m.text)}
+        ${m.role==='assistant'?`<div class="sanal-msg-copy"
+          onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(m.text).replace(/</g,'\\u003c')})">▢ Kopyala</div>`:''}
+      </div>`).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ── Refresh ────────────────────────────────────────────────── */
+  async function refresh() {
+    await loadBots();
+    await loadHistory();
+    if (activeBotId) await loadStarters(activeBotId);
+    renderShell();
+  }
+
+  /* ── Admin: editor ──────────────────────────────────────────── */
+  function requireAdmin() {
+    if (isAdmin()) return true;
+    alert('Bu alan sadece admin tarafından düzenlenebilir.');
+    return false;
+  }
+
+  function starterItemHtml(s, i) {
+    return `<div class="ked-starter-item" data-id="${esc(s.id||genUuid())}" draggable="true">
+      <div class="ked-starter-drag" title="Sürükle">⠿</div>
+      <div class="ked-starter-fields">
+        <input class="form-input ked-st-title" placeholder="Başlık (kullanıcının gördüğü)"
+          value="${esc(s.title||'')}">
+        <input class="form-input ked-st-prompt" placeholder="Prompt — boş bırakırsan başlık kullanılır"
+          value="${esc(s.prompt||s.title||'')}">
+      </div>
+      <button class="ked-starter-del" onclick="kisiselEditorRemoveStarter(this)" title="Sil">×</button>
+    </div>`;
+  }
+
+  function renderEditor(bot) {
+    const root = document.getElementById('sanal-app'); if (!root) return;
+    const existingStarters = getStarters(bot?.id||'');
+    root.innerHTML = `
+      <div style="height:100%;overflow-y:auto;padding:32px">
+        <div class="sanal-editor">
+          <div class="sanal-editor-title">${bot?'Baristayı Düzenle':'Yeni Barista Oluştur'}</div>
+          <div class="sanal-editor-grid">
+            <div>
+              <small>İkon</small>
+              <input id="ked-icon" value="${esc(botIcon(bot)||'☕')}"
+                style="width:64px;font-size:24px;text-align:center;background:#EFE7DD;
+                border:1px solid rgba(26,21,16,.10);border-radius:13px;padding:8px;color:#1A1510">
+            </div>
+            <div>
+              <small>Barista Adı</small>
+              <input id="ked-name" class="form-input" value="${esc(bot?.name||'')}" placeholder="örn. Campaign Coach">
+            </div>
+          </div>
+          <div style="margin-bottom:12px">
+            <small>Kısa Açıklama</small>
+            <input id="ked-desc" class="form-input" value="${esc(bot?.description||'')}"
+              placeholder="Kullanıcının göreceği kısa açıklama">
+          </div>
+          <div style="margin-bottom:12px">
+            <small>Sistem Promptu</small>
+            <textarea id="ked-prompt" class="form-input" rows="6"
+              placeholder="Bu barista nasıl davranacak?">${esc(bot?.system_prompt||'')}</textarea>
+          </div>
+          <div style="margin-bottom:18px;display:flex;align-items:center;gap:9px">
+            <input id="ked-active" type="checkbox" ${bot?.is_active!==false?'checked':''}
+              style="width:16px;height:16px;accent-color:#6E5E51">
+            <label for="ked-active" style="font-size:13px;color:#5C4B38;cursor:pointer">
+              Aktif — kullanıcılar görebilir ve konuşabilir
+            </label>
+          </div>
+
+          <!-- Starters -->
+          <div class="ked-starters-section">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <small style="font-size:12px;font-weight:700;color:#6E5E51;text-transform:uppercase;letter-spacing:.5px">
+                Konuşma Başlatıcılar
+              </small>
+            </div>
+            <div id="ked-starters-list" class="ked-starter-list">
+              ${existingStarters.map((s,i)=>starterItemHtml(s,i)).join('')
+                || '<div class="ked-starter-empty">Henüz başlatıcı yok.</div>'}
+            </div>
+            <button class="ked-add-starter-btn" onclick="kisiselEditorAddStarter()">+ Başlatıcı Ekle</button>
+          </div>
+
+          <div class="sanal-editor-actions" style="margin-top:20px">
+            <button class="btn btn-primary" id="ked-save-btn" onclick="kisiselSaveBot('${esc(bot?.id||'')}')">Kaydet</button>
+            <button class="btn btn-ghost" onclick="kisiselRender()">İptal</button>
+          </div>
+        </div>
+      </div>`;
+    initStarterDnD();
+  }
+
+  function initStarterDnD() {
+    const list = document.getElementById('ked-starters-list'); if (!list) return;
+    let dragEl = null;
+    list.addEventListener('dragstart', e => {
+      dragEl = e.target.closest('.ked-starter-item');
+      if (dragEl) { setTimeout(()=>dragEl.classList.add('dragging'),0); e.dataTransfer.effectAllowed='move'; }
+    });
+    list.addEventListener('dragend', () => {
+      if (dragEl) { dragEl.classList.remove('dragging'); dragEl=null; }
+      list.querySelectorAll('.ked-starter-item').forEach(el=>el.classList.remove('drag-over'));
+    });
+    list.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect='move';
+      const over = e.target.closest('.ked-starter-item');
+      if (!over || over===dragEl) return;
+      list.querySelectorAll('.ked-starter-item').forEach(el=>el.classList.remove('drag-over'));
+      over.classList.add('drag-over');
+      const rect = over.getBoundingClientRect();
+      list.insertBefore(dragEl, e.clientY>rect.top+rect.height/2 ? over.nextSibling : over);
+    });
+  }
+
+  window.kisiselEditorAddStarter = function() {
+    const list = document.getElementById('ked-starters-list'); if (!list) return;
+    const empty = list.querySelector('.ked-starter-empty'); if (empty) empty.remove();
+    const i = list.querySelectorAll('.ked-starter-item').length;
+    const div = document.createElement('div');
+    div.innerHTML = starterItemHtml({id:genUuid(),title:'',prompt:''}, i);
+    list.appendChild(div.firstElementChild);
+    initStarterDnD();
+    list.lastElementChild?.querySelector('.ked-st-title')?.focus();
   };
-  window.kisiselExportBot=function(){
-    const payload={name:document.getElementById('sanal-ed-name').value.trim(),icon:document.getElementById('sanal-ed-icon').value.trim()||'☕',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked};
-    const box=document.getElementById('sanal-ed-import');if(box)box.value=JSON.stringify(payload,null,2);
+
+  window.kisiselEditorRemoveStarter = function(btn) {
+    const item = btn.closest('.ked-starter-item'); if (!item) return;
+    const list = document.getElementById('ked-starters-list');
+    item.remove();
+    if (list && !list.querySelector('.ked-starter-item'))
+      list.innerHTML = '<div class="ked-starter-empty">Henüz başlatıcı yok.</div>';
   };
-  window.kisiselSaveBot=async function(id){
-    if(!requireAdminAction())return;
-    const btn=(typeof event!=='undefined'&&event?.target)||document.querySelector('.sanal-editor-actions .btn-primary');
-    if(btn){btn.disabled=true;btn.textContent='Kaydediliyor...';}
-    const finishError=(msg)=>{alert(msg);if(btn){btn.disabled=false;btn.textContent='Kaydet';}};
-    const name=document.getElementById('sanal-ed-name').value.trim();
-    if(!name){finishError('Barista adı gerekli.');return;}
-    const existingId=isUuid(id)?id:'';
-    const item=normalizeBot({id:existingId||uid('barista'),name,icon:document.getElementById('sanal-ed-icon').value.trim()||'☕',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked,sort_order:existingId?(botById(existingId).sort_order||0):botsCache.length+1,status:document.getElementById('sanal-ed-active').checked?'active':'inactive'});
-    const saved=await Promise.race([
-      saveBotToDb(item),
-      new Promise(resolve=>setTimeout(()=>{window.__lastKisiselBaristanError='Kaydetme işlemi 9 saniyede tamamlanmadı.';resolve(false);},9000))
-    ]);
-    if(!saved){finishError('Supabase kaydı başarısız oldu: '+(window.__lastKisiselBaristanError||'RLS/kolon izinlerini kontrol et.'));return;}
-    botsCache=existingId?botsCache.map(b=>b.id===existingId?{...b,...item}:b):[...botsCache,item];
-    activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
+
+  function readStartersFromEditor() {
+    const list = document.getElementById('ked-starters-list'); if (!list) return [];
+    return Array.from(list.querySelectorAll('.ked-starter-item')).map((el,i) => ({
+      id:         el.dataset.id && !el.dataset.id.startsWith('tmp') ? el.dataset.id : genUuid(),
+      title:      el.querySelector('.ked-st-title')?.value.trim()  || '',
+      prompt:     el.querySelector('.ked-st-prompt')?.value.trim() || '',
+      sort_order: i
+    })).filter(s => s.title);
+  }
+
+  /* ── Save bot + starters ────────────────────────────────────── */
+  window.kisiselSaveBot = async function(id) {
+    if (!requireAdmin()) return;
+    const btn = document.getElementById('ked-save-btn');
+    const setBtn = (txt, dis) => { if (btn) { btn.textContent=txt; btn.disabled=dis; } };
+    const done = err => { setBtn('Kaydet', false); if (err) alert(err); };
+    setBtn('Kaydediliyor…', true);
+
+    const name = document.getElementById('ked-name')?.value.trim();
+    if (!name) { done('Barista adı gerekli.'); return; }
+
+    const existingId = validUuid(id) ? id : '';
+    const botData = {
+      id:           existingId || genUuid(),
+      name,
+      description:  document.getElementById('ked-desc')?.value.trim()   || '',
+      system_prompt:document.getElementById('ked-prompt')?.value.trim()  || '',
+      avatar_emoji: document.getElementById('ked-icon')?.value.trim()    || '☕',
+      is_active:    document.getElementById('ked-active')?.checked !== false,
+      sort_order:   existingId ? (botById(existingId)?.sort_order||0) : botsCache.length+1
+    };
+    const starters = readStartersFromEditor().map((s,i) => ({...s, chatbot_id:botData.id, sort_order:i}));
+
+    const botRes = await saveBotToDb(botData);
+    if (!botRes.ok) { done('Bot kaydı başarısız: '+botRes.error); return; }
+
+    const stRes = await saveStartersToDb(botData.id, starters);
+    if (!stRes.ok) { done('Starter kaydı başarısız: '+stRes.error); return; }
+
+    botsCache      = existingId
+      ? botsCache.map(b => b.id===existingId ? {...b,...botData} : b)
+      : [...botsCache, botData];
+    startersCache[botData.id] = starters;
+    activeBotId = botData.id; activeThreadId = null; tempMessages = [];
+    done();
+    renderShell();
   };
-  window.kisiselRender=function(){renderShell();};
-  window.sanalOpenBot=window.kisiselOpenBot; window.sanalOpenHistory=window.kisiselOpenHistory; window.sanalStarter=window.kisiselStarter; window.sanalSend=window.kisiselSend; window.sanalNewBot=window.kisiselNewBot; window.sanalEditBot=window.kisiselEditBot; window.sanalDeleteBot=window.kisiselDeleteBot; window.sanalRender=window.kisiselRender;
-  const oldGo=window.go; window.go=function(page,el){const r=oldGo?oldGo.apply(this,arguments):undefined;if(page==='sanal')setTimeout(refresh,0);return r;};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,700));else setTimeout(refresh,700);
+
+  /* ── Public window API ──────────────────────────────────────── */
+  window.kisiselOpenBot = async function(id) {
+    activeBotId = id; activeThreadId = null; tempMessages = [];
+    if (!startersCache[id]) await loadStarters(id);
+    renderShell();
+  };
+  window.kisiselNewChat = function() { activeThreadId=null; tempMessages=[]; renderShell(); };
+  window.kisiselOpenHistory = async function(id) {
+    const h = histCache.find(x=>x.id===id); if (!h) return;
+    activeBotId=h.botId; activeThreadId=h.id;
+    tempMessages = await loadMessages(id);
+    if (!startersCache[activeBotId]) await loadStarters(activeBotId);
+    renderShell(); setTimeout(showMessages, 0);
+  };
+  window.kisiselStarter = function(prompt) {
+    const inp = document.getElementById('sanal-input');
+    if (inp) { inp.value = prompt; window.kisiselSend(); }
+  };
+  window.kisiselSend = async function() {
+    const inp = document.getElementById('sanal-input'); if (!inp) return;
+    const text = inp.value.trim(); if (!text) return;
+    inp.value = '';
+    tempMessages.push({role:'user', text}); showMessages();
+    await saveMsg('user', text);
+    const reply = await assistantReply(text);
+    tempMessages.push({role:'assistant', text:reply}); showMessages();
+    await saveMsg('assistant', reply);
+    await loadHistory(); renderShell(); setTimeout(showMessages, 0);
+  };
+  window.kisiselNewBot    = function() { if (!requireAdmin()) return; renderEditor(); };
+  window.kisiselEditBot   = function(id) { if (!requireAdmin()) return; renderEditor(botById(id)); };
+  window.kisiselDeleteBot = async function(id) {
+    if (!requireAdmin()) return;
+    if (!confirm('Bu barista pasife alınsın mı?')) return;
+    await deactivateBot(id);
+    activeBotId = botsCache[0]?.id||null;
+    renderShell();
+  };
+  window.kisiselRender = function() { renderShell(); };
+
+  /* Alias → first IIFE's sanalXxx stays mapped to kisisel */
+  window.sanalOpenBot=window.kisiselOpenBot; window.sanalOpenHistory=window.kisiselOpenHistory;
+  window.sanalStarter=window.kisiselStarter; window.sanalSend=window.kisiselSend;
+  window.sanalNewBot=window.kisiselNewBot;   window.sanalEditBot=window.kisiselEditBot;
+  window.sanalDeleteBot=window.kisiselDeleteBot; window.sanalRender=window.kisiselRender;
+
+  /* Navigation hook */
+  const _oldGo = window.go;
+  window.go = function(page, el) {
+    const r = _oldGo ? _oldGo.apply(this, arguments) : undefined;
+    if (page === 'sanal') setTimeout(refresh, 0);
+    return r;
+  };
+
+  /* Init */
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', () => setTimeout(refresh, 700));
+  else
+    setTimeout(refresh, 700);
 })();
+
 
 /* Ders detayını indirilebilir kaynaklar bölümüyle yeniden çiz */
 (function(){
