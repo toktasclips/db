@@ -13689,8 +13689,10 @@ async function deleteForumPost(id) {
     }
     return (histCache.find(h=>h.id===threadId)?.messages)||[];
   }
+  function genUuid(){try{return crypto.randomUUID();}catch(e){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});}}
+  function validUuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||''));}
   async function saveBotToDb(item){
-    item.id=ensureUuid(item.id);
+    if(!validUuid(item.id)) item.id=genUuid();
     const db=getSb();
     if(!db){window.__lastKisiselBaristanError='Supabase client bulunamadı.';return false;}
     const payload={
@@ -13847,11 +13849,14 @@ async function deleteForumPost(id) {
     if(!name){finishError('Barista adı gerekli.');return;}
     const existingId=isUuid(id)?id:'';
     const item=normalizeBot({id:existingId||uid('barista'),name,icon:document.getElementById('sanal-ed-icon').value.trim()||'☕',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked,sort_order:existingId?(botById(existingId).sort_order||0):botsCache.length+1,status:document.getElementById('sanal-ed-active').checked?'active':'inactive'});
-    const saved=await Promise.race([
-      saveBotToDb(item),
-      new Promise(resolve=>setTimeout(()=>{window.__lastKisiselBaristanError='Kaydetme işlemi 9 saniyede tamamlanmadı.';resolve(false);},9000))
-    ]);
-    if(!saved){finishError('Supabase kaydı başarısız oldu: '+(window.__lastKisiselBaristanError||'RLS/kolon izinlerini kontrol et.'));return;}
+    let saved=false;
+    try{
+      saved=await Promise.race([
+        saveBotToDb(item),
+        new Promise(resolve=>setTimeout(()=>{window.__lastKisiselBaristanError='Kaydetme işlemi 9 saniyede tamamlanmadı.';resolve(false);},9000))
+      ]);
+    }catch(e){window.__lastKisiselBaristanError=e.message||String(e);}
+    if(!saved){finishError('Supabase kaydı başarısız oldu: '+(window.__lastKisiselBaristanError||'Hata mesajı yok — konsolu kontrol et.'));return;}
     botsCache=existingId?botsCache.map(b=>b.id===existingId?{...b,...item}:b):[...botsCache,item];
     activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
