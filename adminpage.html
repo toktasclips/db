@@ -13525,11 +13525,8 @@ async function deleteForumPost(id) {
     const item={id:id||uid('bot'),name,emoji:document.getElementById('sanal-ed-emoji').value.trim()||'✦',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked};
     let bots=getBots(); bots=id?bots.map(b=>b.id===id?{...b,...item}:b):[...bots,item]; saveBots(bots); activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
-  window.sanalRender=function(){ renderShell(); };
-  function init(){ if(document.getElementById('page-sanal')?.classList.contains('active')) renderShell(); }
-  const oldGo=window.go;
-  window.go=function(page,el){ const r=oldGo?oldGo.apply(this,arguments):undefined; if(page==='sanal') setTimeout(renderShell,0); return r; };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300)); else setTimeout(init,300);
+  window.sanalRender=function(){ /* rendering owned by kisisel IIFE below */ };
+  /* init/go render removed — kisisel IIFE owns all #sanal-app rendering */
 })();
 </script>
 
