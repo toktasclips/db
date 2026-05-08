@@ -3378,7 +3378,7 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
 
 
     <!-- ===== SANAL MEHMET ===== -->
-    <div class="page active" id="page-sanal" style="max-width:none;padding:0;display:flex;flex-direction:column;height:100vh;overflow:hidden">
+    <div class="page active" id="page-sanal" style="max-width:none;padding:0">
       <div id="sanal-app"><div class="sanal-shell"><aside class="sanal-panel"><div class="sanal-panel-head"><div class="sanal-panel-title">Kişisel Baristan</div></div><div class="sanal-panel-scroll"><div class="sanal-list-label">BARİSTALAR 3</div><div class="sanal-bot-row active" onclick="kisiselOpenBot(&#39;ffcffe6d-e61b-4534-b59f-b4247156fa42&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">7 Günlük Kampanya Kurgusu</div><div class="sanal-bot-desc">Geliştiriliyor...</div></div></div><div class="sanal-bot-row " onclick="kisiselOpenBot(&#39;7e987a08-0fb7-4a54-a7ba-9c447b8eef38&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">Holistik Story Kurgusu</div><div class="sanal-bot-desc">Geliştiriliyor...</div></div></div><div class="sanal-bot-row " onclick="kisiselOpenBot(&#39;ac320a53-9692-4cc9-a0ae-7eccd3290433&#39;)"><div class="sanal-bot-icon">🤖</div><div style="min-width:0;flex:1"><div class="sanal-bot-name">Oto Müşteri İçeriği</div><div class="sanal-bot-desc">Konuşma başlat</div></div></div><div class="sanal-list-label" style="margin-top:24px;display:flex;justify-content:space-between;align-items:center"><span>YAKIN ZAMANDAKİLER</span><button onclick="kisiselNewChat()" style="border:0;background:transparent;color:#8B6B4F;font-size:11px;font-weight:700;cursor:pointer">Yeni sohbet</button></div><div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div></div></aside><main class="sanal-main"><div class="sanal-chat-top"><div class="sanal-bot-icon">🤖</div><div><div class="sanal-chat-title">7 Günlük Kampanya Kurgusu</div><div class="sanal-chat-sub">Geliştiriliyor...</div></div></div><div class="sanal-stage"><div class="sanal-welcome" id="sanal-welcome"><div class="sanal-welcome-line"><div class="sanal-greet-avatar">🤖</div><div>Merhaba, ben 7 Günlük Kampanya Kurgusu. Bugün nasıl yardımcı olayım?</div></div><div class="sanal-prompt-grid"><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Başlamak için beni yönlendir&#39;)"><div class="sanal-prompt-title">Başlamak için beni yönlendir</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Hedefimi netleştir&#39;)"><div class="sanal-prompt-title">Hedefimi netleştir</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card wide" onclick="kisiselStarter(&#39;Aklımdakileri toparla&#39;)"><div class="sanal-prompt-title">Aklımdakileri toparla</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div><div class="sanal-prompt-card " onclick="kisiselStarter(&#39;Sonraki adımları çıkar&#39;)"><div class="sanal-prompt-title">Sonraki adımları çıkar</div><div class="sanal-prompt-type">Başlat</div><div class="sanal-prompt-desc">Bu başlıkla yeni konuşma aç.</div></div></div></div><div class="sanal-messages" id="sanal-messages"></div><div class="sanal-inputbar"><span style="font-size:22px;color:#B9AEA3">+</span><textarea id="sanal-input" placeholder="7 Günlük Kampanya Kurgusu ile konuş..." rows="1" onkeydown="if(event.key===&#39;Enter&#39;&amp;&amp;!event.shiftKey){event.preventDefault();kisiselSend()}"></textarea><button onclick="kisiselSend()">↑</button></div></div></main></div></div>
     </div>
 
@@ -13471,7 +13471,9 @@ async function deleteForumPost(id) {
     }).join('');
   }
   function starters(bot){
-    return (bot.starters||[]).filter(Boolean);
+    const arr=(bot.starters||[]).filter(Boolean);
+    const fallback=['Ne üzerinde çalışmak istediğimi netleştir','Bugün işimde en önemli aksiyon ne?','Bu fikri satışa bağla','Bana sonraki adımları çıkar'];
+    return [0,1,2,3].map(i=>arr[i]||fallback[i]);
   }
   function renderShell(){
     const root=document.getElementById('sanal-app'); if(!root) return;
@@ -13524,7 +13526,10 @@ async function deleteForumPost(id) {
     let bots=getBots(); bots=id?bots.map(b=>b.id===id?{...b,...item}:b):[...bots,item]; saveBots(bots); activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
   window.sanalRender=function(){ renderShell(); };
-  /* Second IIFE handles all sanal rendering — first IIFE just provides fallback localStorage functions */
+  function init(){ if(document.getElementById('page-sanal')?.classList.contains('active')) renderShell(); }
+  const oldGo=window.go;
+  window.go=function(page,el){ const r=oldGo?oldGo.apply(this,arguments):undefined; if(page==='sanal') setTimeout(renderShell,0); return r; };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,300)); else setTimeout(init,300);
 })();
 </script>
 
@@ -13534,20 +13539,9 @@ async function deleteForumPost(id) {
 /* ============================================================
    FINAL PATCH — Kişisel Baristan + gray chat + resources
    ============================================================ */
-/* ── Layout fix: override page-width constraint for sanal app ─────────── */
-#page-sanal{
-  display:flex!important;flex-direction:column!important;
-  height:100vh!important;max-height:100vh!important;
-  padding:0!important;margin:0!important;overflow:hidden!important;
-  background:#F7F3ED!important;
-}
-/* Override the .page>*:not(.page-head) width+margin constraint for sanal-app */
-#page-sanal>#sanal-app,
-#sanal-app{
-  flex:1!important;width:100%!important;height:auto!important;min-height:0!important;
-  margin:0!important;background:#F7F3ED!important;
-}
-.sanal-shell{display:grid!important;grid-template-columns:330px 1fr!important;height:100%!important;background:#F7F3ED!important;}
+#page-sanal{background:#F7F3ED!important;}
+#sanal-app{height:100vh!important;min-height:720px!important;background:#F7F3ED!important;}
+.sanal-shell{grid-template-columns:330px 1fr!important;background:#F7F3ED!important;}
 .sanal-panel{background:#FFFFFF!important;border-right:1px solid rgba(33,26,20,.09)!important;}
 .sanal-panel-head{height:74px!important;padding:0 20px!important;background:#FFFFFF!important;}
 .sanal-panel-title{font-family:var(--font-serif)!important;font-size:22px!important;font-weight:500!important;color:#211A14!important;letter-spacing:-.6px!important;}
@@ -13566,11 +13560,7 @@ async function deleteForumPost(id) {
 .sanal-chat-top{height:74px!important;background:#FFFFFF!important;border-bottom:1px solid rgba(33,26,20,.09)!important;padding:0 28px!important;}
 .sanal-chat-title{font-family:var(--font-serif)!important;font-size:18px!important;font-weight:500!important;color:#211A14!important;letter-spacing:-.35px!important;}
 .sanal-chat-sub{font-size:11.5px!important;color:#A2968B!important;}
-.sanal-stage{position:relative!important;flex:1!important;overflow:visible!important;display:flex!important;flex-direction:column!important;background:#F7F3ED!important;}
-/* Ensure all interactive elements are always clickable */
-.sanal-panel,.sanal-main,.sanal-bot-row,.sanal-prompt-card,.sanal-inputbar,
-.sanal-inputbar textarea,.sanal-inputbar button,.sanal-new-btn,.sanal-mini-btn,
-.sanal-history-row,.sidebar,.nav-item{pointer-events:auto!important;}
+.sanal-stage{background:#F7F3ED!important;}
 .sanal-welcome{padding:54px 28px 112px!important;}
 .sanal-welcome-line{font-size:14px!important;color:#6E5E51!important;}
 .sanal-greet-avatar{background:#F5F0EA!important;border:1px solid rgba(33,26,20,.07)!important;color:#8B6B4F!important;}
@@ -13580,7 +13570,7 @@ async function deleteForumPost(id) {
 .sanal-prompt-title{font-size:13px!important;color:#211A14!important;}
 .sanal-prompt-type{color:#8B6B4F!important;}
 .sanal-prompt-desc{color:#A2968B!important;}
-.sanal-messages{display:none;flex:1!important;overflow-y:auto!important;background:#F7F3ED!important;padding:32px 9% 120px!important;gap:22px!important;}
+.sanal-messages{display:none;background:#F7F3ED!important;padding:32px 9% 120px!important;gap:22px!important;}
 .sanal-msg{font-size:14px!important;line-height:1.72!important;border-radius:20px!important;box-shadow:none!important;max-width:66%!important;position:relative;}
 .sanal-msg.user{align-self:flex-end!important;background:#E7E2DC!important;color:#211A14!important;border:1px solid rgba(33,26,20,.06)!important;border-bottom-right-radius:8px!important;}
 .sanal-msg.assistant{align-self:flex-start!important;background:#FFFFFF!important;color:#211A14!important;border:1px solid rgba(33,26,20,.08)!important;border-bottom-left-radius:8px!important;box-shadow:0 8px 26px rgba(33,26,20,.045)!important;}
@@ -13699,31 +13689,50 @@ async function deleteForumPost(id) {
     }
     return (histCache.find(h=>h.id===threadId)?.messages)||[];
   }
-  function genUuid(){try{return crypto.randomUUID();}catch(e){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});}}
-  function validUuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||''));}
   async function saveBotToDb(item){
-    if(!validUuid(item.id)) item.id=genUuid();
-    const db=getSb();
-    if(!db){window.__lastKisiselBaristanError='Supabase client bulunamadı.';return false;}
+    item.id=ensureUuid(item.id);
+    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    saveDebug(`Kaydetme başladı\nid: ${item.id}\nurl: ${url?url:'YOK'}\nkey: ${key?'var':'YOK'}`);
+    if(!url||!key){window.__lastKisiselBaristanError='Supabase URL veya anon key bulunamadı.';return false;}
     const payload={
       id:item.id,
       name:item.name,
-      description:item.description||'',
-      system_prompt:item.system_prompt||'',
-      avatar_emoji:item.icon||'☕',
+      description:item.description,
+      system_prompt:item.system_prompt,
+      avatar_emoji:item.icon,
       starter_questions:item.starters||[],
-      is_active:item.is_active!==false
+      is_active:item.is_active,
+      status:item.status||'active',
+      sort_order:item.sort_order||0
     };
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),8000);
     try{
-      const {error}=await db.from('chatbots').upsert(payload,{onConflict:'id'});
-      if(error){
-        window.__lastKisiselBaristanError=error.message||error.details||JSON.stringify(error);
-        console.warn('[Kişisel Baristan] Supabase kayıt hatası:',error);
-        return false;
-      }
-      return true;
+      saveDebug(`Supabase REST isteği gönderiliyor...\nTablo: chatbots\nid: ${item.id}`);
+      const res=await fetch(`${url}/rest/v1/chatbots?on_conflict=id`,{
+        method:'POST',
+        headers:{
+          apikey:key,
+          Authorization:`Bearer ${key}`,
+          'Content-Type':'application/json',
+          Prefer:'resolution=merge-duplicates,return=representation'
+        },
+        body:JSON.stringify(payload),
+        signal:controller.signal
+      });
+      clearTimeout(timer);
+      saveDebug(`Supabase cevap verdi\nstatus: ${res.status} ${res.statusText}`);
+      if(res.ok) return true;
+      const err=await res.json().catch(()=>({message:res.statusText}));
+      window.__lastKisiselBaristanError=err.message||err.details||JSON.stringify(err);
+      saveDebug(`Supabase hata verdi\n${window.__lastKisiselBaristanError}`);
+      console.warn('[Kişisel Baristan] Supabase kayıt hatası:',err);
+      return false;
     }catch(e){
-      window.__lastKisiselBaristanError=e.message||String(e);
+      clearTimeout(timer);
+      window.__lastKisiselBaristanError=e.name==='AbortError'?'Supabase isteği 8 saniyede tamamlanmadı.':(e.message||String(e));
+      saveDebug(`İstek yakalandı / hata\n${window.__lastKisiselBaristanError}`);
       console.warn('[Kişisel Baristan] Supabase kayıt hatası:',e);
       return false;
     }
@@ -13744,31 +13753,34 @@ async function deleteForumPost(id) {
   }
   async function ensureConversation(){
     if(activeThreadId) return activeThreadId;
-    const bot=botById(activeBotId); const first=(tempMessages.find(m=>m.role===’user’)?.text||bot.name).slice(0,70);
+    const bot=botById(activeBotId); const first=(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70);
     const db=getSb();
     if(db && getCurrentUser()){
       try{
-        const {data,error}=await db.from(‘chatbot_conversations’).insert({chatbot_id:activeBotId,user_id:userKey(),title:first}).select().single();
-        if(!error && data?.id){activeThreadId=data.id;return data.id;}
-        console.warn(‘[Kişisel Baristan] Conversation DB error:’,error?.message);
-      }catch(e){console.warn(‘[Kişisel Baristan] Conversation error:’,e.message);}
+        const {data,error}=await db.from('chatbot_conversations').insert({chatbot_id:activeBotId,user_id:userKey(),title:first}).select().single();
+        if(error) throw error;
+        if(data?.id){activeThreadId=data.id;return data.id;}
+      }catch(e){}
     }
-    activeThreadId=’local-’+genUuid();
-    return activeThreadId;
+    alert('Supabase konuşma kaydı oluşturulamadı. Mesaj veritabanına kaydedilmeyecek.');
+    return null;
   }
   async function saveMsg(role,text){
     const cid=await ensureConversation();
+    if(!cid) return false;
     const db=getSb();
-    if(db && getCurrentUser() && !cid.startsWith(‘local-’)){
+    if(db && getCurrentUser()){
       try{
-        const ins=await db.from(‘chatbot_messages’).insert({conversation_id:cid,role,content:text});
+        const ins=await db.from('chatbot_messages').insert({conversation_id:cid,role,content:text});
         if(ins?.error) throw ins.error;
-        await db.from(‘chatbot_conversations’).update({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role===’user’)?.text||botById(activeBotId).name).slice(0,70)}).eq(‘id’,cid);
+        await db.from('chatbot_conversations').update({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role==='user')?.text||botById(activeBotId).name).slice(0,70)}).eq('id',cid);
       }catch(e){
-        console.warn(‘[Kişisel Baristan] Supabase mesaj kayıt hatası:’,e.message||e);
+        console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',e.message||e);
+        alert('Mesaj Supabase’e kaydedilemedi. LocalStorage kullanılmıyor.');
+        return false;
       }
     }
-    const bot=botById(activeBotId); const item={id:cid,botId:activeBotId,title:(tempMessages.find(m=>m.role===’user’)?.text||bot.name).slice(0,70),updatedAt:Date.now(),messages:tempMessages};
+    const bot=botById(activeBotId); const item={id:cid,botId:activeBotId,title:(tempMessages.find(m=>m.role==='user')?.text||bot.name).slice(0,70),updatedAt:Date.now(),messages:tempMessages};
     histCache=[item,...histCache.filter(h=>h.id!==cid)];
     return true;
   }
@@ -13781,7 +13793,7 @@ async function deleteForumPost(id) {
     if(!histCache.length) return '<div class="sanal-empty">İlk konuşmayı başlatınca burada görünecek.</div>';
     return histCache.slice(0,18).map(h=>{const b=botById(h.botId);return `<div class="sanal-history-row" onclick="kisiselOpenHistory('${esc(h.id)}')"><div class="sanal-history-icon">${esc(botIcon(b))}</div><div style="min-width:0;flex:1"><div class="sanal-history-title">${esc(h.title||b.name)}</div><div class="sanal-history-meta">${esc(b.name)} · ${timeLabel(h.updatedAt)}</div></div></div>`}).join('');
   }
-  function starters(bot){const arr=(bot.starters||[]).filter(Boolean);return arr.length?arr:[];}
+  function starters(bot){const arr=(bot.starters||[]).filter(Boolean);const fb=['Başlamak için beni yönlendir','Hedefimi netleştir','Aklımdakileri toparla','Sonraki adımları çıkar'];return [0,1,2,3].map(i=>arr[i]||fb[i]);}
   function renderShell(){
     const root=document.getElementById('sanal-app'); if(!root) return;
     const bot=botById(activeBotId); activeBotId=bot.id;
@@ -13814,7 +13826,7 @@ async function deleteForumPost(id) {
   window.kisiselNewChat=function(){activeThreadId=null;tempMessages=[];renderShell();};
   window.kisiselOpenHistory=async function(id){const h=histCache.find(x=>x.id===id); if(!h)return; activeBotId=h.botId; activeThreadId=h.id; tempMessages=await loadMessages(id); renderShell(); setTimeout(showMessages,0);};
   window.kisiselStarter=function(text){const inp=document.getElementById('sanal-input'); if(inp){inp.value=text;window.kisiselSend();}};
-  window.kisiselSend=async function(){const inp=document.getElementById('sanal-input'); if(!inp)return; const text=inp.value.trim(); if(!text)return; inp.value=''; tempMessages.push({role:'user',text}); showMessages(); await saveMsg('user',text); const reply=await assistantReply(text); tempMessages.push({role:'assistant',text:reply}); showMessages(); await saveMsg('assistant',reply); await loadHistory(); renderShell(); setTimeout(showMessages,0);};
+  window.kisiselSend=async function(){const inp=document.getElementById('sanal-input'); if(!inp)return; const text=inp.value.trim(); if(!text)return; inp.value=''; tempMessages.push({role:'user',text}); showMessages(); const userSaved=await saveMsg('user',text); if(!userSaved)return; const reply=await assistantReply(text); tempMessages.push({role:'assistant',text:reply}); showMessages(); const assistantSaved=await saveMsg('assistant',reply); if(!assistantSaved)return; await loadHistory(); renderShell(); setTimeout(showMessages,0);};
   function requireAdminAction(){if(admin())return true;alert('Bu alan sadece admin tarafından düzenlenebilir.');return false;}
   function botExportPayload(bot){
     const b=bot||botById(activeBotId);
@@ -13854,16 +13866,13 @@ async function deleteForumPost(id) {
     const finishError=(msg)=>{alert(msg);if(btn){btn.disabled=false;btn.textContent='Kaydet';}};
     const name=document.getElementById('sanal-ed-name').value.trim();
     if(!name){finishError('Barista adı gerekli.');return;}
-    const existingId=validUuid(id)?id:'';
+    const existingId=isUuid(id)?id:'';
     const item=normalizeBot({id:existingId||uid('barista'),name,icon:document.getElementById('sanal-ed-icon').value.trim()||'☕',description:document.getElementById('sanal-ed-desc').value.trim(),system_prompt:document.getElementById('sanal-ed-prompt').value.trim(),starters:[0,1,2,3].map(i=>document.getElementById('sanal-ed-st-'+i).value.trim()).filter(Boolean),is_active:document.getElementById('sanal-ed-active').checked,sort_order:existingId?(botById(existingId).sort_order||0):botsCache.length+1,status:document.getElementById('sanal-ed-active').checked?'active':'inactive'});
-    let saved=false;
-    try{
-      saved=await Promise.race([
-        saveBotToDb(item),
-        new Promise(resolve=>setTimeout(()=>{window.__lastKisiselBaristanError='Kaydetme işlemi 9 saniyede tamamlanmadı.';resolve(false);},9000))
-      ]);
-    }catch(e){window.__lastKisiselBaristanError=e.message||String(e);}
-    if(!saved){finishError('Supabase kaydı başarısız oldu: '+(window.__lastKisiselBaristanError||'Hata mesajı yok — konsolu kontrol et.'));return;}
+    const saved=await Promise.race([
+      saveBotToDb(item),
+      new Promise(resolve=>setTimeout(()=>{window.__lastKisiselBaristanError='Kaydetme işlemi 9 saniyede tamamlanmadı.';resolve(false);},9000))
+    ]);
+    if(!saved){finishError('Supabase kaydı başarısız oldu: '+(window.__lastKisiselBaristanError||'RLS/kolon izinlerini kontrol et.'));return;}
     botsCache=existingId?botsCache.map(b=>b.id===existingId?{...b,...item}:b):[...botsCache,item];
     activeBotId=item.id; activeThreadId=null; tempMessages=[]; renderShell();
   };
