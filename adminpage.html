@@ -3857,11 +3857,12 @@ select option { background: #232323; color: #e8e8e6; }
       <div class="page-head">
         <div>
           <div class="page-title">Asistanlar</div>
-          <div class="page-subtitle" id="cb-subtitle">Yapay zeka asistanlarınız</div>
+          <div class="page-sub" id="cb-subtitle">Yapay zeka asistanlarınız</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="btn btn-ghost" id="cb-back-btn" onclick="cbShowList()" style="display:none">← Geri</button>
-          <button class="btn btn-primary admin-only" onclick="cbOpenEditor()" id="cb-new-btn">+ Yeni Asistan</button>
+          <button class="btn btn-ghost admin-only" onclick="openToolboxModal()" id="cb-tool-btn">+ Araç Ekle</button>
+          <button class="btn btn-primary admin-only" onclick="cbOpenEditor()" id="cb-new-btn">+ Yeni Barista</button>
         </div>
       </div>
       <div id="cb-area"></div>
@@ -5739,23 +5740,24 @@ function catClass(c){return{'Satış':'cat-satis','Pazarlama':'cat-pazarlama','O
 // ===== ALET ÇANTASI (TOOLBOX) =====
 let toolboxItems = []; // loaded from Supabase or falls back to dbContent
 
-async function loadToolboxItems() {
-  const isAdmin = currentUser && currentUser.role === 'admin';
-  // Show admin bar
-  const adminBar = document.getElementById('tb-admin-bar');
-  if(adminBar) adminBar.style.display = isAdmin ? 'flex' : 'none';
-
+async function fetchToolboxData() {
   const {data, error} = await sb.from('toolbox_items').select('*').order('order_index').order('created_at');
   if(!error && data && data.length > 0) {
     toolboxItems = data;
   } else {
-    // Fall back to hardcoded dbContent
     toolboxItems = [
       ...dbContent.kits.map((x,i) => ({...x, id:'k'+i, category:'kits', description:x.desc, published:true})),
       ...dbContent.sales.map((x,i) => ({...x, id:'s'+i, category:'sales', description:x.desc, published:true})),
       ...dbContent.bots.map((x,i) => ({...x, id:'b'+i, category:'bots', description:x.desc, published:true})),
     ];
   }
+}
+
+async function loadToolboxItems() {
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const adminBar = document.getElementById('tb-admin-bar');
+  if(adminBar) adminBar.style.display = isAdmin ? 'flex' : 'none';
+  await fetchToolboxData();
   renderDijitalBarista();
 }
 
@@ -11632,7 +11634,7 @@ let cbSessionId = null;
 let cbMessages = [];
 
 async function loadAsistanlarPage() {
-  await cbFetchBots();
+  await Promise.all([cbFetchBots(), fetchToolboxData()]);
   cbShowList();
 }
 
@@ -11645,29 +11647,71 @@ function cbShowList() {
   cbActiveBot = null; cbSessionId = null; cbMessages = [];
   document.getElementById('cb-back-btn').style.display = 'none';
   document.getElementById('cb-new-btn').style.display = '';
+  const toolBtn = document.getElementById('cb-tool-btn');
+  if(toolBtn) toolBtn.style.display = '';
   document.getElementById('cb-subtitle').textContent = 'Yapay zeka asistanlarınız';
   const isAdmin = currentUser?.role === 'admin';
   const area = document.getElementById('cb-area');
-  if (!cbBots.length) {
-    area.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--color-text-muted)">
+
+  const renderToolCard = item => {
+    const cats = Array.isArray(item.categories) ? item.categories : [];
+    const adminControls = isAdmin ? `
+      <div class="tb-card-actions" style="position:absolute;top:8px;right:8px;display:none;gap:4px">
+        <button class="tb-edit-btn" onclick="event.preventDefault();event.stopPropagation();editToolboxItem('${item.id}')">✏️</button>
+        <button class="tb-del-btn" onclick="event.preventDefault();event.stopPropagation();deleteToolboxItem('${item.id}')">🗑</button>
+      </div>` : '';
+    const unpubClass = (!item.published && isAdmin) ? 'tb-unpublished' : '';
+    return `<div style="position:relative" onmouseenter="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='flex')" onmouseleave="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='none')">
+      ${adminControls}
+      <a class="db-card ${unpubClass}" href="${item.url||'#'}" onclick="dbClick(event,'${item.url||'#'}')">
+        <div class="db-card-icon">${item.icon||'🔧'}</div>
+        <div class="db-card-title">${escHtml(item.title)}</div>
+        <div class="db-card-desc">${escHtml(item.description||item.desc||'')}</div>
+        <div class="db-cats">${cats.map(c=>`<span class="db-cat ${catClass(c)}">${escHtml(c)}</span>`).join('')}</div>
+      </a>
+    </div>`;
+  };
+
+  const renderBotCard = bot => {
+    const adminControls = isAdmin ? `
+      <div class="tb-card-actions" style="position:absolute;top:8px;right:8px;display:none;gap:4px">
+        <button class="tb-edit-btn" onclick="event.preventDefault();event.stopPropagation();cbOpenEditor('${bot.id}')">✏️</button>
+        <button class="tb-del-btn" onclick="event.preventDefault();event.stopPropagation();cbDeleteBot('${bot.id}')">🗑</button>
+      </div>` : '';
+    return `<div style="position:relative" onmouseenter="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='flex')" onmouseleave="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='none')">
+      ${adminControls}
+      <div class="db-card" style="cursor:pointer" onclick="cbOpenChat('${bot.id}')">
+        <div class="db-card-icon">${bot.avatar_emoji||'🤖'}</div>
+        <div class="db-card-title">${escHtml(bot.name)}</div>
+        <div class="db-card-desc">${escHtml(bot.description||'Soru sormak için tıkla')}</div>
+        <div class="db-cats"><span class="db-cat" style="background:rgba(147,112,219,0.15);color:#9370db;border-color:rgba(147,112,219,0.3)">Sohbet</span></div>
+      </div>
+    </div>`;
+  };
+
+  const src = toolboxItems.length > 0 ? toolboxItems : [
+    ...dbContent.kits.map((x,i) => ({...x, id:'k'+i, category:'kits', description:x.desc, published:true})),
+    ...dbContent.sales.map((x,i) => ({...x, id:'s'+i, category:'sales', description:x.desc, published:true})),
+    ...dbContent.bots.map((x,i) => ({...x, id:'b'+i, category:'bots', description:x.desc, published:true})),
+  ];
+  const kits  = src.filter(x => x.category==='kits'  && (isAdmin || x.published !== false));
+  const sales = src.filter(x => x.category==='sales' && (isAdmin || x.published !== false));
+  const bots  = src.filter(x => x.category==='bots'  && (isAdmin || x.published !== false));
+
+  let html = '';
+  if(kits.length)    html += `<h3 class="db-section-title">✋ Momentum Kitleri</h3><div class="db-grid">${kits.map(renderToolCard).join('')}</div>`;
+  if(sales.length)   html += `<h3 class="db-section-title">🗺️ Satış Kurgusu</h3><div class="db-grid">${sales.map(renderToolCard).join('')}</div>`;
+  if(bots.length)    html += `<h3 class="db-section-title">🔧 Diğer Botlar</h3><div class="db-grid">${bots.map(renderToolCard).join('')}</div>`;
+  if(cbBots.length)  html += `<h3 class="db-section-title">💬 Konuşma Asistanları</h3><div class="db-grid">${cbBots.map(renderBotCard).join('')}</div>`;
+
+  if(!html) {
+    html = `<div style="text-align:center;padding:60px 20px;color:var(--color-text-muted)">
       <div style="font-size:48px;margin-bottom:16px">🤖</div>
-      <div style="font-size:15px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">Henüz asistan yok</div>
-      ${isAdmin ? '<div style="font-size:13px">Yeni asistan oluşturmak için "+ Yeni Asistan" butonunu kullan.</div>' : '<div style="font-size:13px">Yakında asistanlar burada görünecek.</div>'}
+      <div style="font-size:15px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">Henüz içerik yok</div>
+      ${isAdmin ? '<div style="font-size:13px">Yeni içerik eklemek için yukarıdaki butonları kullan.</div>' : '<div style="font-size:13px">Yakında içerikler burada görünecek.</div>'}
     </div>`;
-    return;
   }
-  area.innerHTML = `
-    <div class="cb-grid">${cbBots.map(b => `
-      <div class="cb-card" onclick="cbOpenChat('${b.id}')">
-        <div class="cb-card-emoji">${b.avatar_emoji || '🤖'}</div>
-        <div class="cb-card-name">${b.name}</div>
-        <div class="cb-card-desc">${b.description || 'Soru sormak için tıkla'}</div>
-        ${isAdmin ? `<div style="display:flex;gap:6px;margin-top:4px">
-          <button class="btn btn-ghost" style="font-size:11px;padding:3px 8px" onclick="event.stopPropagation();cbOpenEditor('${b.id}')">Düzenle</button>
-          <button class="btn btn-ghost" style="font-size:11px;padding:3px 8px;color:var(--color-red)" onclick="event.stopPropagation();cbDeleteBot('${b.id}')">Sil</button>
-        </div>` : ''}
-      </div>`).join('')}
-    </div>`;
+  area.innerHTML = html;
 }
 
 async function cbOpenChat(botId) {
@@ -11676,6 +11720,8 @@ async function cbOpenChat(botId) {
   cbSessionId = null; cbMessages = [];
   document.getElementById('cb-back-btn').style.display = '';
   document.getElementById('cb-new-btn').style.display = 'none';
+  const _toolBtn1 = document.getElementById('cb-tool-btn');
+  if(_toolBtn1) _toolBtn1.style.display = 'none';
   document.getElementById('cb-subtitle').textContent = cbActiveBot.name;
   const area = document.getElementById('cb-area');
   area.innerHTML = `
@@ -11773,7 +11819,9 @@ async function cbOpenEditor(botId = null) {
   const bot = botId ? cbBots.find(b => b.id === botId) : null;
   document.getElementById('cb-back-btn').style.display = '';
   document.getElementById('cb-new-btn').style.display = 'none';
-  document.getElementById('cb-subtitle').textContent = bot ? 'Asistan Düzenle' : 'Yeni Asistan';
+  const _toolBtn2 = document.getElementById('cb-tool-btn');
+  if(_toolBtn2) _toolBtn2.style.display = 'none';
+  document.getElementById('cb-subtitle').textContent = bot ? 'Asistan Düzenle' : 'Yeni Barista';
 
   // Mevcut dokümanları çek
   let savedDocs = [];
