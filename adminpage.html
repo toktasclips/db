@@ -2783,10 +2783,7 @@ select option { background: #232323; color: #e8e8e6; }
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Güncel Takipçi Sayısı</label>
-                <div style="height:36px;padding:0 12px;background:#1a1a1a;border:1px solid #2c2c2c;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px">
-                  <span id="kpi-takipci-val" style="color:#eaeaea;font-weight:500">—</span>
-                  <span style="font-size:11px;color:#555;margin-left:auto">IG sync</span>
-                </div>
+                <input class="form-input" type="number" id="kpi-takipci" placeholder="0" min="0" />
               </div>
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Topluluk & Mail Abone</label>
@@ -2801,31 +2798,25 @@ select option { background: #232323; color: #e8e8e6; }
           <div style="margin-bottom:24px">
             <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px">Günlük Veriler</div>
 
-
-            <!-- İçerik Durumu — auto-detected from Instagram sync -->
+            <!-- İçerik Durumu -->
             <div style="margin-bottom:16px">
-              <label style="font-size:11px;color:#666;font-weight:500;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">İçerik Durumu</label>
-              <div id="icerik-status-badge" style="display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;border:1px solid #2a2a2a;font-size:13px;font-weight:500;color:#888;transition:all 0.2s">
-                <span id="icerik-status-text">—</span>
-                <span style="font-size:11px;color:#444;padding-left:8px;border-left:1px solid #333">IG sync</span>
-              </div>
+              <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">İçerik Durumu</label>
+              <select class="form-input form-select" id="kpi-icerik">
+                <option value="">— Seç</option>
+                <option value="1">✓ Paylaşıldı</option>
+                <option value="0">✗ Paylaşılmadı</option>
+              </select>
             </div>
 
             <!-- Satır 1: Reklam + TPM -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Reklam Harcama (₺)</label>
-                <div style="height:36px;padding:0 12px;background:#1a1a1a;border:1px solid #2c2c2c;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px">
-                  <span id="kpi-reklam-val" style="color:#eaeaea;font-weight:500">—</span>
-                  <span style="font-size:11px;color:#555;margin-left:auto">Meta Ads</span>
-                </div>
+                <input class="form-input" type="number" id="kpi-reklam" placeholder="0" min="0" step="0.01" />
               </div>
               <div>
                 <label style="font-size:12px;color:var(--text-3);font-weight:400;display:block;margin-bottom:5px">Takipçi Başına Maliyet</label>
-                <div style="height:36px;padding:0 12px;background:#1a1a1a;border:1px solid #2c2c2c;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:6px">
-                  <span id="kpi-tpm-val" style="color:#eaeaea;font-weight:500">—</span>
-                  <span style="font-size:11px;color:#555;margin-left:auto">Meta Ads</span>
-                </div>
+                <input class="form-input" type="number" id="kpi-tpm" placeholder="0.00" min="0" step="0.01" />
               </div>
             </div>
 
@@ -4920,12 +4911,6 @@ let igDailyCPF       = 0;
 async function prefillTakipciFromIG(dateStr){
   if(!dateStr) dateStr = document.getElementById('daily-entry-date').value || new Date().toISOString().split('T')[0];
 
-  // Reset display while loading
-  const valEl = document.getElementById('kpi-takipci-val');
-  const textEl = document.getElementById('icerik-status-text');
-  if(valEl) valEl.textContent = '…';
-  if(textEl) textEl.textContent = '…';
-
   // Follower count: latest snapshot on or before dateStr
   try {
     const { data: snap } = await sb
@@ -4937,11 +4922,9 @@ async function prefillTakipciFromIG(dateStr){
       .limit(1)
       .maybeSingle();
     igDailyFollowers = snap?.follower_count || 0;
-    if(valEl) valEl.textContent = igDailyFollowers > 0 ? igDailyFollowers.toLocaleString('tr-TR') : '—';
-  } catch(e) {
-    igDailyFollowers = 0;
-    if(valEl) valEl.textContent = '—';
-  }
+    const takipciEl = document.getElementById('kpi-takipci');
+    if(takipciEl && !takipciEl.value && igDailyFollowers > 0) takipciEl.value = igDailyFollowers;
+  } catch(e) { igDailyFollowers = 0; }
 
   // Content status: any media published on dateStr
   try {
@@ -4954,60 +4937,33 @@ async function prefillTakipciFromIG(dateStr){
       .limit(1);
     const hasContent = !!(media && media.length > 0);
     icerikPaylasildi = hasContent;
-    updateIcerikBadge(hasContent);
-  } catch(e) {
-    updateIcerikBadge(null);
-  }
+    const icerikEl = document.getElementById('kpi-icerik');
+    if(icerikEl && !icerikEl.value) icerikEl.value = hasContent ? '1' : '0';
+  } catch(e) {}
 
-  // Ad spend + prev snapshot (for CPF) — fetch in parallel
+  // Ad spend + CPF
   try {
     const [adResult, prevSnapResult] = await Promise.all([
       sb.from('meta_ad_insights').select('spend')
         .eq('user_id', currentUser.email).eq('insight_date', dateStr),
-      sb.from('instagram_account_snapshots').select('follower_count,snapshot_date')
+      sb.from('instagram_account_snapshots').select('follower_count')
         .eq('user_id', currentUser.email).lt('snapshot_date', dateStr)
         .order('snapshot_date', { ascending: false }).limit(1).maybeSingle(),
     ]);
     const totalSpend = (adResult.data ?? []).reduce((s, r) => s + (+r.spend || 0), 0);
     igDailyAdSpend = totalSpend;
-    const reklamEl = document.getElementById('kpi-reklam-val');
-    if(reklamEl) reklamEl.textContent = totalSpend > 0 ? totalSpend.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+    const reklamEl = document.getElementById('kpi-reklam');
+    if(reklamEl && !reklamEl.value && totalSpend > 0) reklamEl.value = totalSpend.toFixed(2);
 
-    // CPF = spend / follower gain
-    const prevSnap = prevSnapResult.data;
-    const curFollowers = igDailyFollowers;
-    const prevFollowers = prevSnap?.follower_count ?? null;
-    const gain = (curFollowers > 0 && prevFollowers != null) ? curFollowers - prevFollowers : null;
+    const prevFollowers = prevSnapResult.data?.follower_count ?? null;
+    const gain = (igDailyFollowers > 0 && prevFollowers != null) ? igDailyFollowers - prevFollowers : null;
     igDailyCPF = (gain != null && gain > 0 && totalSpend > 0) ? totalSpend / gain : 0;
-    const tpmEl = document.getElementById('kpi-tpm-val');
-    if(tpmEl) tpmEl.textContent = igDailyCPF > 0 ? igDailyCPF.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
-  } catch(e) {
-    igDailyAdSpend = 0; igDailyCPF = 0;
-    const reklamEl = document.getElementById('kpi-reklam-val');
-    if(reklamEl) reklamEl.textContent = '—';
-    const tpmEl = document.getElementById('kpi-tpm-val');
-    if(tpmEl) tpmEl.textContent = '—';
-  }
+    const tpmEl = document.getElementById('kpi-tpm');
+    if(tpmEl && !tpmEl.value && igDailyCPF > 0) tpmEl.value = igDailyCPF.toFixed(2);
+  } catch(e) { igDailyAdSpend = 0; igDailyCPF = 0; }
 }
 
-function updateIcerikBadge(hasContent){
-  const badge = document.getElementById('icerik-status-badge');
-  const text  = document.getElementById('icerik-status-text');
-  if(!badge || !text) return;
-  if(hasContent === null || hasContent === undefined){
-    text.textContent = '—';
-    badge.style.borderColor = '#2a2a2a';
-    badge.style.color = '#888';
-  } else if(hasContent){
-    text.textContent = '✔ Paylaşıldı';
-    badge.style.borderColor = '#2a5c2a';
-    badge.style.color = '#6db56d';
-  } else {
-    text.textContent = '⏳ Paylaşılmadı';
-    badge.style.borderColor = '#2a2a2a';
-    badge.style.color = '#888';
-  }
-}
+function updateIcerikBadge(hasContent){ /* no-op: replaced by select input */ }
 
 function onDailyDateChange(dateStr){
   if(dateStr) prefillTakipciFromIG(dateStr);
@@ -6256,11 +6212,11 @@ async function saveDaily(){
   const entry = {
     dateShort: dateInput,
     mood:      sel ? sel.textContent : '🙂',
-    takipci:   igDailyFollowers,
+    takipci:   +document.getElementById('kpi-takipci').value||0,
     mail:      +document.getElementById('kpi-mail').value||0,
-    icerik:    icerikPaylasildi?1:0,
-    reklam:    igDailyAdSpend,
-    tpm:       igDailyCPF,
+    icerik:    +(document.getElementById('kpi-icerik').value||0),
+    reklam:    +document.getElementById('kpi-reklam').value||0,
+    tpm:       +document.getElementById('kpi-tpm').value||0,
     teklif:    +document.getElementById('kpi-teklif').value||0,
     yorum:     document.getElementById('kpi-yorum').value
   };
@@ -6298,7 +6254,7 @@ async function saveDaily(){
   }
 
   // Formu temizle
-  ['kpi-mail','kpi-teklif','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
+  ['kpi-takipci','kpi-mail','kpi-icerik','kpi-reklam','kpi-tpm','kpi-teklif','kpi-yorum'].forEach(id=>document.getElementById(id).value='');
   const todayStr = new Date().toISOString().split('T')[0];
   document.getElementById('daily-entry-date').value = todayStr;
   prefillTakipciFromIG(todayStr);
@@ -9143,14 +9099,18 @@ async function saveChaChing() {
     else {
       state.daily = state.daily || [];
       state.daily.unshift({ id: existing.id, date: today, dateShort: today, mood: '🙂',
-        takipci: igDailyFollowers||0, mail:0, icerik:0, reklam: igDailyAdSpend||0,
-        tpm: igDailyCPF||0, hotlist:0, musteri:0, teklif:0, alinan: totalAlinan, anlasma:0, yorum:'', win:'' });
+        takipci: +document.getElementById('kpi-takipci')?.value||0, mail:0, icerik:0,
+        reklam: +document.getElementById('kpi-reklam')?.value||0,
+        tpm: +document.getElementById('kpi-tpm')?.value||0,
+        hotlist:0, musteri:0, teklif:0, alinan: totalAlinan, anlasma:0, yorum:'', win:'' });
     }
   } else {
     const { data: newRow } = await sb.from('daily_entries').insert({
       user_id: currentUser.email, entry_date: today, mood: '🙂',
-      alinan: totalAlinan, takipci: igDailyFollowers||0,
-      reklam: igDailyAdSpend||0, tpm: igDailyCPF||0,
+      alinan: totalAlinan,
+      takipci: +document.getElementById('kpi-takipci')?.value||0,
+      reklam: +document.getElementById('kpi-reklam')?.value||0,
+      tpm: +document.getElementById('kpi-tpm')?.value||0,
       mail:0, icerik:0, teklif:0, anlasma:0, yorum:''
     }).select().single();
     if (newRow) {
