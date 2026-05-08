@@ -3861,7 +3861,6 @@ select option { background: #232323; color: #e8e8e6; }
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="btn btn-ghost" id="cb-back-btn" onclick="cbShowList()" style="display:none">← Geri</button>
-          <button class="btn btn-ghost admin-only" onclick="openToolboxModal()" id="cb-tool-btn">+ Araç Ekle</button>
           <button class="btn btn-primary admin-only" onclick="cbOpenEditor()" id="cb-new-btn">+ Yeni Barista</button>
         </div>
       </div>
@@ -11634,12 +11633,15 @@ let cbSessionId = null;
 let cbMessages = [];
 
 async function loadAsistanlarPage() {
-  await Promise.all([cbFetchBots(), fetchToolboxData()]);
+  await cbFetchBots();
   cbShowList();
 }
 
 async function cbFetchBots() {
-  const { data } = await sb.from('chatbots').select('*').eq('is_active', true).order('created_at');
+  const isAdmin = currentUser?.role === 'admin';
+  let q = sb.from('chatbots').select('*').order('created_at');
+  if(!isAdmin) q = q.eq('is_active', true);
+  const { data } = await q;
   cbBots = data ?? [];
 }
 
@@ -11647,71 +11649,54 @@ function cbShowList() {
   cbActiveBot = null; cbSessionId = null; cbMessages = [];
   document.getElementById('cb-back-btn').style.display = 'none';
   document.getElementById('cb-new-btn').style.display = '';
-  const toolBtn = document.getElementById('cb-tool-btn');
-  if(toolBtn) toolBtn.style.display = '';
   document.getElementById('cb-subtitle').textContent = 'Yapay zeka asistanlarınız';
   const isAdmin = currentUser?.role === 'admin';
   const area = document.getElementById('cb-area');
 
-  const renderToolCard = item => {
-    const cats = Array.isArray(item.categories) ? item.categories : [];
-    const adminControls = isAdmin ? `
-      <div class="tb-card-actions" style="position:absolute;top:8px;right:8px;display:none;gap:4px">
-        <button class="tb-edit-btn" onclick="event.preventDefault();event.stopPropagation();editToolboxItem('${item.id}')">✏️</button>
-        <button class="tb-del-btn" onclick="event.preventDefault();event.stopPropagation();deleteToolboxItem('${item.id}')">🗑</button>
-      </div>` : '';
-    const unpubClass = (!item.published && isAdmin) ? 'tb-unpublished' : '';
-    return `<div style="position:relative" onmouseenter="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='flex')" onmouseleave="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='none')">
-      ${adminControls}
-      <a class="db-card ${unpubClass}" href="${item.url||'#'}" onclick="dbClick(event,'${item.url||'#'}')">
-        <div class="db-card-icon">${item.icon||'🔧'}</div>
-        <div class="db-card-title">${escHtml(item.title)}</div>
-        <div class="db-card-desc">${escHtml(item.description||item.desc||'')}</div>
-        <div class="db-cats">${cats.map(c=>`<span class="db-cat ${catClass(c)}">${escHtml(c)}</span>`).join('')}</div>
-      </a>
-    </div>`;
-  };
+  const banner = `<div style="margin-bottom:32px;padding:28px 32px;background:linear-gradient(135deg,rgba(201,144,90,0.07) 0%,rgba(255,255,255,0.015) 100%);border:1px solid rgba(201,144,90,0.22);border-radius:16px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-80px;left:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(201,144,90,0.1) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(201,144,90,0.12);border:1px solid rgba(201,144,90,0.3);border-radius:20px;margin-bottom:14px">
+      <span style="width:6px;height:6px;background:#c9905a;border-radius:50%;display:inline-block;box-shadow:0 0 6px rgba(201,144,90,0.8)"></span>
+      <span style="font-size:11px;font-weight:600;color:#c9905a;letter-spacing:0.06em;text-transform:uppercase">Beta Süreci</span>
+    </div>
+    <div style="font-size:18px;font-weight:700;color:var(--color-text-primary);letter-spacing:-0.4px;margin-bottom:10px;line-height:1.45">Yeni nesil Dijital Barista asistan sistemi şu anda geliştiriliyor.</div>
+    <div style="font-size:13.5px;color:var(--color-text-secondary);line-height:1.75;max-width:680px;margin-bottom:12px">Yakında tüm asistanlarla doğrudan konuşabilecek, kendi işine özel sistemler oluşturabilecek ve yapay zeka destekli iş geliştirme araçlarını tek panelden kullanabileceksin.</div>
+    <div style="font-size:12px;color:var(--color-text-muted)">⚠️ Bazı asistanlar henüz geliştirme aşamasındadır.</div>
+  </div>`;
 
-  const renderBotCard = bot => {
+  const renderCard = bot => {
+    const cats = Array.isArray(bot.categories) ? bot.categories : [];
+    const inactive = !bot.is_active;
     const adminControls = isAdmin ? `
       <div class="tb-card-actions" style="position:absolute;top:8px;right:8px;display:none;gap:4px">
-        <button class="tb-edit-btn" onclick="event.preventDefault();event.stopPropagation();cbOpenEditor('${bot.id}')">✏️</button>
-        <button class="tb-del-btn" onclick="event.preventDefault();event.stopPropagation();cbDeleteBot('${bot.id}')">🗑</button>
+        <button class="tb-edit-btn" onclick="event.stopPropagation();cbOpenEditor('${bot.id}')">✏️</button>
+        <button class="tb-del-btn" onclick="event.stopPropagation();cbDeleteBot('${bot.id}')">🗑</button>
       </div>` : '';
+    const inactiveClass = (inactive && isAdmin) ? 'tb-unpublished' : '';
+    const catChips = cats.length
+      ? cats.map(c => `<span class="db-cat ${catClass(c)}">${escHtml(c)}</span>`).join('')
+      : `<span class="db-cat" style="background:rgba(147,112,219,0.12);color:#9370db;border-color:rgba(147,112,219,0.25)">Sohbet</span>`;
     return `<div style="position:relative" onmouseenter="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='flex')" onmouseleave="this.querySelector('.tb-card-actions')&&(this.querySelector('.tb-card-actions').style.display='none')">
       ${adminControls}
-      <div class="db-card" style="cursor:pointer" onclick="cbOpenChat('${bot.id}')">
-        <div class="db-card-icon">${bot.avatar_emoji||'🤖'}</div>
+      <div class="db-card ${inactiveClass}" style="cursor:pointer" onclick="cbOpenChat('${bot.id}')">
+        <div class="db-card-icon">${escHtml(bot.avatar_emoji||'🤖')}</div>
         <div class="db-card-title">${escHtml(bot.name)}</div>
         <div class="db-card-desc">${escHtml(bot.description||'Soru sormak için tıkla')}</div>
-        <div class="db-cats"><span class="db-cat" style="background:rgba(147,112,219,0.15);color:#9370db;border-color:rgba(147,112,219,0.3)">Sohbet</span></div>
+        <div class="db-cats">${catChips}</div>
       </div>
     </div>`;
   };
 
-  const src = toolboxItems.length > 0 ? toolboxItems : [
-    ...dbContent.kits.map((x,i) => ({...x, id:'k'+i, category:'kits', description:x.desc, published:true})),
-    ...dbContent.sales.map((x,i) => ({...x, id:'s'+i, category:'sales', description:x.desc, published:true})),
-    ...dbContent.bots.map((x,i) => ({...x, id:'b'+i, category:'bots', description:x.desc, published:true})),
-  ];
-  const kits  = src.filter(x => x.category==='kits'  && (isAdmin || x.published !== false));
-  const sales = src.filter(x => x.category==='sales' && (isAdmin || x.published !== false));
-  const bots  = src.filter(x => x.category==='bots'  && (isAdmin || x.published !== false));
+  const visible = cbBots.filter(b => isAdmin || b.is_active);
+  const cardsHtml = visible.length
+    ? `<div class="db-grid">${visible.map(renderCard).join('')}</div>`
+    : `<div style="text-align:center;padding:60px 20px;color:var(--color-text-muted)">
+        <div style="font-size:48px;margin-bottom:16px">🤖</div>
+        <div style="font-size:15px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">Henüz asistan yok</div>
+        ${isAdmin ? '<div style="font-size:13px">Yeni asistan eklemek için "+ Yeni Barista" butonunu kullan.</div>' : '<div style="font-size:13px">Yakında asistanlar burada görünecek.</div>'}
+      </div>`;
 
-  let html = '';
-  if(kits.length)    html += `<h3 class="db-section-title">✋ Momentum Kitleri</h3><div class="db-grid">${kits.map(renderToolCard).join('')}</div>`;
-  if(sales.length)   html += `<h3 class="db-section-title">🗺️ Satış Kurgusu</h3><div class="db-grid">${sales.map(renderToolCard).join('')}</div>`;
-  if(bots.length)    html += `<h3 class="db-section-title">🔧 Diğer Botlar</h3><div class="db-grid">${bots.map(renderToolCard).join('')}</div>`;
-  if(cbBots.length)  html += `<h3 class="db-section-title">💬 Konuşma Asistanları</h3><div class="db-grid">${cbBots.map(renderBotCard).join('')}</div>`;
-
-  if(!html) {
-    html = `<div style="text-align:center;padding:60px 20px;color:var(--color-text-muted)">
-      <div style="font-size:48px;margin-bottom:16px">🤖</div>
-      <div style="font-size:15px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">Henüz içerik yok</div>
-      ${isAdmin ? '<div style="font-size:13px">Yeni içerik eklemek için yukarıdaki butonları kullan.</div>' : '<div style="font-size:13px">Yakında içerikler burada görünecek.</div>'}
-    </div>`;
-  }
-  area.innerHTML = html;
+  area.innerHTML = banner + cardsHtml;
 }
 
 async function cbOpenChat(botId) {
@@ -11720,8 +11705,6 @@ async function cbOpenChat(botId) {
   cbSessionId = null; cbMessages = [];
   document.getElementById('cb-back-btn').style.display = '';
   document.getElementById('cb-new-btn').style.display = 'none';
-  const _toolBtn1 = document.getElementById('cb-tool-btn');
-  if(_toolBtn1) _toolBtn1.style.display = 'none';
   document.getElementById('cb-subtitle').textContent = cbActiveBot.name;
   const area = document.getElementById('cb-area');
   area.innerHTML = `
@@ -11819,8 +11802,6 @@ async function cbOpenEditor(botId = null) {
   const bot = botId ? cbBots.find(b => b.id === botId) : null;
   document.getElementById('cb-back-btn').style.display = '';
   document.getElementById('cb-new-btn').style.display = 'none';
-  const _toolBtn2 = document.getElementById('cb-tool-btn');
-  if(_toolBtn2) _toolBtn2.style.display = 'none';
   document.getElementById('cb-subtitle').textContent = bot ? 'Asistan Düzenle' : 'Yeni Barista';
 
   // Mevcut dokümanları çek
@@ -11864,6 +11845,14 @@ async function cbOpenEditor(botId = null) {
         <input type="file" id="cb-file-input" accept=".txt,.pdf,.md" style="display:none" onchange="cbHandleFile(this)">
         <button class="btn btn-ghost" onclick="document.getElementById('cb-file-input').click()">+ Yeni Dosya Ekle</button>
         <div id="cb-doc-list" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:4px">Kategoriler / Etiketler <span style="opacity:.5">(virgülle ayır, örn: Satış, Pazarlama)</span></div>
+        <input id="cb-categories" class="form-input" placeholder="Satış, Pazarlama, Operasyon" value="${(bot?.categories||[]).join(', ')}">
+      </div>
+      <div style="margin-bottom:20px;display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="cb-active" style="width:16px;height:16px;accent-color:var(--color-accent);cursor:pointer" ${bot?.is_active !== false ? 'checked' : ''}>
+        <label for="cb-active" style="font-size:13px;color:var(--color-text-secondary);cursor:pointer">Aktif — kullanıcılar görebilir</label>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" onclick="cbSaveBot()">Kaydet</button>
@@ -11919,13 +11908,15 @@ async function cbHandleFile(input) {
 async function cbSaveBot() {
   const name = document.getElementById('cb-name').value.trim();
   if (!name) { alert('Asistan adı gerekli'); return; }
+  const categoriesRaw = document.getElementById('cb-categories')?.value || '';
   const payload = {
     name,
-    description:      document.getElementById('cb-desc').value.trim(),
-    system_prompt:    document.getElementById('cb-prompt').value.trim(),
-    avatar_emoji:     document.getElementById('cb-emoji').value.trim() || '🤖',
+    description:       document.getElementById('cb-desc').value.trim(),
+    system_prompt:     document.getElementById('cb-prompt').value.trim(),
+    avatar_emoji:      document.getElementById('cb-emoji').value.trim() || '🤖',
     starter_questions: [0,1,2,3].map(i => document.getElementById(`cb-sq-${i}`)?.value.trim()).filter(Boolean),
-    is_active: true,
+    categories:        categoriesRaw.split(',').map(s=>s.trim()).filter(Boolean),
+    is_active:         document.getElementById('cb-active')?.checked ?? true,
   };
   let botId = cbEditingId;
   if (botId) {
