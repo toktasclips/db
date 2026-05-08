@@ -13702,9 +13702,7 @@ async function deleteForumPost(id) {
       system_prompt:item.system_prompt,
       avatar_emoji:item.icon,
       starter_questions:item.starters||[],
-      is_active:item.is_active,
-      status:item.status||'active',
-      sort_order:item.sort_order||0
+      is_active:item.is_active
     };
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),8000);
