@@ -13025,6 +13025,9 @@ async function saveEgitimDers() {
   }
   if (egitimCurrentModule) renderEgitimNav(egitimCurrentModule);
   else renderEgitimGrid();
+  if (id && egitimCurrentLesson != null && String(egitimCurrentLesson) === String(id)) {
+    renderEgitimLessonContent(egitimCurrentLesson);
+  }
 }
 
 async function deleteEgitimDers(id) {
