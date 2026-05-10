@@ -6017,7 +6017,20 @@ const SUPABASE_URL = 'https://krljaqrhyszeleiwwkmd.supabase.co';
 window.SUPABASE_URL = SUPABASE_URL;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtybGphcXJoeXN6ZWxlaXd3a21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NTY0MjksImV4cCI6MjA4OTMzMjQyOX0.rilLVl17MjmlSO2mWzRVFXpjhRXZTh30SVWMDw5UUlE';
 window.SUPABASE_KEY = SUPABASE_KEY;
-const sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let sb = null;
+try {
+  const _sup = (typeof supabase !== 'undefined' && supabase && supabase.createClient)
+    ? supabase
+    : (window.supabase && window.supabase.createClient ? window.supabase : null);
+  if (_sup) {
+    sb = _sup.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } else {
+    console.error('[DB] Supabase lib not found. typeof supabase=', typeof (typeof supabase !== 'undefined' ? supabase : 'UNDEF'), 'window.supabase=', typeof window.supabase);
+  }
+} catch(e) {
+  console.error('[DB] Supabase createClient error:', e);
+  sb = null;
+}
 window.sb = sb;
 function showSupabaseConnectionError(targetId){
   const msg = 'Supabase bağlantısı kurulamadı. Canlı sitede CDN, internet veya script izinleri engelleniyor olabilir.';
