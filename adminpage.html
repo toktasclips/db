@@ -6032,6 +6032,18 @@ try {
   sb = null;
 }
 window.sb = sb;
+// Debug banner
+(function(){
+  const banner = document.createElement('div');
+  banner.id = '_sb_debug';
+  banner.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:99999;background:#1a1a1a;color:#fff;font-size:11px;font-family:monospace;padding:8px 12px;border-radius:8px;max-width:320px;line-height:1.5;opacity:0.92';
+  const sup_type = typeof supabase !== 'undefined' ? typeof supabase : 'undefined';
+  const win_type = typeof window.supabase;
+  const sb_ok = sb !== null ? '✅ sb OK' : '❌ sb NULL';
+  banner.textContent = sb_ok + ' | supabase=' + sup_type + ' | window.supabase=' + win_type;
+  document.addEventListener('DOMContentLoaded', function(){ document.body && document.body.appendChild(banner); });
+  setTimeout(function(){ document.body && document.body.appendChild(banner); }, 500);
+})();
 function showSupabaseConnectionError(targetId){
   const msg = 'Supabase bağlantısı kurulamadı. Canlı sitede CDN, internet veya script izinleri engelleniyor olabilir.';
   console.error(msg);
