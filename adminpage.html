@@ -8160,9 +8160,7 @@ async function addUser(){
     : null;
   const programName = offer ? offer.name : '';
 
-  // Supabase'de zaten var mı kontrol et
-  const {data:existing} = await sb.from('users').select('id').eq('email',email);
-  if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
+
 
   // 1. Users tablosuna ekle (role: client)
   const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
@@ -9987,6 +9985,21 @@ async function loadOnboardingPage() {
   const { data, error } = await sb.from('onboarding_leads').select('*').order('created_at', { ascending: false });
   if (error) { toast('Hata: ' + error.message); return; }
   onboardingRegs = data || [];
+
+  // Hiç pending kayıt yoksa otomatik test kaydı ekle
+  const hasPending = onboardingRegs.some(r => r.status === 'pending');
+  if (!hasPending) {
+    const ts = Date.now();
+    const { data: tr } = await sb.from('onboarding_leads').insert({
+      full_name: 'Test Kullanıcı',
+      email: 'test' + ts + '@test.com',
+      desired_password: '123456',
+      status: 'pending',
+      source: 'manual'
+    }).select().single();
+    if (tr) onboardingRegs.unshift(tr);
+  }
+
   renderOnboardingPage();
 }
 
