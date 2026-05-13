@@ -5213,15 +5213,15 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
       <div id="onb-list"></div>
 
       <!-- Add Test Record Modal -->
-      <div id="modal-add-onboarding" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-add-onboarding')">
-        <div class="modal-box" style="max-width:480px">
-          <div class="modal-head"><span class="modal-title">Test Kaydı Ekle</span><button class="modal-close" onclick="closeModal('modal-add-onboarding')">✕</button></div>
-          <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <div id="modal-add-onboarding" class="modal-bg" onclick="if(event.target===this)closeModal('modal-add-onboarding')">
+        <div class="modal" style="max-width:480px">
+          <div class="modal-head"><div class="modal-title">Test Kaydı Ekle</div><button class="modal-close" onclick="closeModal('modal-add-onboarding')">✕</button></div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;padding:20px">
             <div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-input" id="onb-add-name" placeholder="Kayıt sahibinin adı"></div>
             <div class="form-group"><label class="form-label">E-posta</label><input class="form-input" id="onb-add-email" type="email" placeholder="email@ornek.com"></div>
             <div class="form-group"><label class="form-label">Not (opsiyonel)</label><textarea class="form-input" id="onb-add-note" rows="2" placeholder="Tally formu notu..."></textarea></div>
           </div>
-          <div class="modal-foot"><button class="btn btn-primary" onclick="addOnboardingTestRecord()">Ekle</button></div>
+          <div class="modal-footer"><button class="btn btn-primary" onclick="addOnboardingTestRecord()">Ekle</button></div>
         </div>
       </div>
     </div>
@@ -9970,7 +9970,7 @@ function openMusteriPanel(id) {
 /* ============================================================
    ONBOARDİNG BEKLEYENLERa
    ============================================================
-   onboarding_registrations tablosu:
+   onboarding_leads tablosu:
      id          bigserial primary key
      name        text not null
      email       text not null
@@ -9985,7 +9985,7 @@ let onbCurrentTab = 'Bekliyor';
 
 async function loadOnboardingPage() {
   if (!sb) return;
-  const { data, error } = await sb.from('onboarding_registrations').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('onboarding_leads').select('*').order('created_at', { ascending: false });
   if (error) { toast('Hata: ' + error.message); return; }
   onboardingRegs = data || [];
   renderOnboardingPage();
@@ -10143,8 +10143,8 @@ async function createOnboardingPortalAccount(regId) {
     await recordSaleInDaily(name, offer.name, monthlyPay);
   }
 
-  // 5. onboarding_registrations kaydını güncelle — offer_id bigint olarak sakla
-  const { error: updErr } = await sb.from('onboarding_registrations').update({
+  // 5. onboarding_leads kaydını güncelle — offer_id bigint olarak sakla
+  const { error: updErr } = await sb.from('onboarding_leads').update({
     status: 'Hesap Açıldı',
     offer_id: Number(offer.id),   // bigint, UUID değil
     approved_at: new Date().toISOString()
@@ -10165,7 +10165,7 @@ async function createOnboardingPortalAccount(regId) {
 }
 
 async function archiveOnboardingReg(regId) {
-  const { error } = await sb.from('onboarding_registrations').update({ status: 'Arşivlendi' }).eq('id', regId);
+  const { error } = await sb.from('onboarding_leads').update({ status: 'Arşivlendi' }).eq('id', regId);
   if (error) { toast('Hata: ' + error.message); return; }
   const idx = onboardingRegs.findIndex(r => r.id === regId);
   if (idx >= 0) onboardingRegs[idx].status = 'Arşivlendi';
@@ -10186,7 +10186,7 @@ async function addOnboardingTestRecord() {
   const note  = document.getElementById('onb-add-note').value.trim();
   if (!name || !email) { toast('Ad ve e-posta zorunlu'); return; }
 
-  const { data, error } = await sb.from('onboarding_registrations').insert({
+  const { data, error } = await sb.from('onboarding_leads').insert({
     name, email, note: note || null, status: 'Bekliyor'
   }).select().single();
   if (error) { toast('Hata: ' + error.message); return; }
@@ -12218,9 +12218,9 @@ async function loadIgDailyKPIs() {
 */
 
 /*
-  onboarding_registrations tablosu (Supabase'de çalıştır):
+  onboarding_leads tablosu (Supabase'de çalıştır):
 
-  create table if not exists onboarding_registrations (
+  create table if not exists onboarding_leads (
     id          bigserial primary key,
     name        text not null,
     email       text not null,
@@ -12232,8 +12232,8 @@ async function loadIgDailyKPIs() {
   );
 
   -- RLS politikaları:
-  alter table onboarding_registrations enable row level security;
-  create policy "admin_all" on onboarding_registrations
+  alter table onboarding_leads enable row level security;
+  create policy "admin_all" on onboarding_leads
     for all using (true) with check (true);
 */
 
