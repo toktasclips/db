@@ -17965,8 +17965,15 @@ body.sanal-page-active .sanal-shell{
         if(ue) throw ue;
         ud=newU;
       }
-      // Insert client
-      await db.from('clients').insert({name:lead.full_name.trim(),email:lead.email,phone:lead.phone||null,type:offerName||'Standart',status:'Aktif',start_date:startStr,program_end:endStr,program:offerName||null,health:8,notes:[],user_id:currentUser.email});
+      // Insert client (Müşteri Sağlığı)
+      const clientRow={name:lead.full_name.trim(),email:lead.email,phone:lead.phone||null,social:null,type:offer?.category||'',status:'Aktif',sessions:0,remaining_sessions:0,program:offerName||null,start_date:startStr,program_end:endStr,health:8,notes:[],user_id:currentUser?.email||null};
+      const {data:cd,error:ce}=await db.from('clients').insert(clientRow).select().single();
+      if(!ce&&cd&&state&&state.clients) state.clients.push({id:+cd.id,_new:false,name:cd.name,email:cd.email,type:cd.type,status:'Aktif',phone:'',social:'',sessions:0,remainingSessions:0,programEnd:endStr||'',startDate:startStr||'',program:offerName,health:8,notes:[],start:startStr||''});
+      // Insert customer (MRR / Müşteriler & MRR)
+      const monthlyPay=offer?.price||0;
+      const customerRow={name:lead.full_name.trim(),email:lead.email,program:offerName||'',monthly_payment:monthlyPay,start_date:startStr||null,end_date:endStr||null,status:'Aktif',notes:''};
+      const newCustId=await insertMusteriSB(customerRow);
+      if(newCustId&&typeof musteriler!=='undefined') musteriler.push({id:newCustId,...customerRow});
       // Update lead
       await db.from('onboarding_leads').update({status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId||null,selected_offer_name:offerName||null,updated_at:new Date().toISOString()}).eq('id',leadId);
       const waMsg = obBuildWA(lead.full_name.trim(), lead.email, userPass);
