@@ -10090,31 +10090,36 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // ── 1. Duplicate kontrolü: SADECE users tablosuna bak (Supabase sorgusu)
-  //    Onboarding tablosundaki varlık duplicate sayılmaz.
+  // ── 1. Users tablosuna upsert — varsa güncelle, yoksa oluştur
+  //    Onboarding tablosundaki kayıt duplicate sayılmaz, hiçbir zaman engellemez.
+  let userAlreadyExisted = false;
+  let userId = null;
+
+  // Önce var mı bak
   const { data: existingInUsers } = await sb
-    .from('users')
-    .select('id, email')
-    .eq('email', email)
-    .maybeSingle();
+    .from('users').select('id').eq('email', email).maybeSingle();
 
-  let userId = existingInUsers?.id || null;
-  let userAlreadyExisted = !!userId;
-
-  if (!userId) {
-    // Kullanıcı yok → oluştur
+  if (existingInUsers?.id) {
+    // Zaten var — şifre ve adı güncelle, devam et
+    userAlreadyExisted = true;
+    userId = existingInUsers.id;
+    await sb.from('users').update({ name, password, role: 'client' }).eq('email', email);
+    // Local state güncelle
+    if (users) {
+      const ui = users.findIndex(u => (u.email || '').toLowerCase() === email);
+      if (ui >= 0) { users[ui].name = name; users[ui].password = password; }
+      else users.push({ id: userId, name, email, password });
+    }
+  } else {
+    // Yok — yeni oluştur
     const { data: userData, error: userErr } = await sb
-      .from('users')
-      .insert({ name, email, password, role: 'client' })
-      .select()
-      .single();
-
+      .from('users').insert({ name, email, password, role: 'client' }).select().single();
     if (userErr) {
+      // 23505: race condition — aynı anda başka istek oluşturmuş, devam et
       if (userErr.code === '23505') {
-        // Race condition: aynı anda iki istek — mevcut kaydı al, devam et
-        const { data: raceUser } = await sb.from('users').select('id').eq('email', email).maybeSingle();
-        userId = raceUser?.id || null;
         userAlreadyExisted = true;
+        const { data: ru } = await sb.from('users').select('id').eq('email', email).maybeSingle();
+        userId = ru?.id || null;
       } else {
         toast('Kullanıcı oluşturulamadı: ' + userErr.message);
         return;
