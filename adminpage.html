@@ -6091,18 +6091,6 @@ try {
   sb = null;
 }
 window.sb = sb;
-// Debug banner
-(function(){
-  const banner = document.createElement('div');
-  banner.id = '_sb_debug';
-  banner.style.cssText = 'position:fixed;bottom:10px;right:10px;z-index:99999;background:#1a1a1a;color:#fff;font-size:11px;font-family:monospace;padding:8px 12px;border-radius:8px;max-width:320px;line-height:1.5;opacity:0.92';
-  const sup_type = typeof supabase !== 'undefined' ? typeof supabase : 'undefined';
-  const win_type = typeof window.supabase;
-  const sb_ok = sb !== null ? '✅ sb OK' : '❌ sb NULL';
-  banner.textContent = sb_ok + ' | supabase=' + sup_type + ' | window.supabase=' + win_type;
-  document.addEventListener('DOMContentLoaded', function(){ document.body && document.body.appendChild(banner); });
-  setTimeout(function(){ document.body && document.body.appendChild(banner); }, 500);
-})();
 function showSupabaseConnectionError(targetId){
   const msg = 'Supabase bağlantısı kurulamadı. Canlı sitede CDN, internet veya script izinleri engelleniyor olabilir.';
   console.error(msg);
@@ -10099,16 +10087,24 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // 1. users tablosuna ekle
+  // 1. users tablosuna ekle (zaten varsa atla)
+  let userId = null;
   const { data: userData, error: userErr } = await sb.from('users').insert({
     name, email, password, role: 'client'
   }).select().single();
   if (userErr) {
-    if (userErr.code === '23505') { toast('Bu e-posta zaten kayıtlı (users tablosunda mevcut)'); return; }
-    toast('Hata: ' + userErr.message); return;
+    if (userErr.code === '23505') {
+      // Zaten kayıtlı — mevcut kaydı bul ve devam et
+      const { data: existingUser } = await sb.from('users').select('id').eq('email', email).maybeSingle();
+      userId = existingUser?.id || null;
+    } else {
+      toast('Hata: ' + userErr.message); return;
+    }
+  } else {
+    userId = userData.id;
+    if (!users) users = [];
+    users.push({ id: userData.id, name, email, password });
   }
-  if (!users) users = [];
-  users.push({ id: userData.id, name, email, password });
 
   // 2. clients tablosuna ekle
   const clientRow = {
