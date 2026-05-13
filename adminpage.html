@@ -5203,10 +5203,10 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
 
       <!-- Tabs -->
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button onclick="setOnbTab('Bekliyor')" id="onb-tab-Bekliyor" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:var(--color-text-primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Bekleyenler</button>
-        <button onclick="setOnbTab('Hesap Açıldı')" id="onb-tab-Hesap Açıldı" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Hesabı Açılanlar</button>
-        <button onclick="setOnbTab('Arşivlendi')" id="onb-tab-Arşivlendi" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Arşivlenenler</button>
-        <button onclick="setOnbTab('Tümü')" id="onb-tab-Tümü" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Tümü</button>
+        <button onclick="setOnbTab('pending')" id="onb-tab-pending" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:var(--color-text-primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Bekleyenler</button>
+        <button onclick="setOnbTab('approved')" id="onb-tab-approved" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Hesabı Açılanlar</button>
+        <button onclick="setOnbTab('archived')" id="onb-tab-archived" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Arşivlenenler</button>
+        <button onclick="setOnbTab('all')" id="onb-tab-all" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Tümü</button>
       </div>
 
       <!-- List -->
@@ -9981,7 +9981,13 @@ function openMusteriPanel(id) {
      approved_at timestamptz
    ============================================================ */
 let onboardingRegs = [];
-let onbCurrentTab = 'Bekliyor';
+let onbCurrentTab = 'pending';
+
+// DB status → Türkçe görüntü
+const ONB_STATUS_LABEL = { pending: 'Bekliyor', approved: 'Hesap Açıldı', archived: 'Arşivlendi' };
+const ONB_STATUS_COLOR = { pending: 'var(--color-amber)', approved: 'var(--color-green)', archived: 'var(--color-text-muted)' };
+// Tab key → DB status filtresi
+const ONB_TAB_STATUS   = { pending: 'pending', approved: 'approved', archived: 'archived', all: null };
 
 async function loadOnboardingPage() {
   if (!sb) return;
@@ -9993,7 +9999,7 @@ async function loadOnboardingPage() {
 
 function setOnbTab(tab) {
   onbCurrentTab = tab;
-  ['Bekliyor', 'Hesap Açıldı', 'Arşivlendi', 'Tümü'].forEach(t => {
+  ['pending', 'approved', 'archived', 'all'].forEach(t => {
     const btn = document.getElementById('onb-tab-' + t);
     if (!btn) return;
     const isActive = t === tab;
@@ -10005,23 +10011,24 @@ function setOnbTab(tab) {
 }
 
 function renderOnboardingPage() {
-  const bekliyor = onboardingRegs.filter(r => r.status === 'Bekliyor').length;
-  const acildi   = onboardingRegs.filter(r => r.status === 'Hesap Açıldı').length;
-  const arsiv    = onboardingRegs.filter(r => r.status === 'Arşivlendi').length;
-  const el = id => document.getElementById(id);
-  if(el('onb-stat-bekliyor')) el('onb-stat-bekliyor').textContent = bekliyor;
-  if(el('onb-stat-acildi'))   el('onb-stat-acildi').textContent   = acildi;
-  if(el('onb-stat-arsiv'))    el('onb-stat-arsiv').textContent    = arsiv;
-  if(el('onb-stat-toplam'))   el('onb-stat-toplam').textContent   = onboardingRegs.length;
+  const bekliyor = onboardingRegs.filter(r => r.status === 'pending').length;
+  const acildi   = onboardingRegs.filter(r => r.status === 'approved').length;
+  const arsiv    = onboardingRegs.filter(r => r.status === 'archived').length;
+  const elq = id => document.getElementById(id);
+  if(elq('onb-stat-bekliyor')) elq('onb-stat-bekliyor').textContent = bekliyor;
+  if(elq('onb-stat-acildi'))   elq('onb-stat-acildi').textContent   = acildi;
+  if(elq('onb-stat-arsiv'))    elq('onb-stat-arsiv').textContent    = arsiv;
+  if(elq('onb-stat-toplam'))   elq('onb-stat-toplam').textContent   = onboardingRegs.length;
   renderOnboardingList();
 }
 
 function renderOnboardingList() {
   const container = document.getElementById('onb-list');
   if (!container) return;
-  const filtered = onbCurrentTab === 'Tümü'
+  const filterStatus = ONB_TAB_STATUS[onbCurrentTab];
+  const filtered = filterStatus === null
     ? onboardingRegs
-    : onboardingRegs.filter(r => r.status === onbCurrentTab);
+    : onboardingRegs.filter(r => r.status === filterStatus);
 
   if (!filtered.length) {
     container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--color-text-muted);font-size:14px">Kayıt bulunamadı</div>';
@@ -10030,25 +10037,28 @@ function renderOnboardingList() {
 
   const aktifTeklifler = teklifler.filter(t => t.status === 'Aktif');
   container.innerHTML = filtered.map(reg => {
+    const safeId = reg.id; // UUID string
+    const displayName = reg.full_name || reg.name || '—';
     const dateStr = reg.created_at ? new Date(reg.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'numeric'}) : '—';
-    const statusColor = reg.status === 'Bekliyor' ? 'var(--color-amber)' : reg.status === 'Hesap Açıldı' ? 'var(--color-green)' : 'var(--color-text-muted)';
-    const offerSelect = reg.status === 'Bekliyor' ? `
+    const statusLabel = ONB_STATUS_LABEL[reg.status] || reg.status;
+    const statusColor = ONB_STATUS_COLOR[reg.status] || 'var(--color-text-muted)';
+    const offerSelect = reg.status === 'pending' ? `
       <div style="margin-top:12px">
         <div class="form-label" style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">PROGRAM / TEKLİF SEÇ</div>
-        <select id="onb-offer-${reg.id}" class="form-input form-select" style="font-size:13px">
+        <select id="onb-offer-${safeId}" class="form-input form-select" style="font-size:13px">
           <option value="">— Program seç —</option>
-          ${aktifTeklifler.map(t => `<option value="${t.id}"${reg.offer_id && String(reg.offer_id) === String(t.id) ? ' selected' : ''}>${t.name} — ₺${Number(t.price).toLocaleString('tr-TR')}</option>`).join('')}
+          ${aktifTeklifler.map(t => `<option value="${t.id}">${t.name} — ₺${Number(t.price).toLocaleString('tr-TR')}</option>`).join('')}
         </select>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn approve-btn" style="flex:1;justify-content:center;border-radius:10px;padding:9px;font-size:13px" onclick="createOnboardingPortalAccount(${reg.id})">✓ Portal Hesabı Oluştur</button>
-        <button class="btn btn-ghost" style="padding:9px 16px;font-size:13px;border-radius:10px" onclick="archiveOnboardingReg(${reg.id})">Arşivle</button>
+        <button class="btn approve-btn" style="flex:1;justify-content:center;border-radius:10px;padding:9px;font-size:13px" onclick="createOnboardingPortalAccount('${safeId}')">✓ Portal Hesabı Oluştur</button>
+        <button class="btn btn-ghost" style="padding:9px 16px;font-size:13px;border-radius:10px" onclick="archiveOnboardingReg('${safeId}')">Arşivle</button>
       </div>` : '';
     return `
       <div class="card" style="margin-bottom:12px;padding:20px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-          <div style="font-size:15px;font-weight:600;color:var(--color-text-primary)">${reg.name || '—'}</div>
-          <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${statusColor}22;color:${statusColor}">${reg.status}</span>
+          <div style="font-size:15px;font-weight:600;color:var(--color-text-primary)">${displayName}</div>
+          <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
           <div>
@@ -10060,29 +10070,28 @@ function renderOnboardingList() {
             <div style="font-size:13px;color:var(--color-text-primary);margin-top:3px">${dateStr}</div>
           </div>
         </div>
-        ${reg.note ? `<div style="margin-top:10px;font-size:12px;color:var(--color-text-muted);font-style:italic">${reg.note}</div>` : ''}
+        ${reg.desired_password ? `<div style="margin-top:8px;font-size:12px;color:var(--color-text-muted)">İstenen şifre: <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px">${reg.desired_password}</code></div>` : ''}
         ${offerSelect}
       </div>`;
   }).join('');
 }
 
 async function createOnboardingPortalAccount(regId) {
-  const reg = onboardingRegs.find(r => r.id === regId);
+  const reg = onboardingRegs.find(r => String(r.id) === String(regId));
   if (!reg) return;
 
-  // offer_id is a bigint (integer) — NOT a UUID, so no UUID error
   const selectEl = document.getElementById('onb-offer-' + regId);
   const selectedOfferId = selectEl ? selectEl.value : '';
-  // Find offer by integer ID comparison (never pass as UUID)
   const offer = selectedOfferId ? teklifler.find(t => String(t.id) === String(selectedOfferId)) : null;
-
   if (!offer) { toast('Lütfen bir program / teklif seç'); return; }
 
-  const name = reg.name || '';
+  const name  = reg.full_name || reg.name || '';
   const email = reg.email || '';
   if (!email) { toast('E-posta bulunamadı'); return; }
 
-  // Check if already exists in users table
+  // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
+  const password = reg.desired_password || (email.split('@')[0] + '123!');
+
   const { data: existing } = await sb.from('users').select('id').eq('email', email);
   if (existing && existing.length > 0) { toast('Bu e-posta zaten kayıtlı'); return; }
 
@@ -10095,24 +10104,19 @@ async function createOnboardingPortalAccount(regId) {
 
   // 1. users tablosuna ekle
   const { data: userData, error: userErr } = await sb.from('users').insert({
-    name, email,
-    password: email.split('@')[0] + '123!',
-    role: 'client'
+    name, email, password, role: 'client'
   }).select().single();
   if (userErr) { toast('Hata: ' + userErr.message); return; }
   if (!users) users = [];
-  users.push({ id: userData.id, name, email, password: userData.password || '' });
+  users.push({ id: userData.id, name, email, password });
 
   // 2. clients tablosuna ekle
   const clientRow = {
-    name, email,
-    type: offer.category || '',
-    status: 'Aktif',
-    phone: '', social: null,
+    name, email, type: offer.category || '', status: 'Aktif',
+    phone: reg.phone || '', social: null,
     sessions: 0, remaining_sessions: 0,
     program: offer.name || null,
-    start_date: startStr,
-    program_end: endDate,
+    start_date: startStr, program_end: endDate,
     health: 8, notes: [],
     user_id: currentUser?.email || null
   };
@@ -10121,7 +10125,7 @@ async function createOnboardingPortalAccount(regId) {
     state.clients.push({
       id: +cd.id, _new: false, name, email,
       type: clientRow.type, status: 'Aktif',
-      phone: '', social: '', sessions: 0, remainingSessions: 0,
+      phone: clientRow.phone, social: '', sessions: 0, remainingSessions: 0,
       programEnd: endDate || '', startDate: startStr,
       program: offer.name || '', health: 8, notes: [], start: startStr
     });
@@ -10131,32 +10135,24 @@ async function createOnboardingPortalAccount(regId) {
   const customerRow = {
     name, email, program: offer.name || '',
     monthly_payment: monthlyPay,
-    start_date: startStr,
-    end_date: endDate,
+    start_date: startStr, end_date: endDate,
     status: 'Aktif', notes: ''
   };
   const newCustId = await insertMusteriSB(customerRow);
   musteriler.push({ id: newCustId, ...customerRow });
 
   // 4. Günlük satış kaydı
-  if (monthlyPay > 0 || offer.name) {
-    await recordSaleInDaily(name, offer.name, monthlyPay);
-  }
+  if (monthlyPay > 0 || offer.name) await recordSaleInDaily(name, offer.name, monthlyPay);
 
-  // 5. onboarding_leads kaydını güncelle — offer_id bigint olarak sakla
+  // 5. onboarding_leads durumunu güncelle
   const { error: updErr } = await sb.from('onboarding_leads').update({
-    status: 'Hesap Açıldı',
-    offer_id: Number(offer.id),   // bigint, UUID değil
+    status: 'approved',
     approved_at: new Date().toISOString()
   }).eq('id', regId);
   if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
 
-  // Local state güncelle
-  const idx = onboardingRegs.findIndex(r => r.id === regId);
-  if (idx >= 0) {
-    onboardingRegs[idx].status = 'Hesap Açıldı';
-    onboardingRegs[idx].offer_id = Number(offer.id);
-  }
+  const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
+  if (idx >= 0) onboardingRegs[idx].status = 'approved';
 
   toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
   renderOnboardingPage();
@@ -10165,10 +10161,10 @@ async function createOnboardingPortalAccount(regId) {
 }
 
 async function archiveOnboardingReg(regId) {
-  const { error } = await sb.from('onboarding_leads').update({ status: 'Arşivlendi' }).eq('id', regId);
+  const { error } = await sb.from('onboarding_leads').update({ status: 'archived' }).eq('id', regId);
   if (error) { toast('Hata: ' + error.message); return; }
-  const idx = onboardingRegs.findIndex(r => r.id === regId);
-  if (idx >= 0) onboardingRegs[idx].status = 'Arşivlendi';
+  const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
+  if (idx >= 0) onboardingRegs[idx].status = 'archived';
   renderOnboardingPage();
 }
 
@@ -10181,13 +10177,13 @@ function openAddOnboardingModal() {
 }
 
 async function addOnboardingTestRecord() {
-  const name  = document.getElementById('onb-add-name').value.trim();
-  const email = document.getElementById('onb-add-email').value.trim().toLowerCase();
-  const note  = document.getElementById('onb-add-note').value.trim();
-  if (!name || !email) { toast('Ad ve e-posta zorunlu'); return; }
+  const full_name = document.getElementById('onb-add-name').value.trim();
+  const email     = document.getElementById('onb-add-email').value.trim().toLowerCase();
+  const note      = document.getElementById('onb-add-note').value.trim();
+  if (!full_name || !email) { toast('Ad ve e-posta zorunlu'); return; }
 
   const { data, error } = await sb.from('onboarding_leads').insert({
-    name, email, note: note || null, status: 'Bekliyor'
+    full_name, email, note: note || null, status: 'pending', source: 'manual'
   }).select().single();
   if (error) { toast('Hata: ' + error.message); return; }
 
