@@ -10090,48 +10090,7 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // ── 1. Users tablosuna upsert — varsa güncelle, yoksa oluştur
-  //    Onboarding tablosundaki kayıt duplicate sayılmaz, hiçbir zaman engellemez.
-  let userAlreadyExisted = false;
-  let userId = null;
-
-  // Önce var mı bak
-  const { data: existingInUsers } = await sb
-    .from('users').select('id').eq('email', email).maybeSingle();
-
-  if (existingInUsers?.id) {
-    // Zaten var — şifre ve adı güncelle, devam et
-    userAlreadyExisted = true;
-    userId = existingInUsers.id;
-    await sb.from('users').update({ name, password, role: 'client' }).eq('email', email);
-    // Local state güncelle
-    if (users) {
-      const ui = users.findIndex(u => (u.email || '').toLowerCase() === email);
-      if (ui >= 0) { users[ui].name = name; users[ui].password = password; }
-      else users.push({ id: userId, name, email, password });
-    }
-  } else {
-    // Yok — yeni oluştur
-    const { data: userData, error: userErr } = await sb
-      .from('users').insert({ name, email, password, role: 'client' }).select().single();
-    if (userErr) {
-      // 23505: race condition — aynı anda başka istek oluşturmuş, devam et
-      if (userErr.code === '23505') {
-        userAlreadyExisted = true;
-        const { data: ru } = await sb.from('users').select('id').eq('email', email).maybeSingle();
-        userId = ru?.id || null;
-      } else {
-        toast('Kullanıcı oluşturulamadı: ' + userErr.message);
-        return;
-      }
-    } else {
-      userId = userData.id;
-      if (!users) users = [];
-      users.push({ id: userData.id, name, email, password });
-    }
-  }
-
-  // ── 2. Clients tablosuna ekle (daha önce eklenmemişse)
+  // ── 1. Clients tablosuna ekle (Müşteri Sağlığı) — daha önce eklenmemişse
   const { data: existingClient } = await sb
     .from('clients')
     .select('id')
@@ -10161,7 +10120,7 @@ async function createOnboardingPortalAccount(regId) {
     }
   }
 
-  // ── 3. Customers tablosuna ekle (daha önce eklenmemişse)
+  // ── 2. Customers tablosuna ekle (MRR) — daha önce eklenmemişse
   const alreadyInMusteriler = musteriler.some(m => (m.email || '').toLowerCase() === email);
   if (!alreadyInMusteriler) {
     const customerRow = {
@@ -10174,12 +10133,10 @@ async function createOnboardingPortalAccount(regId) {
     musteriler.push({ id: newCustId, ...customerRow });
   }
 
-  // ── 4. Günlük satış kaydı
-  if (!userAlreadyExisted && (monthlyPay > 0 || offer.name)) {
-    await recordSaleInDaily(name, offer.name, monthlyPay);
-  }
+  // ── 3. Günlük satış kaydı
+  if (monthlyPay > 0 || offer.name) await recordSaleInDaily(name, offer.name, monthlyPay);
 
-  // ── 5. Onboarding kaydını account_created yap
+  // ── 4. Onboarding kaydını account_created yap
   await sb.from('onboarding_leads').update({
     status: 'account_created',
     approved_at: new Date().toISOString()
@@ -10188,13 +10145,11 @@ async function createOnboardingPortalAccount(regId) {
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'account_created';
 
-  const msg = userAlreadyExisted
-    ? '✅ ' + name + ' zaten kayıtlıydı — profil tamamlandı.'
-    : '✅ ' + name + ' için portal hesabı oluşturuldu!';
-  toast(msg);
+  toast('✅ ' + name + ' müşteri olarak eklendi!');
   renderOnboardingPage();
   setOnbTab('approved');
-  renderUsers(); renderHealthPage(); renderStats();
+  renderHealthPage(); renderStats();
+  renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
 }
 
 async function archiveOnboardingReg(regId) {
