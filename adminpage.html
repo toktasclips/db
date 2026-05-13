@@ -3368,6 +3368,10 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
           <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"></circle><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5"></path></svg>
           Potansiyel Müşteriler
         </div>
+        <div class="nav-item admin-only" onclick="go(&#39;onboarding&#39;,this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M8 10v4M2 8h4M10 8h4"></path><circle cx="8" cy="8" r="2"></circle></svg>
+          Onboarding Bekleyenler
+        </div>
       </div>
     </div>
 
@@ -5167,6 +5171,61 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
     </div>
 
 
+    <!-- ===== ONBOARDING BEKLEYENLERa ===== -->
+    <div class="page admin-only" id="page-onboarding">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Onboarding Bekleyenler</div>
+          <div class="page-sub">Tally formundan gelen kayıtları yönet</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddOnboardingModal()">+ Test Kaydı</button>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div class="card" style="padding:20px;text-align:center">
+          <div id="onb-stat-bekliyor" style="font-size:28px;font-weight:700;color:var(--color-text-primary)">0</div>
+          <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px">BEKLİYOR</div>
+        </div>
+        <div class="card" style="padding:20px;text-align:center">
+          <div id="onb-stat-acildi" style="font-size:28px;font-weight:700;color:var(--color-green)">0</div>
+          <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px">HESAP AÇILDI</div>
+        </div>
+        <div class="card" style="padding:20px;text-align:center">
+          <div id="onb-stat-arsiv" style="font-size:28px;font-weight:700;color:var(--color-text-muted)">0</div>
+          <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px">ARŞİVLENDİ</div>
+        </div>
+        <div class="card" style="padding:20px;text-align:center">
+          <div id="onb-stat-toplam" style="font-size:28px;font-weight:700;color:var(--color-text-primary)">0</div>
+          <div style="font-size:11px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px">TOPLAM</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button onclick="setOnbTab('Bekliyor')" id="onb-tab-Bekliyor" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:var(--color-text-primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Bekleyenler</button>
+        <button onclick="setOnbTab('Hesap Açıldı')" id="onb-tab-Hesap Açıldı" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Hesabı Açılanlar</button>
+        <button onclick="setOnbTab('Arşivlendi')" id="onb-tab-Arşivlendi" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Arşivlenenler</button>
+        <button onclick="setOnbTab('Tümü')" id="onb-tab-Tümü" style="padding:8px 18px;border-radius:20px;border:1px solid var(--color-border);background:transparent;color:var(--color-text-primary);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Tümü</button>
+      </div>
+
+      <!-- List -->
+      <div id="onb-list"></div>
+
+      <!-- Add Test Record Modal -->
+      <div id="modal-add-onboarding" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal('modal-add-onboarding')">
+        <div class="modal-box" style="max-width:480px">
+          <div class="modal-head"><span class="modal-title">Test Kaydı Ekle</span><button class="modal-close" onclick="closeModal('modal-add-onboarding')">✕</button></div>
+          <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-input" id="onb-add-name" placeholder="Kayıt sahibinin adı"></div>
+            <div class="form-group"><label class="form-label">E-posta</label><input class="form-input" id="onb-add-email" type="email" placeholder="email@ornek.com"></div>
+            <div class="form-group"><label class="form-label">Not (opsiyonel)</label><textarea class="form-input" id="onb-add-note" rows="2" placeholder="Tally formu notu..."></textarea></div>
+          </div>
+          <div class="modal-foot"><button class="btn btn-primary" onclick="addOnboardingTestRecord()">Ekle</button></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== DERSLER / CLASSROOM ===== -->
 
     <div class="page" id="page-egitim">
@@ -6494,6 +6553,7 @@ function go(id,el){
   if(id==='barista') setTimeout(loadToolboxItems, 50);
   if(id==='odevler') setTimeout(loadOdevler, 50);
   if(id==='egitim') setTimeout(loadEgitim, 50);
+  if(id==='onboarding') setTimeout(loadOnboardingPage, 50);
   if(id==='mesajlar') setTimeout(loadMesajlar, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
@@ -9908,6 +9968,236 @@ function openMusteriPanel(id) {
 
 
 /* ============================================================
+   ONBOARDİNG BEKLEYENLERa
+   ============================================================
+   onboarding_registrations tablosu:
+     id          bigserial primary key
+     name        text not null
+     email       text not null
+     note        text
+     status      text default 'Bekliyor'  -- 'Bekliyor' | 'Hesap Açıldı' | 'Arşivlendi'
+     offer_id    bigint references offers(id)   -- INTEGER, not UUID
+     created_at  timestamptz default now()
+     approved_at timestamptz
+   ============================================================ */
+let onboardingRegs = [];
+let onbCurrentTab = 'Bekliyor';
+
+async function loadOnboardingPage() {
+  if (!sb) return;
+  const { data, error } = await sb.from('onboarding_registrations').select('*').order('created_at', { ascending: false });
+  if (error) { toast('Hata: ' + error.message); return; }
+  onboardingRegs = data || [];
+  renderOnboardingPage();
+}
+
+function setOnbTab(tab) {
+  onbCurrentTab = tab;
+  ['Bekliyor', 'Hesap Açıldı', 'Arşivlendi', 'Tümü'].forEach(t => {
+    const btn = document.getElementById('onb-tab-' + t);
+    if (!btn) return;
+    const isActive = t === tab;
+    btn.style.background = isActive ? 'var(--color-text-primary)' : 'transparent';
+    btn.style.color = isActive ? '#fff' : 'var(--color-text-primary)';
+    btn.style.fontWeight = isActive ? '600' : '500';
+  });
+  renderOnboardingList();
+}
+
+function renderOnboardingPage() {
+  const bekliyor = onboardingRegs.filter(r => r.status === 'Bekliyor').length;
+  const acildi   = onboardingRegs.filter(r => r.status === 'Hesap Açıldı').length;
+  const arsiv    = onboardingRegs.filter(r => r.status === 'Arşivlendi').length;
+  const el = id => document.getElementById(id);
+  if(el('onb-stat-bekliyor')) el('onb-stat-bekliyor').textContent = bekliyor;
+  if(el('onb-stat-acildi'))   el('onb-stat-acildi').textContent   = acildi;
+  if(el('onb-stat-arsiv'))    el('onb-stat-arsiv').textContent    = arsiv;
+  if(el('onb-stat-toplam'))   el('onb-stat-toplam').textContent   = onboardingRegs.length;
+  renderOnboardingList();
+}
+
+function renderOnboardingList() {
+  const container = document.getElementById('onb-list');
+  if (!container) return;
+  const filtered = onbCurrentTab === 'Tümü'
+    ? onboardingRegs
+    : onboardingRegs.filter(r => r.status === onbCurrentTab);
+
+  if (!filtered.length) {
+    container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--color-text-muted);font-size:14px">Kayıt bulunamadı</div>';
+    return;
+  }
+
+  const aktifTeklifler = teklifler.filter(t => t.status === 'Aktif');
+  container.innerHTML = filtered.map(reg => {
+    const dateStr = reg.created_at ? new Date(reg.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'numeric'}) : '—';
+    const statusColor = reg.status === 'Bekliyor' ? 'var(--color-amber)' : reg.status === 'Hesap Açıldı' ? 'var(--color-green)' : 'var(--color-text-muted)';
+    const offerSelect = reg.status === 'Bekliyor' ? `
+      <div style="margin-top:12px">
+        <div class="form-label" style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">PROGRAM / TEKLİF SEÇ</div>
+        <select id="onb-offer-${reg.id}" class="form-input form-select" style="font-size:13px">
+          <option value="">— Program seç —</option>
+          ${aktifTeklifler.map(t => `<option value="${t.id}"${reg.offer_id && String(reg.offer_id) === String(t.id) ? ' selected' : ''}>${t.name} — ₺${Number(t.price).toLocaleString('tr-TR')}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn approve-btn" style="flex:1;justify-content:center;border-radius:10px;padding:9px;font-size:13px" onclick="createOnboardingPortalAccount(${reg.id})">✓ Portal Hesabı Oluştur</button>
+        <button class="btn btn-ghost" style="padding:9px 16px;font-size:13px;border-radius:10px" onclick="archiveOnboardingReg(${reg.id})">Arşivle</button>
+      </div>` : '';
+    return `
+      <div class="card" style="margin-bottom:12px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+          <div style="font-size:15px;font-weight:600;color:var(--color-text-primary)">${reg.name || '—'}</div>
+          <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${statusColor}22;color:${statusColor}">${reg.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div>
+            <div class="form-label" style="font-size:10px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px">E-POSTA</div>
+            <div style="font-size:13px;color:var(--color-text-primary);margin-top:3px">${reg.email || '—'}</div>
+          </div>
+          <div>
+            <div class="form-label" style="font-size:10px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px">KAYIT TARİHİ</div>
+            <div style="font-size:13px;color:var(--color-text-primary);margin-top:3px">${dateStr}</div>
+          </div>
+        </div>
+        ${reg.note ? `<div style="margin-top:10px;font-size:12px;color:var(--color-text-muted);font-style:italic">${reg.note}</div>` : ''}
+        ${offerSelect}
+      </div>`;
+  }).join('');
+}
+
+async function createOnboardingPortalAccount(regId) {
+  const reg = onboardingRegs.find(r => r.id === regId);
+  if (!reg) return;
+
+  // offer_id is a bigint (integer) — NOT a UUID, so no UUID error
+  const selectEl = document.getElementById('onb-offer-' + regId);
+  const selectedOfferId = selectEl ? selectEl.value : '';
+  // Find offer by integer ID comparison (never pass as UUID)
+  const offer = selectedOfferId ? teklifler.find(t => String(t.id) === String(selectedOfferId)) : null;
+
+  if (!offer) { toast('Lütfen bir program / teklif seç'); return; }
+
+  const name = reg.name || '';
+  const email = reg.email || '';
+  if (!email) { toast('E-posta bulunamadı'); return; }
+
+  // Check if already exists in users table
+  const { data: existing } = await sb.from('users').select('id').eq('email', email);
+  if (existing && existing.length > 0) { toast('Bu e-posta zaten kayıtlı'); return; }
+
+  const startStr   = new Date().toISOString().slice(0, 10);
+  const monthlyPay = offer.price || 0;
+  const durationDays = offerToDays(offer);
+  const endDate    = durationDays
+    ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
+    : null;
+
+  // 1. users tablosuna ekle
+  const { data: userData, error: userErr } = await sb.from('users').insert({
+    name, email,
+    password: email.split('@')[0] + '123!',
+    role: 'client'
+  }).select().single();
+  if (userErr) { toast('Hata: ' + userErr.message); return; }
+  if (!users) users = [];
+  users.push({ id: userData.id, name, email, password: userData.password || '' });
+
+  // 2. clients tablosuna ekle
+  const clientRow = {
+    name, email,
+    type: offer.category || '',
+    status: 'Aktif',
+    phone: '', social: null,
+    sessions: 0, remaining_sessions: 0,
+    program: offer.name || null,
+    start_date: startStr,
+    program_end: endDate,
+    health: 8, notes: [],
+    user_id: currentUser?.email || null
+  };
+  const { data: cd } = await sb.from('clients').insert(clientRow).select().single();
+  if (cd) {
+    state.clients.push({
+      id: +cd.id, _new: false, name, email,
+      type: clientRow.type, status: 'Aktif',
+      phone: '', social: '', sessions: 0, remainingSessions: 0,
+      programEnd: endDate || '', startDate: startStr,
+      program: offer.name || '', health: 8, notes: [], start: startStr
+    });
+  }
+
+  // 3. customers tablosuna ekle
+  const customerRow = {
+    name, email, program: offer.name || '',
+    monthly_payment: monthlyPay,
+    start_date: startStr,
+    end_date: endDate,
+    status: 'Aktif', notes: ''
+  };
+  const newCustId = await insertMusteriSB(customerRow);
+  musteriler.push({ id: newCustId, ...customerRow });
+
+  // 4. Günlük satış kaydı
+  if (monthlyPay > 0 || offer.name) {
+    await recordSaleInDaily(name, offer.name, monthlyPay);
+  }
+
+  // 5. onboarding_registrations kaydını güncelle — offer_id bigint olarak sakla
+  const { error: updErr } = await sb.from('onboarding_registrations').update({
+    status: 'Hesap Açıldı',
+    offer_id: Number(offer.id),   // bigint, UUID değil
+    approved_at: new Date().toISOString()
+  }).eq('id', regId);
+  if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
+
+  // Local state güncelle
+  const idx = onboardingRegs.findIndex(r => r.id === regId);
+  if (idx >= 0) {
+    onboardingRegs[idx].status = 'Hesap Açıldı';
+    onboardingRegs[idx].offer_id = Number(offer.id);
+  }
+
+  toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
+  renderOnboardingPage();
+  setOnbTab(onbCurrentTab);
+  renderUsers(); renderHealthPage(); renderStats();
+}
+
+async function archiveOnboardingReg(regId) {
+  const { error } = await sb.from('onboarding_registrations').update({ status: 'Arşivlendi' }).eq('id', regId);
+  if (error) { toast('Hata: ' + error.message); return; }
+  const idx = onboardingRegs.findIndex(r => r.id === regId);
+  if (idx >= 0) onboardingRegs[idx].status = 'Arşivlendi';
+  renderOnboardingPage();
+}
+
+function openAddOnboardingModal() {
+  ['onb-add-name', 'onb-add-email', 'onb-add-note'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  openModal('modal-add-onboarding');
+}
+
+async function addOnboardingTestRecord() {
+  const name  = document.getElementById('onb-add-name').value.trim();
+  const email = document.getElementById('onb-add-email').value.trim().toLowerCase();
+  const note  = document.getElementById('onb-add-note').value.trim();
+  if (!name || !email) { toast('Ad ve e-posta zorunlu'); return; }
+
+  const { data, error } = await sb.from('onboarding_registrations').insert({
+    name, email, note: note || null, status: 'Bekliyor'
+  }).select().single();
+  if (error) { toast('Hata: ' + error.message); return; }
+
+  onboardingRegs.unshift(data);
+  closeModal('modal-add-onboarding');
+  renderOnboardingPage();
+  toast('Kayıt eklendi');
+}
+
+/* ============================================================
    TEKLİFLER
    ============================================================ */
 let teklifler = [];
@@ -11925,6 +12215,26 @@ async function loadIgDailyKPIs() {
     updated_at timestamptz default now(),
     unique(user_id, task_id)
   );
+*/
+
+/*
+  onboarding_registrations tablosu (Supabase'de çalıştır):
+
+  create table if not exists onboarding_registrations (
+    id          bigserial primary key,
+    name        text not null,
+    email       text not null,
+    note        text,
+    status      text not null default 'Bekliyor',
+    offer_id    bigint references offers(id) on delete set null,
+    created_at  timestamptz not null default now(),
+    approved_at timestamptz
+  );
+
+  -- RLS politikaları:
+  alter table onboarding_registrations enable row level security;
+  create policy "admin_all" on onboarding_registrations
+    for all using (true) with check (true);
 */
 
 // ── State ─────────────────────────────────────────────────────
