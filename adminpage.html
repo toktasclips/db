@@ -10092,9 +10092,6 @@ async function createOnboardingPortalAccount(regId) {
   // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
   const password = reg.desired_password || (email.split('@')[0] + '123!');
 
-  const alreadyExists = users && users.some(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-  if (alreadyExists) { toast('Bu e-posta zaten kayıtlı'); return; }
-
   const startStr   = new Date().toISOString().slice(0, 10);
   const monthlyPay = offer.price || 0;
   const durationDays = offerToDays(offer);
@@ -10106,7 +10103,10 @@ async function createOnboardingPortalAccount(regId) {
   const { data: userData, error: userErr } = await sb.from('users').insert({
     name, email, password, role: 'client'
   }).select().single();
-  if (userErr) { toast('Hata: ' + userErr.message); return; }
+  if (userErr) {
+    if (userErr.code === '23505') { toast('Bu e-posta zaten kayıtlı (users tablosunda mevcut)'); return; }
+    toast('Hata: ' + userErr.message); return;
+  }
   if (!users) users = [];
   users.push({ id: userData.id, name, email, password });
 
