@@ -3368,6 +3368,10 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
           <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.5"></circle><path d="M2.5 13.5c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5"></path></svg>
           Potansiyel Müşteriler
         </div>
+        <div class="nav-item admin-only" onclick="go(&#39;onboarding&#39;,this)">
+          <svg class="ni" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h2M5 10h4M9 7h2"/><circle cx="13" cy="13" r="2.5" fill="currentColor" stroke="none"/><path d="M12.3 13h1.4M13 12.3v1.4" stroke="white" stroke-width="1.2"/></svg>
+          Onboarding Bekleyenler
+        </div>
       </div>
     </div>
 
@@ -5096,6 +5100,45 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
       </div>
     </div>
 
+  <!-- ───── ONBOARDING BEKLEYENLER ─────────────────── -->
+  <div class="page admin-only" id="page-onboarding">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Onboarding Bekleyenler</div>
+        <div class="page-sub" id="ob-subtitle">Tally formundan gelen kayıtlar</div>
+      </div>
+      <button class="btn btn-ghost" onclick="obToggleTestBox()" style="margin-left:auto">+ Test Kaydı</button>
+    </div>
+
+    <div id="ob-kpis" class="ob-kpis"></div>
+
+    <div class="ob-tabs">
+      <button class="ob-tab active" onclick="setObFilter('pending',this)">Bekleyenler</button>
+      <button class="ob-tab" onclick="setObFilter('account_created',this)">Hesabı Açılanlar</button>
+      <button class="ob-tab" onclick="setObFilter('archived',this)">Arşivlenenler</button>
+      <button class="ob-tab" onclick="setObFilter('all',this)">Tümü</button>
+    </div>
+
+    <div id="ob-grid" class="ob-grid"></div>
+
+    <!-- Test record form -->
+    <div class="ob-test-box" id="ob-test-box" style="display:none">
+      <div class="ob-test-title">Test Onboarding Kaydı Ekle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label class="form-label">Ad Soyad *</label><input class="form-input" id="ob-t-name" placeholder="Zeynep Kaya"></div>
+        <div><label class="form-label">Telefon</label><input class="form-input" id="ob-t-phone" placeholder="0555 123 45 67"></div>
+        <div><label class="form-label">E-posta</label><input class="form-input" id="ob-t-email" type="email" placeholder="zeynep@email.com"></div>
+        <div><label class="form-label">Instagram</label><input class="form-input" id="ob-t-ig" placeholder="@zeynep"></div>
+      </div>
+      <div style="margin-bottom:10px"><label class="form-label">Mevcut Durum</label><textarea class="form-input" id="ob-t-situation" rows="2" placeholder="Şu an 0'dan başlıyorum..."></textarea></div>
+      <div style="margin-bottom:14px"><label class="form-label">Hedef</label><textarea class="form-input" id="ob-t-goal" rows="2" placeholder="6 ayda 10 müşteriye ulaşmak istiyorum..."></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="addTestObLead()">Kaydet</button>
+        <button class="btn btn-ghost" onclick="obToggleTestBox()">İptal</button>
+      </div>
+    </div>
+  </div>
+
   </main>
 </div>
 
@@ -6312,7 +6355,7 @@ function onDailyDateChange(dateStr){
 }
 
 const NAV_GROUPS = {
-  operasyon: ['musteri-yonetimi','health','musteriler','client-reports','leads'],
+  operasyon: ['musteri-yonetimi','health','musteriler','client-reports','leads','onboarding'],
   istakibi:  ['goals','competitors','teklifler']
 };
 
@@ -6359,6 +6402,7 @@ function go(id,el){
   if(id==='odevler') setTimeout(loadOdevler, 50);
   if(id==='egitim') setTimeout(loadEgitim, 50);
   if(id==='mesajlar') setTimeout(loadMesajlar, 50);
+  if(id==='onboarding') setTimeout(loadOnboardingPage, 50);
   if(id==='daily')  setTimeout(loadSalesTicker, 80);
   render();
 }
@@ -17689,6 +17733,44 @@ body.sanal-page-active #sanal-app{
 body.sanal-page-active .sanal-shell{
   margin:0!important;
 }
+
+/* ── ONBOARDING BEKLEYENLER ──────────────────────────────── */
+#page-onboarding .ob-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px;}
+#page-onboarding .ob-kpi{background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:16px 20px;}
+#page-onboarding .ob-kpi-val{font-size:28px;font-weight:800;color:var(--color-text-primary);line-height:1;}
+#page-onboarding .ob-kpi-label{font-size:10px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+#page-onboarding .ob-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+#page-onboarding .ob-tab{padding:7px 16px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+#page-onboarding .ob-tab:hover{background:var(--color-bg-secondary);color:var(--color-text-primary);}
+#page-onboarding .ob-tab.active{background:var(--color-text-primary);color:#fff;border-color:transparent;}
+#page-onboarding .ob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+#page-onboarding .ob-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .15s;}
+#page-onboarding .ob-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.07);}
+#page-onboarding .ob-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+#page-onboarding .ob-name{font-size:16px;font-weight:700;color:var(--color-text-primary);line-height:1.2;}
+#page-onboarding .ob-badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap;}
+#page-onboarding .ob-badge-pending{background:#F0EFEB;color:#6B5B4E;}
+#page-onboarding .ob-badge-account_created{background:#EDF8EF;color:#2E7D55;}
+#page-onboarding .ob-badge-archived{background:#F4F4F4;color:#999;}
+#page-onboarding .ob-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#page-onboarding .ob-field{font-size:13px;color:var(--color-text-secondary);display:flex;flex-direction:column;gap:2px;word-break:break-word;}
+#page-onboarding .ob-field-label{font-size:10px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;}
+#page-onboarding .ob-goal-box{font-size:13px;color:var(--color-text-secondary);line-height:1.55;padding:10px 12px;background:var(--color-bg-secondary);border-radius:10px;border:1px solid var(--color-border);}
+#page-onboarding .ob-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--color-border);}
+#page-onboarding .ob-btn{padding:7px 14px;border-radius:10px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-primary);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;}
+#page-onboarding .ob-btn:hover{background:var(--color-bg-secondary);border-color:var(--color-border-strong);}
+#page-onboarding .ob-btn:disabled{opacity:.45;cursor:not-allowed;}
+#page-onboarding .ob-btn-primary{background:var(--color-text-primary)!important;color:#fff!important;border-color:transparent!important;}
+#page-onboarding .ob-btn-primary:hover{opacity:.85!important;}
+#page-onboarding .ob-btn-danger{color:#B83232!important;border-color:rgba(184,50,50,.18)!important;}
+#page-onboarding .ob-btn-danger:hover{background:rgba(184,50,50,.06)!important;}
+#page-onboarding .ob-empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--color-text-muted);font-size:14px;}
+#page-onboarding .ob-wa-wrap{background:var(--color-bg-secondary);border:1px solid var(--color-border);border-radius:12px;padding:14px;margin-top:4px;}
+#page-onboarding .ob-wa-msg{font-size:13px;color:var(--color-text-secondary);line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-bottom:10px;}
+#page-onboarding .ob-wa-label{font-size:10px;font-weight:800;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+#page-onboarding .ob-test-box{margin-top:28px;padding:20px;background:var(--color-surface);border:2px dashed var(--color-border);border-radius:16px;}
+#page-onboarding .ob-test-title{font-size:11px;font-weight:800;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+@media(max-width:700px){#page-onboarding .ob-grid{grid-template-columns:1fr;}#page-onboarding .ob-fields{grid-template-columns:1fr;}}
 </style>
 <script id="sanal-gap-removal-v24">
 (function(){
@@ -17714,5 +17796,264 @@ body.sanal-page-active .sanal-shell{
 })();
 </script>
 
+
+<script id="onboarding-bekleyenler-v1">
+(function(){
+  let obLeads = [];
+  let obFilter = 'pending';
+  const PORTAL_URL = window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '/') || '/');
+
+  function obEsc(v){ return escHtml(String(v??'')); }
+
+  function obStatusLabel(s){
+    return {pending:'Bekliyor', account_created:'Hesap Açıldı', archived:'Arşivlendi'}[s] || s;
+  }
+
+  function obSlugify(name){
+    const tr={'ç':'c','ğ':'g','ı':'i','İ':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','I':'i','Ö':'o','Ş':'s','Ü':'u'};
+    return (name||'').replace(/[çğışöüÇĞIŞÖÜİ]/g,m=>tr[m]||m).toLowerCase().replace(/[^a-z0-9]/g,'');
+  }
+
+  async function genUniqueUsername(fullName){
+    const base = obSlugify(fullName) || 'kullanici';
+    const db = window.sb||sb;
+    try{
+      const {data} = await db.from('users').select('name');
+      const taken = (data||[]).map(u=>obSlugify(u.name||''));
+      if(!taken.includes(base)) return base;
+      let i=2; while(taken.includes(base+i)) i++;
+      return base+i;
+    }catch(e){ return base; }
+  }
+
+  function genTempPass(phone){
+    const digits = (phone||'').replace(/\D/g,'');
+    if(digits.length>=6) return digits;
+    return 'DB'+Math.random().toString(36).slice(2,8).toUpperCase();
+  }
+
+  window.loadOnboardingPage = async function(){
+    const db = window.sb||sb;
+    if(!db) return;
+    try{
+      const {data,error} = await db.from('onboarding_leads').select('*').order('created_at',{ascending:false});
+      if(!error) obLeads = data||[];
+    }catch(e){ obLeads=[]; }
+    if(!teklifler.length){
+      try{
+        const {data} = await db.from('offers').select('*').order('created_at');
+        if(data) teklifler = data.map(r=>({id:r.id,name:r.name||'',category:r.category||'',price:r.price||0,duration_value:r.duration_value||null,duration_unit:r.duration_unit||'Ay',description:r.description||'',status:r.status||'Aktif',created_at:r.created_at||''}));
+      }catch(e){}
+    }
+    renderObPage();
+  };
+
+  window.setObFilter = function(f,el){
+    obFilter=f;
+    document.querySelectorAll('#page-onboarding .ob-tab').forEach(t=>t.classList.remove('active'));
+    if(el) el.classList.add('active');
+    renderObGrid();
+  };
+
+  window.obToggleTestBox = function(){
+    const box=document.getElementById('ob-test-box');
+    if(!box) return;
+    box.style.display = box.style.display==='none' ? 'block' : 'none';
+  };
+
+  function renderObPage(){
+    renderObKpis();
+    renderObGrid();
+  }
+
+  function renderObKpis(){
+    const el=document.getElementById('ob-kpis'); if(!el) return;
+    const p=obLeads.filter(l=>l.status==='pending').length;
+    const c=obLeads.filter(l=>l.status==='account_created').length;
+    const a=obLeads.filter(l=>l.status==='archived').length;
+    el.innerHTML=`
+      <div class="ob-kpi"><div class="ob-kpi-val">${p}</div><div class="ob-kpi-label">Bekliyor</div></div>
+      <div class="ob-kpi"><div class="ob-kpi-val">${c}</div><div class="ob-kpi-label">Hesap Açıldı</div></div>
+      <div class="ob-kpi"><div class="ob-kpi-val">${a}</div><div class="ob-kpi-label">Arşivlendi</div></div>
+      <div class="ob-kpi"><div class="ob-kpi-val">${obLeads.length}</div><div class="ob-kpi-label">Toplam</div></div>`;
+  }
+
+  function renderObGrid(){
+    const el=document.getElementById('ob-grid'); if(!el) return;
+    const list = obFilter==='all' ? obLeads : obLeads.filter(l=>l.status===obFilter);
+    if(!list.length){ el.innerHTML='<div class="ob-empty">Bu filtrede kayıt bulunamadı.</div>'; return; }
+    el.innerHTML = list.map(l=>buildCard(l)).join('');
+  }
+
+  function buildCard(l){
+    const dateStr = l.created_at ? new Date(l.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const offerOptions = teklifler.filter(t=>t.status!=='Pasif').map(t=>
+      `<option value="${obEsc(t.id)}" data-name="${obEsc(t.name)}" ${String(l.selected_offer_id)===String(t.id)?'selected':''}>${obEsc(t.name)}${t.duration_value?' — '+t.duration_value+' '+(t.duration_unit||'Ay'):''}</option>`
+    ).join('');
+
+    const waSection = l._waMsg ? `
+      <div class="ob-wa-wrap">
+        <div class="ob-wa-label">WhatsApp Mesajı</div>
+        <div class="ob-wa-msg" id="ob-wa-${obEsc(l.id)}">${obEsc(l._waMsg)}</div>
+        <button class="ob-btn" onclick="obCopyWA('${obEsc(l.id)}')">📋 Mesajı Kopyala</button>
+      </div>` : '';
+
+    return `<div class="ob-card" id="ob-card-${obEsc(l.id)}">
+      <div class="ob-card-head">
+        <div class="ob-name">${obEsc(l.full_name||'—')}</div>
+        <span class="ob-badge ob-badge-${obEsc(l.status)}">${obStatusLabel(l.status)}</span>
+      </div>
+      <div class="ob-fields">
+        <div class="ob-field"><span class="ob-field-label">Telefon</span>${obEsc(l.phone||'—')}</div>
+        <div class="ob-field"><span class="ob-field-label">E-posta</span>${obEsc(l.email||'—')}</div>
+        <div class="ob-field"><span class="ob-field-label">Instagram</span>${obEsc(l.instagram||'—')}</div>
+        <div class="ob-field"><span class="ob-field-label">Kayıt Tarihi</span>${dateStr}</div>
+      </div>
+      ${l.current_situation?`<div class="ob-field"><span class="ob-field-label">Mevcut Durum</span>${obEsc(l.current_situation)}</div>`:''}
+      ${l.goal?`<div class="ob-goal-box">${obEsc(l.goal)}</div>`:''}
+      ${l.notes?`<div class="ob-field"><span class="ob-field-label">Notlar</span>${obEsc(l.notes)}</div>`:''}
+      ${l.status==='pending'?`
+      <div>
+        <label class="ob-field-label" style="display:block;margin-bottom:5px">Program / Teklif Seç</label>
+        <select class="form-input form-select" id="ob-sel-${obEsc(l.id)}" style="font-size:13px" onchange="obPickOffer('${obEsc(l.id)}',this)">
+          <option value="">— Teklif seç —</option>
+          ${offerOptions}
+        </select>
+      </div>`:''}
+      ${l.status==='account_created'&&l.selected_offer_name?`<div class="ob-field"><span class="ob-field-label">Program</span>${obEsc(l.selected_offer_name)}</div>`:''}
+      ${waSection}
+      <div class="ob-actions">
+        ${l.status==='pending'?`<button class="ob-btn ob-btn-primary" onclick="obCreateAccount('${obEsc(l.id)}')">✓ Portal Hesabı Oluştur</button>`:''}
+        ${l.status==='account_created'&&!l._waMsg?`<button class="ob-btn" onclick="obShowWA('${obEsc(l.id)}')">📋 WA Mesajı</button>`:''}
+        ${l.status==='pending'?`<button class="ob-btn ob-btn-danger" onclick="obArchive('${obEsc(l.id)}')">Arşivle</button>`:''}
+      </div>
+    </div>`;
+  }
+
+  window.obPickOffer = function(leadId, sel){
+    const lead = obLeads.find(l=>String(l.id)===String(leadId)); if(!lead) return;
+    const opt = sel.options[sel.selectedIndex];
+    lead._pendingOfferId = sel.value;
+    lead._pendingOfferName = opt ? (opt.dataset.name||opt.text.split(' — ')[0]) : '';
+  };
+
+  window.obCreateAccount = async function(leadId){
+    const db = window.sb||sb;
+    const lead = obLeads.find(l=>String(l.id)===String(leadId));
+    if(!lead){ alert('Kayıt bulunamadı.'); return; }
+    if(!(lead.full_name||'').trim()){ alert('Ad Soyad boş olamaz.'); return; }
+    if(!lead.phone && !lead.email){ alert('Telefon veya e-posta en az biri dolu olmalı.'); return; }
+    const offerId = lead._pendingOfferId || lead.selected_offer_id;
+    const offerName = lead._pendingOfferName || lead.selected_offer_name || '';
+    if(!offerId){ alert('Hesap oluşturmadan önce bir program/teklif seçmelisiniz.'); return; }
+    const btn = document.querySelector(`#ob-card-${leadId} .ob-btn-primary`);
+    if(btn){ btn.disabled=true; btn.textContent='Oluşturuluyor...'; }
+    try{
+      const username = await genUniqueUsername(lead.full_name);
+      const tempPass = genTempPass(lead.phone||'');
+      const offer = teklifler.find(t=>String(t.id)===String(offerId));
+      const startDate = new Date();
+      let endDate = null;
+      if(offer&&offer.duration_value){
+        endDate = new Date(startDate);
+        const val=parseInt(offer.duration_value)||0, unit=offer.duration_unit||'Ay';
+        if(unit==='Gün') endDate.setDate(endDate.getDate()+val);
+        else if(unit==='Hafta') endDate.setDate(endDate.getDate()+val*7);
+        else endDate.setMonth(endDate.getMonth()+val);
+      }
+      const startStr=startDate.toISOString().split('T')[0];
+      const endStr=endDate?endDate.toISOString().split('T')[0]:null;
+      // Insert user
+      const {data:ud, error:ue}=await db.from('users').insert({name:lead.full_name.trim(),email:lead.email||null,password:tempPass,role:'user'}).select().single();
+      if(ue) throw ue;
+      // Insert client
+      await db.from('clients').insert({name:lead.full_name.trim(),email:lead.email||null,phone:lead.phone||null,social:lead.instagram||null,type:offerName||'Standart',status:'Aktif',start_date:startStr,program_end:endStr,program:offerName||null,health:8,notes:[],user_id:currentUser.email});
+      // Update lead
+      await db.from('onboarding_leads').update({status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId||null,selected_offer_name:offerName||null,updated_at:new Date().toISOString()}).eq('id',leadId);
+      const waMsg = obBuildWA(lead.full_name.trim(),username,tempPass);
+      const idx=obLeads.findIndex(l=>String(l.id)===String(leadId));
+      if(idx>=0) obLeads[idx]={...obLeads[idx],status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId,selected_offer_name:offerName,_waMsg:waMsg,_username:username,_tempPass:tempPass};
+      toast('Portal hesabı oluşturuldu! Kullanıcı: '+username);
+      renderObPage();
+      setTimeout(()=>{ const w=document.getElementById('ob-wa-'+leadId); if(w) w.closest('.ob-wa-wrap')?.scrollIntoView({behavior:'smooth',block:'center'}); },200);
+    }catch(e){
+      console.error('[Onboarding]',e);
+      alert('Hata: '+(e.message||String(e)));
+      if(btn){ btn.disabled=false; btn.textContent='✓ Portal Hesabı Oluştur'; }
+    }
+  };
+
+  function obBuildWA(name, username, tempPass){
+    const first=name.split(' ')[0];
+    return `Merhaba ${first},
+
+Portal erişimin hazırlandı.
+
+Giriş linki:
+${PORTAL_URL}
+
+Kullanıcı adın:
+${username}
+
+Geçici şifren:
+${tempPass}
+
+İlk girişten sonra şifreni değiştirmeni öneririm.
+
+Başlangıç sürecin için portala giriş yapabilirsin.`;
+  }
+
+  window.obShowWA = function(leadId){
+    const lead=obLeads.find(l=>String(l.id)===String(leadId)); if(!lead) return;
+    if(!lead._waMsg){
+      const u=lead._username||obSlugify(lead.full_name||'kullanici');
+      const p=lead._tempPass||genTempPass(lead.phone||'');
+      lead._waMsg=obBuildWA(lead.full_name||'',u,p);
+    }
+    renderObGrid();
+    setTimeout(()=>{ const w=document.getElementById('ob-wa-'+leadId); if(w) w.scrollIntoView({behavior:'smooth',block:'center'}); },150);
+  };
+
+  window.obCopyWA = function(leadId){
+    const el=document.getElementById('ob-wa-'+leadId); if(!el) return;
+    navigator.clipboard&&navigator.clipboard.writeText(el.textContent).then(()=>toast('WhatsApp mesajı kopyalandı!'));
+  };
+
+  window.obArchive = async function(leadId){
+    if(!confirm('Bu kaydı arşivlemek istiyor musun?')) return;
+    const db=window.sb||sb;
+    try{
+      await db.from('onboarding_leads').update({status:'archived',updated_at:new Date().toISOString()}).eq('id',leadId);
+      const idx=obLeads.findIndex(l=>String(l.id)===String(leadId));
+      if(idx>=0) obLeads[idx].status='archived';
+      renderObPage();
+    }catch(e){ alert('Arşivleme hatası: '+(e.message||e)); }
+  };
+
+  window.addTestObLead = async function(){
+    const name=(document.getElementById('ob-t-name').value||'').trim();
+    if(!name){ alert('Ad Soyad zorunludur.'); return; }
+    const phone=(document.getElementById('ob-t-phone').value||'').trim();
+    const email=(document.getElementById('ob-t-email').value||'').trim();
+    if(!phone&&!email){ alert('Telefon veya e-posta en az biri dolu olmalı.'); return; }
+    const db=window.sb||sb;
+    try{
+      const {data,error}=await db.from('onboarding_leads').insert({
+        full_name:name,phone:phone||null,email:email||null,
+        instagram:(document.getElementById('ob-t-ig').value||'').trim()||null,
+        current_situation:(document.getElementById('ob-t-situation').value||'').trim()||null,
+        goal:(document.getElementById('ob-t-goal').value||'').trim()||null,
+        source:'test',status:'pending'
+      }).select().single();
+      if(error) throw error;
+      obLeads.unshift(data);
+      ['ob-t-name','ob-t-phone','ob-t-email','ob-t-ig','ob-t-situation','ob-t-goal'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      document.getElementById('ob-test-box').style.display='none';
+      renderObPage();
+      toast('Test kaydı eklendi.');
+    }catch(e){ alert('Ekleme hatası: '+(e.message||e)); }
+  };
+})();
+</script>
 
 </body></html>
