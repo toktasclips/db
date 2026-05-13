@@ -9972,10 +9972,15 @@ let onboardingRegs = [];
 let onbCurrentTab = 'pending';
 
 // DB status → Türkçe görüntü
-const ONB_STATUS_LABEL = { pending: 'Bekliyor', approved: 'Hesap Açıldı', archived: 'Arşivlendi' };
-const ONB_STATUS_COLOR = { pending: 'var(--color-amber)', approved: 'var(--color-green)', archived: 'var(--color-text-muted)' };
-// Tab key → DB status filtresi
-const ONB_TAB_STATUS   = { pending: 'pending', approved: 'approved', archived: 'archived', all: null };
+const ONB_STATUS_LABEL = { pending: 'Bekliyor', approved: 'Hesap Açıldı', account_created: 'Hesap Açıldı', archived: 'Arşivlendi' };
+const ONB_STATUS_COLOR = { pending: 'var(--color-amber)', approved: 'var(--color-green)', account_created: 'var(--color-green)', archived: 'var(--color-text-muted)' };
+// Tab key → DB status filtresi (birden fazla status için array)
+const ONB_TAB_FILTER = {
+  pending:  r => r.status === 'pending',
+  approved: r => r.status === 'approved' || r.status === 'account_created',
+  archived: r => r.status === 'archived',
+  all:      r => true
+};
 
 async function loadOnboardingPage() {
   if (!sb) return;
@@ -9986,7 +9991,7 @@ async function loadOnboardingPage() {
 }
 
 function setOnbTab(tab) {
-  onbCurrentTab = tab;
+  onbCurrentTab = tab || 'pending';
   ['pending', 'approved', 'archived', 'all'].forEach(t => {
     const btn = document.getElementById('onb-tab-' + t);
     if (!btn) return;
@@ -9999,9 +10004,9 @@ function setOnbTab(tab) {
 }
 
 function renderOnboardingPage() {
-  const bekliyor = onboardingRegs.filter(r => r.status === 'pending').length;
-  const acildi   = onboardingRegs.filter(r => r.status === 'approved').length;
-  const arsiv    = onboardingRegs.filter(r => r.status === 'archived').length;
+  const bekliyor = onboardingRegs.filter(ONB_TAB_FILTER.pending).length;
+  const acildi   = onboardingRegs.filter(ONB_TAB_FILTER.approved).length;
+  const arsiv    = onboardingRegs.filter(ONB_TAB_FILTER.archived).length;
   const elq = id => document.getElementById(id);
   if(elq('onb-stat-bekliyor')) elq('onb-stat-bekliyor').textContent = bekliyor;
   if(elq('onb-stat-acildi'))   elq('onb-stat-acildi').textContent   = acildi;
@@ -10013,10 +10018,8 @@ function renderOnboardingPage() {
 function renderOnboardingList() {
   const container = document.getElementById('onb-list');
   if (!container) return;
-  const filterStatus = ONB_TAB_STATUS[onbCurrentTab];
-  const filtered = filterStatus === null
-    ? onboardingRegs
-    : onboardingRegs.filter(r => r.status === filterStatus);
+  const filterFn = ONB_TAB_FILTER[onbCurrentTab] || ONB_TAB_FILTER.all;
+  const filtered = onboardingRegs.filter(filterFn);
 
   if (!filtered.length) {
     container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--color-text-muted);font-size:14px">Kayıt bulunamadı</div>';
@@ -10030,7 +10033,7 @@ function renderOnboardingList() {
     const dateStr = reg.created_at ? new Date(reg.created_at).toLocaleDateString('tr-TR', {day:'numeric',month:'short',year:'numeric'}) : '—';
     const statusLabel = ONB_STATUS_LABEL[reg.status] || reg.status;
     const statusColor = ONB_STATUS_COLOR[reg.status] || 'var(--color-text-muted)';
-    const offerSelect = reg.status === 'pending' ? `
+    const offerSelect = (reg.status === 'pending') ? `
       <div style="margin-top:12px">
         <div class="form-label" style="font-size:11px;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">PROGRAM / TEKLİF SEÇ</div>
         <select id="onb-offer-${safeId}" class="form-input form-select" style="font-size:13px">
@@ -10068,17 +10071,17 @@ async function createOnboardingPortalAccount(regId) {
   const reg = onboardingRegs.find(r => String(r.id) === String(regId));
   if (!reg) return;
 
+  // Teklif seçimi
   const selectEl = document.getElementById('onb-offer-' + regId);
   const selectedOfferId = selectEl ? selectEl.value : '';
   const offer = selectedOfferId ? teklifler.find(t => String(t.id) === String(selectedOfferId)) : null;
   if (!offer) { toast('Lütfen bir program / teklif seç'); return; }
 
-  const name  = reg.full_name || reg.name || '';
-  const email = reg.email || '';
+  // Email normalize: trim + lowercase + boşluk temizle
+  const name     = (reg.full_name || reg.name || '').trim();
+  const email    = (reg.email || '').trim().toLowerCase().replace(/\s+/g, '');
+  const password = (reg.desired_password || '').trim() || (email.split('@')[0] + '123!');
   if (!email) { toast('E-posta bulunamadı'); return; }
-
-  // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
-  const password = reg.desired_password || (email.split('@')[0] + '123!');
 
   const startStr   = new Date().toISOString().slice(0, 10);
   const monthlyPay = offer.price || 0;
@@ -10087,72 +10090,105 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // 1. users tablosuna ekle (zaten varsa atla)
-  let userId = null;
-  const { data: userData, error: userErr } = await sb.from('users').insert({
-    name, email, password, role: 'client'
-  }).select().single();
-  if (userErr) {
-    if (userErr.code === '23505') {
-      // Zaten kayıtlı — mevcut kaydı bul ve devam et
-      const { data: existingUser } = await sb.from('users').select('id').eq('email', email).maybeSingle();
-      userId = existingUser?.id || null;
+  // ── 1. Duplicate kontrolü: SADECE users tablosuna bak (Supabase sorgusu)
+  //    Onboarding tablosundaki varlık duplicate sayılmaz.
+  const { data: existingInUsers } = await sb
+    .from('users')
+    .select('id, email')
+    .eq('email', email)
+    .maybeSingle();
+
+  let userId = existingInUsers?.id || null;
+  let userAlreadyExisted = !!userId;
+
+  if (!userId) {
+    // Kullanıcı yok → oluştur
+    const { data: userData, error: userErr } = await sb
+      .from('users')
+      .insert({ name, email, password, role: 'client' })
+      .select()
+      .single();
+
+    if (userErr) {
+      if (userErr.code === '23505') {
+        // Race condition: aynı anda iki istek — mevcut kaydı al, devam et
+        const { data: raceUser } = await sb.from('users').select('id').eq('email', email).maybeSingle();
+        userId = raceUser?.id || null;
+        userAlreadyExisted = true;
+      } else {
+        toast('Kullanıcı oluşturulamadı: ' + userErr.message);
+        return;
+      }
     } else {
-      toast('Hata: ' + userErr.message); return;
+      userId = userData.id;
+      if (!users) users = [];
+      users.push({ id: userData.id, name, email, password });
     }
-  } else {
-    userId = userData.id;
-    if (!users) users = [];
-    users.push({ id: userData.id, name, email, password });
   }
 
-  // 2. clients tablosuna ekle
-  const clientRow = {
-    name, email, type: offer.category || '', status: 'Aktif',
-    phone: reg.phone || '', social: null,
-    sessions: 0, remaining_sessions: 0,
-    program: offer.name || null,
-    start_date: startStr, program_end: endDate,
-    health: 8, notes: [],
-    user_id: currentUser?.email || null
-  };
-  const { data: cd } = await sb.from('clients').insert(clientRow).select().single();
-  if (cd) {
-    state.clients.push({
-      id: +cd.id, _new: false, name, email,
-      type: clientRow.type, status: 'Aktif',
-      phone: clientRow.phone, social: '', sessions: 0, remainingSessions: 0,
-      programEnd: endDate || '', startDate: startStr,
-      program: offer.name || '', health: 8, notes: [], start: startStr
-    });
+  // ── 2. Clients tablosuna ekle (daha önce eklenmemişse)
+  const { data: existingClient } = await sb
+    .from('clients')
+    .select('id')
+    .eq('email', email)
+    .eq('user_id', currentUser?.email || '')
+    .maybeSingle();
+
+  if (!existingClient) {
+    const clientRow = {
+      name, email, type: offer.category || '', status: 'Aktif',
+      phone: (reg.phone || '').trim(), social: null,
+      sessions: 0, remaining_sessions: 0,
+      program: offer.name || null,
+      start_date: startStr, program_end: endDate,
+      health: 8, notes: [],
+      user_id: currentUser?.email || null
+    };
+    const { data: cd } = await sb.from('clients').insert(clientRow).select().single();
+    if (cd) {
+      state.clients.push({
+        id: +cd.id, _new: false, name, email,
+        type: clientRow.type, status: 'Aktif',
+        phone: clientRow.phone, social: '', sessions: 0, remainingSessions: 0,
+        programEnd: endDate || '', startDate: startStr,
+        program: offer.name || '', health: 8, notes: [], start: startStr
+      });
+    }
   }
 
-  // 3. customers tablosuna ekle
-  const customerRow = {
-    name, email, program: offer.name || '',
-    monthly_payment: monthlyPay,
-    start_date: startStr, end_date: endDate,
-    status: 'Aktif', notes: ''
-  };
-  const newCustId = await insertMusteriSB(customerRow);
-  musteriler.push({ id: newCustId, ...customerRow });
+  // ── 3. Customers tablosuna ekle (daha önce eklenmemişse)
+  const alreadyInMusteriler = musteriler.some(m => (m.email || '').toLowerCase() === email);
+  if (!alreadyInMusteriler) {
+    const customerRow = {
+      name, email, program: offer.name || '',
+      monthly_payment: monthlyPay,
+      start_date: startStr, end_date: endDate,
+      status: 'Aktif', notes: ''
+    };
+    const newCustId = await insertMusteriSB(customerRow);
+    musteriler.push({ id: newCustId, ...customerRow });
+  }
 
-  // 4. Günlük satış kaydı
-  if (monthlyPay > 0 || offer.name) await recordSaleInDaily(name, offer.name, monthlyPay);
+  // ── 4. Günlük satış kaydı
+  if (!userAlreadyExisted && (monthlyPay > 0 || offer.name)) {
+    await recordSaleInDaily(name, offer.name, monthlyPay);
+  }
 
-  // 5. onboarding_leads durumunu güncelle
-  const { error: updErr } = await sb.from('onboarding_leads').update({
-    status: 'approved',
+  // ── 5. Onboarding kaydını account_created yap
+  await sb.from('onboarding_leads').update({
+    status: 'account_created',
     approved_at: new Date().toISOString()
   }).eq('id', regId);
-  if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
 
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
-  if (idx >= 0) onboardingRegs[idx].status = 'approved';
+  if (idx >= 0) onboardingRegs[idx].status = 'account_created';
 
-  toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
+  const msg = userAlreadyExisted
+    ? '✅ ' + name + ' zaten kayıtlıydı — profil tamamlandı.'
+    : '✅ ' + name + ' için portal hesabı oluşturuldu!';
+  toast(msg);
   renderOnboardingPage();
-  setOnbTab(onbCurrentTab);
+  setOnbTab('approved');
   renderUsers(); renderHealthPage(); renderStats();
 }
 
