@@ -17956,7 +17956,7 @@ body.sanal-page-active .sanal-shell{
       const startStr=startDate.toISOString().split('T')[0];
       const endStr=endDate?endDate.toISOString().split('T')[0]:null;
       // Insert user
-      const {data:ud, error:ue}=await db.from('users').insert({name:lead.full_name.trim(),email:lead.email,password:userPass,role:'user'}).select().single();
+      const {data:ud, error:ue}=await db.from('users').insert({name:lead.full_name.trim(),email:lead.email,password:userPass,role:'client'}).select().single();
       if(ue) throw ue;
       // Insert client
       await db.from('clients').insert({name:lead.full_name.trim(),email:lead.email,phone:lead.phone||null,type:offerName||'Standart',status:'Aktif',start_date:startStr,program_end:endStr,program:offerName||null,health:8,notes:[],user_id:currentUser.email});
