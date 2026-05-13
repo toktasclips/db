@@ -17945,16 +17945,11 @@ body.sanal-page-active .sanal-shell{
       const userPass = lead.desired_password || '';
       const offer = teklifler.find(t=>String(t.id)===String(offerId));
       const startDate = new Date();
-      let endDate = null;
-      if(offer&&offer.duration_value){
-        endDate = new Date(startDate);
-        const val=parseInt(offer.duration_value)||0, unit=offer.duration_unit||'Ay';
-        if(unit==='Gün') endDate.setDate(endDate.getDate()+val);
-        else if(unit==='Hafta') endDate.setDate(endDate.getDate()+val*7);
-        else endDate.setMonth(endDate.getMonth()+val);
-      }
+      const durationDays = offer ? offerToDays(offer) : null;
+      const endDate = durationDays ? new Date(startDate.getTime() + durationDays*86400000) : null;
       const startStr=startDate.toISOString().split('T')[0];
       const endStr=endDate?endDate.toISOString().split('T')[0]:null;
+      const offerIdNum = offerId ? Number(offerId) : null;
       // Insert user — if email already exists, reuse that record
       let ud;
       const {data:existing}=await db.from('users').select('id').eq('email',lead.email).maybeSingle();
@@ -17974,11 +17969,12 @@ body.sanal-page-active .sanal-shell{
       const customerRow={name:lead.full_name.trim(),email:lead.email,program:offerName||'',monthly_payment:monthlyPay,start_date:startStr||null,end_date:endStr||null,status:'Aktif',notes:''};
       const newCustId=await insertMusteriSB(customerRow);
       if(newCustId&&typeof musteriler!=='undefined') musteriler.push({id:newCustId,...customerRow});
-      // Update lead
-      await db.from('onboarding_leads').update({status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId||null,selected_offer_name:offerName||null,updated_at:new Date().toISOString()}).eq('id',leadId);
+      // Update lead status — do this last so earlier errors don't leave it stuck
+      const {error:ule}=await db.from('onboarding_leads').update({status:'account_created',converted_user_id:ud.id,selected_offer_id:offerIdNum,selected_offer_name:offerName||null,updated_at:new Date().toISOString()}).eq('id',leadId);
+      if(ule) throw ule;
       const waMsg = obBuildWA(lead.full_name.trim(), lead.email, userPass);
       const idx=obLeads.findIndex(l=>String(l.id)===String(leadId));
-      if(idx>=0) obLeads[idx]={...obLeads[idx],status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId,selected_offer_name:offerName,_waMsg:waMsg};
+      if(idx>=0) obLeads[idx]={...obLeads[idx],status:'account_created',converted_user_id:ud.id,selected_offer_id:offerIdNum,selected_offer_name:offerName,_waMsg:waMsg};
       toast('Portal hesabı oluşturuldu!');
       renderObPage();
       setTimeout(()=>{ const w=document.getElementById('ob-wa-'+leadId); if(w) w.closest('.ob-wa-wrap')?.scrollIntoView({behavior:'smooth',block:'center'}); },200);
