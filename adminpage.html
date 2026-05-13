@@ -5126,12 +5126,9 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
       <div class="ob-test-title">Test Onboarding Kaydı Ekle</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div><label class="form-label">Ad Soyad *</label><input class="form-input" id="ob-t-name" placeholder="Zeynep Kaya"></div>
-        <div><label class="form-label">Telefon</label><input class="form-input" id="ob-t-phone" placeholder="0555 123 45 67"></div>
-        <div><label class="form-label">E-posta</label><input class="form-input" id="ob-t-email" type="email" placeholder="zeynep@email.com"></div>
-        <div><label class="form-label">Instagram</label><input class="form-input" id="ob-t-ig" placeholder="@zeynep"></div>
+        <div><label class="form-label">E-posta *</label><input class="form-input" id="ob-t-email" type="email" placeholder="zeynep@email.com"></div>
+        <div><label class="form-label">Şifre</label><input class="form-input" id="ob-t-pass" type="text" placeholder="minimum 6 karakter"></div>
       </div>
-      <div style="margin-bottom:10px"><label class="form-label">Mevcut Durum</label><textarea class="form-input" id="ob-t-situation" rows="2" placeholder="Şu an 0'dan başlıyorum..."></textarea></div>
-      <div style="margin-bottom:14px"><label class="form-label">Hedef</label><textarea class="form-input" id="ob-t-goal" rows="2" placeholder="6 ayda 10 müşteriye ulaşmak istiyorum..."></textarea></div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" onclick="addTestObLead()">Kaydet</button>
         <button class="btn btn-ghost" onclick="obToggleTestBox()">İptal</button>
@@ -17904,13 +17901,9 @@ body.sanal-page-active .sanal-shell{
         <span class="ob-badge ob-badge-${obEsc(l.status)}">${obStatusLabel(l.status)}</span>
       </div>
       <div class="ob-fields">
-        <div class="ob-field"><span class="ob-field-label">Telefon</span>${obEsc(l.phone||'—')}</div>
         <div class="ob-field"><span class="ob-field-label">E-posta</span>${obEsc(l.email||'—')}</div>
-        <div class="ob-field"><span class="ob-field-label">Instagram</span>${obEsc(l.instagram||'—')}</div>
         <div class="ob-field"><span class="ob-field-label">Kayıt Tarihi</span>${dateStr}</div>
       </div>
-      ${l.current_situation?`<div class="ob-field"><span class="ob-field-label">Mevcut Durum</span>${obEsc(l.current_situation)}</div>`:''}
-      ${l.goal?`<div class="ob-goal-box">${obEsc(l.goal)}</div>`:''}
       ${l.notes?`<div class="ob-field"><span class="ob-field-label">Notlar</span>${obEsc(l.notes)}</div>`:''}
       ${l.status==='pending'?`
       <div>
@@ -17942,15 +17935,14 @@ body.sanal-page-active .sanal-shell{
     const lead = obLeads.find(l=>String(l.id)===String(leadId));
     if(!lead){ alert('Kayıt bulunamadı.'); return; }
     if(!(lead.full_name||'').trim()){ alert('Ad Soyad boş olamaz.'); return; }
-    if(!lead.phone && !lead.email){ alert('Telefon veya e-posta en az biri dolu olmalı.'); return; }
+    if(!lead.email){ alert('E-posta adresi gerekli.'); return; }
     const offerId = lead._pendingOfferId || lead.selected_offer_id;
     const offerName = lead._pendingOfferName || lead.selected_offer_name || '';
     if(!offerId){ alert('Hesap oluşturmadan önce bir program/teklif seçmelisiniz.'); return; }
     const btn = document.querySelector(`#ob-card-${leadId} .ob-btn-primary`);
     if(btn){ btn.disabled=true; btn.textContent='Oluşturuluyor...'; }
     try{
-      const username = await genUniqueUsername(lead.full_name);
-      const tempPass = genTempPass(lead.phone||'');
+      const userPass = lead.desired_password || '';
       const offer = teklifler.find(t=>String(t.id)===String(offerId));
       const startDate = new Date();
       let endDate = null;
@@ -17964,16 +17956,16 @@ body.sanal-page-active .sanal-shell{
       const startStr=startDate.toISOString().split('T')[0];
       const endStr=endDate?endDate.toISOString().split('T')[0]:null;
       // Insert user
-      const {data:ud, error:ue}=await db.from('users').insert({name:lead.full_name.trim(),email:lead.email||null,password:tempPass,role:'user'}).select().single();
+      const {data:ud, error:ue}=await db.from('users').insert({name:lead.full_name.trim(),email:lead.email,password:userPass,role:'user'}).select().single();
       if(ue) throw ue;
       // Insert client
-      await db.from('clients').insert({name:lead.full_name.trim(),email:lead.email||null,phone:lead.phone||null,social:lead.instagram||null,type:offerName||'Standart',status:'Aktif',start_date:startStr,program_end:endStr,program:offerName||null,health:8,notes:[],user_id:currentUser.email});
+      await db.from('clients').insert({name:lead.full_name.trim(),email:lead.email,phone:lead.phone||null,type:offerName||'Standart',status:'Aktif',start_date:startStr,program_end:endStr,program:offerName||null,health:8,notes:[],user_id:currentUser.email});
       // Update lead
       await db.from('onboarding_leads').update({status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId||null,selected_offer_name:offerName||null,updated_at:new Date().toISOString()}).eq('id',leadId);
-      const waMsg = obBuildWA(lead.full_name.trim(),username,tempPass);
+      const waMsg = obBuildWA(lead.full_name.trim(), lead.email, userPass);
       const idx=obLeads.findIndex(l=>String(l.id)===String(leadId));
-      if(idx>=0) obLeads[idx]={...obLeads[idx],status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId,selected_offer_name:offerName,_waMsg:waMsg,_username:username,_tempPass:tempPass};
-      toast('Portal hesabı oluşturuldu! Kullanıcı: '+username);
+      if(idx>=0) obLeads[idx]={...obLeads[idx],status:'account_created',converted_user_id:ud.id,selected_offer_id:offerId,selected_offer_name:offerName,_waMsg:waMsg};
+      toast('Portal hesabı oluşturuldu!');
       renderObPage();
       setTimeout(()=>{ const w=document.getElementById('ob-wa-'+leadId); if(w) w.closest('.ob-wa-wrap')?.scrollIntoView({behavior:'smooth',block:'center'}); },200);
     }catch(e){
@@ -17983,8 +17975,9 @@ body.sanal-page-active .sanal-shell{
     }
   };
 
-  function obBuildWA(name, username, tempPass){
+  function obBuildWA(name, email, pass){
     const first=name.split(' ')[0];
+    const passLine = pass ? `\nŞifren:\n${pass}\n` : '';
     return `Merhaba ${first},
 
 Portal erişimin hazırlandı.
@@ -17992,23 +17985,16 @@ Portal erişimin hazırlandı.
 Giriş linki:
 ${PORTAL_URL}
 
-Kullanıcı adın:
-${username}
-
-Geçici şifren:
-${tempPass}
-
-İlk girişten sonra şifreni değiştirmeni öneririm.
-
-Başlangıç sürecin için portala giriş yapabilirsin.`;
+E-posta adresin:
+${email}
+${passLine}
+Portala giriş yaparak başlayabilirsin.`;
   }
 
   window.obShowWA = function(leadId){
     const lead=obLeads.find(l=>String(l.id)===String(leadId)); if(!lead) return;
     if(!lead._waMsg){
-      const u=lead._username||obSlugify(lead.full_name||'kullanici');
-      const p=lead._tempPass||genTempPass(lead.phone||'');
-      lead._waMsg=obBuildWA(lead.full_name||'',u,p);
+      lead._waMsg=obBuildWA(lead.full_name||'', lead.email||'', lead.desired_password||'');
     }
     renderObGrid();
     setTimeout(()=>{ const w=document.getElementById('ob-wa-'+leadId); if(w) w.scrollIntoView({behavior:'smooth',block:'center'}); },150);
@@ -18033,21 +18019,19 @@ Başlangıç sürecin için portala giriş yapabilirsin.`;
   window.addTestObLead = async function(){
     const name=(document.getElementById('ob-t-name').value||'').trim();
     if(!name){ alert('Ad Soyad zorunludur.'); return; }
-    const phone=(document.getElementById('ob-t-phone').value||'').trim();
     const email=(document.getElementById('ob-t-email').value||'').trim();
-    if(!phone&&!email){ alert('Telefon veya e-posta en az biri dolu olmalı.'); return; }
+    if(!email){ alert('E-posta zorunludur.'); return; }
+    const pass=(document.getElementById('ob-t-pass').value||'').trim();
     const db=window.sb||sb;
     try{
       const {data,error}=await db.from('onboarding_leads').insert({
-        full_name:name,phone:phone||null,email:email||null,
-        instagram:(document.getElementById('ob-t-ig').value||'').trim()||null,
-        current_situation:(document.getElementById('ob-t-situation').value||'').trim()||null,
-        goal:(document.getElementById('ob-t-goal').value||'').trim()||null,
-        source:'test',status:'pending'
+        full_name:name, email:email,
+        desired_password:pass||null,
+        source:'test', status:'pending'
       }).select().single();
       if(error) throw error;
       obLeads.unshift(data);
-      ['ob-t-name','ob-t-phone','ob-t-email','ob-t-ig','ob-t-situation','ob-t-goal'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+      ['ob-t-name','ob-t-email','ob-t-pass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
       document.getElementById('ob-test-box').style.display='none';
       renderObPage();
       toast('Test kaydı eklendi.');
