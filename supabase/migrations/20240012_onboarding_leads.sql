@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS onboarding_leads (
   notes                text,
   source               text        NOT NULL DEFAULT 'tally',
   status               text        NOT NULL DEFAULT 'pending',
-  selected_offer_id    uuid        REFERENCES offers(id),
+  selected_offer_id    bigint      REFERENCES offers(id),
   selected_offer_name  text,
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now(),
