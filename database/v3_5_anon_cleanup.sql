@@ -17,7 +17,7 @@ BEGIN
     SELECT policyname, tablename
     FROM pg_policies
     WHERE schemaname = 'public'
-      AND roles @> ARRAY['anon']
+      AND 'anon' = ANY(roles)
       -- onboarding_leads anon INSERT politikasını koru
       AND NOT (tablename = 'onboarding_leads' AND cmd = 'INSERT')
   LOOP
@@ -130,7 +130,7 @@ SELECT
   roles
 FROM pg_policies
 WHERE schemaname = 'public'
-  AND roles @> ARRAY['anon']
+  AND 'anon' = ANY(roles)
 ORDER BY tablename;
 
 -- Beklenen çıktı: sadece onboarding_leads INSERT olmalı
