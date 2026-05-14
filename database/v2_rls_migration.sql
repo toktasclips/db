@@ -63,7 +63,8 @@ DECLARE
     'forum_reactions','instagram_connections',
     'instagram_account_snapshots','instagram_media',
     'meta_ad_insights','chatbot_conversations','chatbot_messages',
-    'chatbot_documents','chatbot_chunks'
+    'chatbot_documents','chatbot_chunks',
+    'contents','events','tasks'
   ];
 BEGIN
   FOREACH tbl IN ARRAY standard_tables LOOP
