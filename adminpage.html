@@ -3254,6 +3254,8 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
   visibility:visible !important;
 }
 </style>
+<script src="supabase.min.js"></script>
+<script src="config.js" onerror="console.warn('[Config] config.js bulunamadı — veritabanı devre dışı.')"></script>
 </head><body>
 
 
@@ -6113,14 +6115,34 @@ function cbAppendMsg(role,text,typing=false){
 window.CanliVeri = null;
 </script>
 <script>
-const DISABLED_ENDPOINT = '';
-window.DISABLED_ENDPOINT = '';
-const DISABLED_VALUE = '';
-const DISABLED_PUBLIC_VALUE = '';
-window.DISABLED_VALUE = '';
-window.DISABLED_PUBLIC_VALUE = '';
+const SUPABASE_URL = (window.APP_CONFIG && window.APP_CONFIG.supabaseUrl) || '';
+const SUPABASE_KEY = (window.APP_CONFIG && window.APP_CONFIG.supabaseKey) || '';
+// Geriye dönük uyumluluk (eski DISABLED_ENDPOINT referansları için)
+const DISABLED_ENDPOINT = SUPABASE_URL;
+window.DISABLED_ENDPOINT = SUPABASE_URL;
+const DISABLED_VALUE = SUPABASE_KEY;
+const DISABLED_PUBLIC_VALUE = SUPABASE_KEY;
+window.DISABLED_VALUE = SUPABASE_KEY;
+window.DISABLED_PUBLIC_VALUE = SUPABASE_KEY;
+
 let sb = null;
-window.sb = null;
+if (SUPABASE_URL && SUPABASE_KEY) {
+  try {
+    const _sup = (typeof supabase !== 'undefined' && supabase && supabase.createClient)
+      ? supabase
+      : (window.supabase && window.supabase.createClient ? window.supabase : null);
+    if (_sup) {
+      sb = _sup.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+      console.error('[DB] Supabase kütüphanesi bulunamadı — supabase.min.js yüklendi mi?');
+    }
+  } catch(e) {
+    console.error('[DB] Supabase başlatma hatası:', e);
+    sb = null;
+  }
+}
+window.sb = sb;
+
 function disabledDb(){
   const result = { data: null, error: { message: 'CanliVeri baglantisi bu kopyada devre disi.' }, count: 0 };
   const chain = {
@@ -6143,13 +6165,13 @@ function showDataConnectionError(targetId){
   }
   return msg;
 }
-const META_APP_ID       = '';
-const IG_OAUTH_FN       = '';
-const IG_SYNC_FN        = '';
-const META_ADS_SYNC_FN  = '';
-const IG_RESEARCH_FN    = '';
-const CHATBOT_INGEST_FN = '';
-const CHATBOT_CHAT_FN   = '';
+const META_APP_ID       = (window.APP_CONFIG && window.APP_CONFIG.metaAppId) || '';
+const IG_OAUTH_FN       = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/instagram-oauth`   : '';
+const IG_SYNC_FN        = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/instagram-sync`     : '';
+const META_ADS_SYNC_FN  = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/meta-ads-sync`      : '';
+const IG_RESEARCH_FN    = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/instagram-research` : '';
+const CHATBOT_INGEST_FN = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/chatbot-ingest`     : '';
+const CHATBOT_CHAT_FN   = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/chatbot-chat`       : '';
 // ===== CanliVeri LOAD / SAVE =====
 async function loadFromCanliVeri(){
   if (!sb) {
@@ -6161,18 +6183,18 @@ async function loadFromCanliVeri(){
     const email = currentUser?.email || '';
 
     // Herkes sadece kendi verisini görür
-    const cq = disabledDb().select('*').eq('user_id', email).order('created_at');
-    const lq = disabledDb().select('*').eq('user_id', email).order('created_at');
-    const gq = disabledDb().select('*').eq('user_id', email).order('created_at');
-    const mq = disabledDb().select('*').eq('user_id', email).order('created_at');
-    const dq = disabledDb().select('*').eq('user_id', email).order('created_at');
+    const cq = sb.from('clients').select('*').eq('user_id', email).order('created_at');
+    const lq = sb.from('leads').select('*').eq('user_id', email).order('created_at');
+    const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
+    const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
+    const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
 
     const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
       cq, lq, gq, mq, dq,
-      disabledDb().select('*').eq('user_id', email).order('created_at'),
-      disabledDb().select('*').order('created_at'),
+      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
+      isAdmin ? sb.from('users').select('*').order('created_at') : Promise.resolve({data:null}),
       // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
-      !isAdmin ? disabledDb().select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
+      !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
     ]);
 
     if(clients.data?.length) state.clients = clients.data.map(c=>({
@@ -6251,23 +6273,23 @@ async function saveClient(c){
     user_id: currentUser?.role==='admin' ? (c.user_id||currentUser.email) : currentUser?.email||null
   };
   if(!c.id || c._new){
-    const r=await disabledDb().insert(row).select().single();
+    const r=await sb.from('clients').insert(row).select().single();
     if(r.error){console.error('Insert error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
     if(r.data){c.id=+r.data.id; c._new=false;}
   } else {
-    const r=await disabledDb().update(row).eq('id',c.id);
+    const r=await sb.from('clients').update(row).eq('id',c.id);
     if(r.error){console.error('Update error:',r.error);toast('Güncelleme hatası: '+r.error.message);}
   }
 }
 
-async function deleteSBClient(id){ await disabledDb().delete().eq('id',id); }
+async function deleteSBClient(id){ await sb.from('clients').delete().eq('id',id); }
 
 async function saveLead(l){
   const row={name:l.name,type:l.type||'',social:l.social||'',source:l.source,stage:l.stage,tutar:l.tutar||0,teklif_id:l.teklifId||null,note:l.note||'',notes:l.notes||[],user_id:currentUser?.email||null};
-  if(l._new){ const r=await disabledDb().insert(row).select().single(); if(r.data)l.id=r.data.id; l._new=false; }
-  else { await disabledDb().update(row).eq('id',l.id); }
+  if(l._new){ const r=await sb.from('leads').insert(row).select().single(); if(r.data)l.id=r.data.id; l._new=false; }
+  else { await sb.from('leads').update(row).eq('id',l.id); }
 }
-async function deleteSBLead(id){ await disabledDb().delete().eq('id',id); }
+async function deleteSBLead(id){ await sb.from('leads').delete().eq('id',id); }
 
 function openGoalPanel(id){
   const g=state.goals.find(x=>+x.id===+id);if(!g)return;
@@ -6345,23 +6367,23 @@ function deleteCurrentGoal(){
 async function saveGoal(g){
   const row={name:g.name,date:g.date,icon:g.icon||'🎯',done:g.done||false,notes:g.notes||[],user_id:currentUser?.email||null};
   if(g._new){
-    const r=await disabledDb().insert(row).select().single();
+    const r=await sb.from('goals').insert(row).select().single();
     if(r.error){console.error('Goal insert error:',r.error);toast('Hata: '+r.error.message);return;}
     if(r.data){g.id=r.data.id;}
     g._new=false;
   } else {
-    const r=await disabledDb().update(row).eq('id',+g.id);
+    const r=await sb.from('goals').update(row).eq('id',+g.id);
     if(r.error){console.error('Goal update error:',r.error);toast('Hata: '+r.error.message);}
   }
 }
-async function deleteSBGoal(id){ await disabledDb().delete().eq('id',id); }
+async function deleteSBGoal(id){ await sb.from('goals').delete().eq('id',id); }
 
 async function saveMilestone(m){
   const row={title:m.title,date:m.date,status:m.status,notes:m.notes||[],user_id:currentUser?.email||null};
-  if(m._new){ const r=await disabledDb().insert(row).select().single(); if(r.data)m.id=r.data.id; m._new=false; }
-  else { await disabledDb().update(row).eq('id',m.id); }
+  if(m._new){ const r=await sb.from('milestones').insert(row).select().single(); if(r.data)m.id=r.data.id; m._new=false; }
+  else { await sb.from('milestones').update(row).eq('id',m.id); }
 }
-async function deleteSBMilestone(id){ await disabledDb().delete().eq('id',id); }
+async function deleteSBMilestone(id){ await sb.from('milestones').delete().eq('id',id); }
 
 async function saveDailyEntry(entry){
   const row={
@@ -6373,22 +6395,21 @@ async function saveDailyEntry(entry){
     anlasma:entry.anlasma,yorum:entry.yorum,win:'',
     user_id:currentUser?.email||null
   };
-  const r=await disabledDb().insert(row).select().single();
+  const r=await sb.from('daily_entries').insert(row).select().single();
   if(r.error){console.error('Daily save error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
   if(r.data) entry.id=r.data.id;
 }
 
 async function saveOffer(o){
-  // Use duration_value/duration_unit columns (consistent with loadTeklifler / insertTeklifSB)
   const row={
     name:o.name, price:o.price||0,
     duration_value:o.duration_value||null, duration_unit:o.duration_unit||'Ay',
     description:o.desc||o.description||''
   };
-  if(o._new){ const r=await disabledDb().insert(row).select().single(); if(r.data)o.id=r.data.id; o._new=false; }
-  else { await disabledDb().update(row).eq('id',o.id); }
+  if(o._new){ const r=await sb.from('offers').insert(row).select().single(); if(r.data)o.id=r.data.id; o._new=false; }
+  else { await sb.from('offers').update(row).eq('id',o.id); }
 }
-async function deleteSBOffer(id){ await disabledDb().delete().eq('id',id); }
+async function deleteSBOffer(id){ await sb.from('offers').delete().eq('id',id); }
 </script>
 <script>
 // ===== STATE =====
@@ -8195,12 +8216,12 @@ async function addUser(){
     : null;
   const programName = offer ? offer.name : '';
 
-  // CanliVeri'de zaten var mı kontrol et
-  const {data:existing} = await disabledDb().select('id').eq('email',email);
+  // E-posta zaten kayıtlı mı kontrol et
+  const {data:existing} = await sb.from('users').select('id').eq('email',email);
   if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
 
   // 1. Users tablosuna ekle (role: client)
-  const {data,error} = await disabledDb().insert({name,email,password,role:'client'}).select().single();
+  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
   if(error){ toast('Hata: '+error.message); return; }
   if(!users) users=[];
   users.push({id:data.id,name,email,password});
@@ -8215,7 +8236,7 @@ async function addUser(){
     health: 8, notes: [],
     user_id: currentUser?.email||null
   };
-  const {data:cd, error:ce} = await disabledDb().insert(clientRow).select().single();
+  const {data:cd, error:ce} = await sb.from('clients').insert(clientRow).select().single();
   if(!ce && cd) {
     state.clients.push({
       id:+cd.id, _new:false, name, email,
@@ -9587,7 +9608,7 @@ function totalRevenue(m) {
 async function loadMusteriler() {
   try {
     const userId = currentUser?.email || '';
-    let q = disabledDb().select('*').order('created_at');
+    let q = sb.from('customers').select('*').order('created_at');
     if(currentUser?.role !== 'admin') q = q.eq('user_id', userId);
     else q = q.or(`user_id.eq.${userId},user_id.is.null`);
     const { data, error } = await q;
@@ -9614,7 +9635,7 @@ async function loadMusteriler() {
 
 async function insertMusteriSB(m) {
   try {
-    const { data, error } = await disabledDb().insert({
+    const { data, error } = await sb.from('customers').insert({
       user_id: currentUser?.email || null,
       name: m.name, email: m.email, program: m.program,
       monthly_payment: m.monthly_payment,
@@ -9629,7 +9650,7 @@ async function insertMusteriSB(m) {
 
 async function updateMusteriSB(id, m) {
   try {
-    let q = disabledDb().update({
+    let q = sb.from('customers').update({
       name: m.name, email: m.email, program: m.program,
       monthly_payment: m.monthly_payment,
       start_date: m.start_date || null,
@@ -9643,7 +9664,7 @@ async function updateMusteriSB(id, m) {
 
 async function deleteMusteriSB(id) {
   try {
-    let q = disabledDb().delete().eq('id', id);
+    let q = sb.from('customers').delete().eq('id', id);
     if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
     await q;
   }
