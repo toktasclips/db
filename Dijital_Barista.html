@@ -5366,7 +5366,7 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
           <input type="hidden" id="em-order" value="1">
           <label class="form-label">Kapak Görseli</label>
           <div id="em-drop-zone" class="egitim-drop-zone" onclick="document.getElementById(&#39;em-file&#39;).click()" ondragover="event.preventDefault();this.classList.add(&#39;drag-over&#39;)" ondragleave="this.classList.remove(&#39;drag-over&#39;)" ondrop="egitimHandleImageDrop(event)">
-            <img id="em-cover-img" src="file:///Users/mehmettoktas/Documents/Codex/2026-05-09/files-mentioned-by-the-user-adminpage/Dijital%20Barista_files/dijital_barista_kisisel_baristan_guncel.html" alt="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0">
+            <img id="em-cover-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0">
             <div id="em-drop-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
               <span style="font-size:11px;color:var(--color-text-muted)">Sürükle veya tıkla</span>
@@ -5660,7 +5660,7 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
           <div id="lead-panel-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--color-surface-hover);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--color-text-secondary);flex-shrink:0"></div>
           <div style="min-width:0;flex:1">
             <div id="lead-panel-handle" style="font-size:13px;font-weight:500;color:var(--color-text-primary)"></div>
-            <a id="lead-panel-profilelink" href="file:///Users/mehmettoktas/Downloads/dijital_barista_kisisel_baristan_guncel.html#" target="_blank" style="font-size:11px;color:var(--color-text-muted);text-decoration:none" onmouseover="this.style.color=&#39;var(--color-accent)&#39;" onmouseout="this.style.color=&#39;var(--color-text-muted)&#39;">Profili Aç ↗</a>
+            <a id="lead-panel-profilelink" href="#" target="_blank" style="font-size:11px;color:var(--color-text-muted);text-decoration:none" onmouseover="this.style.color=&#39;var(--color-accent)&#39;" onmouseout="this.style.color=&#39;var(--color-text-muted)&#39;">Profili Aç ↗</a>
           </div>
         </div>
       </div>
@@ -6156,6 +6156,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 `);let e=await s.signMessage(new TextEncoder().encode(t),`utf8`);if(!e||!(e instanceof Uint8Array))throw Error(`@supabase/auth-js: Wallet signMessage() API returned an recognized value`);n=e}}try{let{data:r,error:i}=await Y(this.fetch,`POST`,`${this.url}/token?grant_type=web3`,{headers:this.headers,body:Object.assign({chain:`solana`,message:t,signature:z(n)},e.options?.captchaToken?{gotrue_meta_security:{captcha_token:e.options?.captchaToken}}:null),xform:X});if(i)throw i;if(!r||!r.session||!r.user){let e=new L;return this._returnResult({data:{user:null,session:null},error:e})}return r.session&&(await this._saveSession(r.session),await this._notifyAllSubscribers(`SIGNED_IN`,r.session)),this._returnResult({data:Object.assign({},r),error:i})}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async _exchangeCodeForSession(e){let[t,n]=(await U(this.storage,`${this.storageKey}-code-verifier`)??``).split(`/`);try{if(!t&&this.flowType===`pkce`)throw new En;let{data:r,error:i}=await Y(this.fetch,`POST`,`${this.url}/token?grant_type=pkce`,{headers:this.headers,body:{auth_code:e,code_verifier:t},xform:X});if(await W(this.storage,`${this.storageKey}-code-verifier`),i)throw i;if(!r||!r.session||!r.user){let e=new L;return this._returnResult({data:{user:null,session:null,redirectType:null},error:e})}return r.session&&(await this._saveSession(r.session),await this._notifyAllSubscribers(n===`recovery`?`PASSWORD_RECOVERY`:`SIGNED_IN`,r.session)),this._returnResult({data:Object.assign(Object.assign({},r),{redirectType:n??null}),error:i})}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:{user:null,session:null,redirectType:null},error:e});throw e}}async signInWithIdToken(e){try{let{options:t,provider:n,token:r,access_token:i,nonce:a}=e,{data:o,error:s}=await Y(this.fetch,`POST`,`${this.url}/token?grant_type=id_token`,{headers:this.headers,body:{provider:n,id_token:r,access_token:i,nonce:a,gotrue_meta_security:{captcha_token:t?.captchaToken}},xform:X});if(s)return this._returnResult({data:{user:null,session:null},error:s});if(!o||!o.session||!o.user){let e=new L;return this._returnResult({data:{user:null,session:null},error:e})}return o.session&&(await this._saveSession(o.session),await this._notifyAllSubscribers(`SIGNED_IN`,o.session)),this._returnResult({data:o,error:s})}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async signInWithOtp(e){try{if(`email`in e){let{email:t,options:n}=e,r=null,i=null;this.flowType===`pkce`&&([r,i]=await G(this.storage,this.storageKey));let{error:a}=await Y(this.fetch,`POST`,`${this.url}/otp`,{headers:this.headers,body:{email:t,data:n?.data??{},create_user:n?.shouldCreateUser??!0,gotrue_meta_security:{captcha_token:n?.captchaToken},code_challenge:r,code_challenge_method:i},redirectTo:n?.emailRedirectTo});return this._returnResult({data:{user:null,session:null},error:a})}if(`phone`in e){let{phone:t,options:n}=e,{data:r,error:i}=await Y(this.fetch,`POST`,`${this.url}/otp`,{headers:this.headers,body:{phone:t,data:n?.data??{},create_user:n?.shouldCreateUser??!0,gotrue_meta_security:{captcha_token:n?.captchaToken},channel:n?.channel??`sms`}});return this._returnResult({data:{user:null,session:null,messageId:r?.message_id},error:i})}throw new Sn(`You must provide either an email or phone number.`)}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async verifyOtp(e){try{let t,n;`options`in e&&(t=e.options?.redirectTo,n=e.options?.captchaToken);let{data:r,error:i}=await Y(this.fetch,`POST`,`${this.url}/verify`,{headers:this.headers,body:Object.assign(Object.assign({},e),{gotrue_meta_security:{captcha_token:n}}),redirectTo:t,xform:X});if(i)throw i;if(!r)throw Error(`An error occurred on token verification.`);let a=r.session,o=r.user;return a?.access_token&&(await this._saveSession(a),await this._notifyAllSubscribers(e.type==`recovery`?`PASSWORD_RECOVERY`:`SIGNED_IN`,a)),this._returnResult({data:{user:o,session:a},error:null})}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async signInWithSSO(e){try{let t=null,n=null;this.flowType===`pkce`&&([t,n]=await G(this.storage,this.storageKey));let r=await Y(this.fetch,`POST`,`${this.url}/sso`,{body:Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({},`providerId`in e?{provider_id:e.providerId}:null),`domain`in e?{domain:e.domain}:null),{redirect_to:e.options?.redirectTo??void 0}),e?.options?.captchaToken?{gotrue_meta_security:{captcha_token:e.options.captchaToken}}:null),{skip_http_redirect:!0,code_challenge:t,code_challenge_method:n}),headers:this.headers,xform:gr});return r.data?.url&&B()&&!e.options?.skipBrowserRedirect&&window.location.assign(r.data.url),this._returnResult(r)}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:null,error:e});throw e}}async reauthenticate(){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>await this._reauthenticate())}async _reauthenticate(){try{return await this._useSession(async e=>{let{data:{session:t},error:n}=e;if(n)throw n;if(!t)throw new I;let{error:r}=await Y(this.fetch,`GET`,`${this.url}/reauthenticate`,{headers:this.headers,jwt:t.access_token});return this._returnResult({data:{user:null,session:null},error:r})})}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async resend(e){try{let t=`${this.url}/resend`;if(`email`in e){let{email:n,type:r,options:i}=e,{error:a}=await Y(this.fetch,`POST`,t,{headers:this.headers,body:{email:n,type:r,gotrue_meta_security:{captcha_token:i?.captchaToken}},redirectTo:i?.emailRedirectTo});return this._returnResult({data:{user:null,session:null},error:a})}else if(`phone`in e){let{phone:n,type:r,options:i}=e,{data:a,error:o}=await Y(this.fetch,`POST`,t,{headers:this.headers,body:{phone:n,type:r,gotrue_meta_security:{captcha_token:i?.captchaToken}}});return this._returnResult({data:{user:null,session:null,messageId:a?.message_id},error:o})}throw new Sn(`You must provide either an email or phone number and a type`)}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async getSession(){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>this._useSession(async e=>e))}async _acquireLock(e,t){this._debug(`#_acquireLock`,`begin`,e);try{if(this.lockAcquired){let e=this.pendingInLock.length?this.pendingInLock[this.pendingInLock.length-1]:Promise.resolve(),n=(async()=>(await e,await t()))();return this.pendingInLock.push((async()=>{try{await n}catch{}})()),n}return await this.lock(`lock:${this.storageKey}`,e,async()=>{this._debug(`#_acquireLock`,`lock acquired for storage key`,this.storageKey);try{this.lockAcquired=!0;let e=t();for(this.pendingInLock.push((async()=>{try{await e}catch{}})()),await e;this.pendingInLock.length;){let e=[...this.pendingInLock];await Promise.all(e),this.pendingInLock.splice(0,e.length)}return await e}finally{this._debug(`#_acquireLock`,`lock released for storage key`,this.storageKey),this.lockAcquired=!1}})}finally{this._debug(`#_acquireLock`,`end`)}}async _useSession(e){this._debug(`#_useSession`,`begin`);try{return await e(await this.__loadSession())}finally{this._debug(`#_useSession`,`end`)}}async __loadSession(){this._debug(`#__loadSession()`,`begin`),this.lockAcquired||this._debug(`#__loadSession()`,`used outside of an acquired lock!`,Error().stack);try{let e=null,t=await U(this.storage,this.storageKey);if(this._debug(`#getSession()`,`session from storage`,t),t!==null&&(this._isValidSession(t)?e=t:(this._debug(`#getSession()`,`session from storage is not valid`),await this._removeSession())),!e)return{data:{session:null},error:null};let n=e.expires_at?e.expires_at*1e3-Date.now()<mn:!1;if(this._debug(`#__loadSession()`,`session has${n?``:` not`} expired`,`expires_at`,e.expires_at),!n){if(this.userStorage){let t=await U(this.userStorage,this.storageKey+`-user`);t?.user?e.user=t.user:e.user=cr()}if(this.storage.isServer&&e.user&&!e.user.__isUserNotAvailableProxy){let t={value:this.suppressGetSessionWarning};e.user=lr(e.user,t),t.value&&(this.suppressGetSessionWarning=!0)}return{data:{session:e},error:null}}let{data:r,error:i}=await this._callRefreshToken(e.refresh_token);return i?this._returnResult({data:{session:null},error:i}):this._returnResult({data:{session:r},error:null})}finally{this._debug(`#__loadSession()`,`end`)}}async getUser(e){if(e)return await this._getUser(e);await this.initializePromise;let t=await this._acquireLock(this.lockAcquireTimeout,async()=>await this._getUser());return t.data.user&&(this.suppressGetSessionWarning=!0),t}async _getUser(e){try{return e?await Y(this.fetch,`GET`,`${this.url}/user`,{headers:this.headers,jwt:e,xform:Z}):await this._useSession(async e=>{let{data:t,error:n}=e;if(n)throw n;return!t.session?.access_token&&!this.hasCustomAuthorizationHeader?{data:{user:null},error:new I}:await Y(this.fetch,`GET`,`${this.url}/user`,{headers:this.headers,jwt:t.session?.access_token??void 0,xform:Z})})}catch(e){if(N(e))return xn(e)&&(await this._removeSession(),await W(this.storage,`${this.storageKey}-code-verifier`)),this._returnResult({data:{user:null},error:e});throw e}}async updateUser(e,t={}){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>await this._updateUser(e,t))}async _updateUser(e,t={}){try{return await this._useSession(async n=>{let{data:r,error:i}=n;if(i)throw i;if(!r.session)throw new I;let a=r.session,o=null,s=null;this.flowType===`pkce`&&e.email!=null&&([o,s]=await G(this.storage,this.storageKey));let{data:c,error:l}=await Y(this.fetch,`PUT`,`${this.url}/user`,{headers:this.headers,redirectTo:t?.emailRedirectTo,body:Object.assign(Object.assign({},e),{code_challenge:o,code_challenge_method:s}),jwt:a.access_token,xform:Z});if(l)throw l;return a.user=c.user,await this._saveSession(a),await this._notifyAllSubscribers(`USER_UPDATED`,a),this._returnResult({data:{user:a.user},error:null})})}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:{user:null},error:e});throw e}}async setSession(e){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>await this._setSession(e))}async _setSession(e){try{if(!e.access_token||!e.refresh_token)throw new I;let t=Date.now()/1e3,n=t,r=!0,i=null,{payload:a}=Xn(e.access_token);if(a.exp&&(n=a.exp,r=n<=t),r){let{data:t,error:n}=await this._callRefreshToken(e.refresh_token);if(n)return this._returnResult({data:{user:null,session:null},error:n});if(!t)return{data:{user:null,session:null},error:null};i=t}else{let{data:r,error:a}=await this._getUser(e.access_token);if(a)return this._returnResult({data:{user:null,session:null},error:a});i={access_token:e.access_token,refresh_token:e.refresh_token,user:r.user,token_type:`bearer`,expires_in:n-t,expires_at:n},await this._saveSession(i),await this._notifyAllSubscribers(`SIGNED_IN`,i)}return this._returnResult({data:{user:i.user,session:i},error:null})}catch(e){if(N(e))return this._returnResult({data:{session:null,user:null},error:e});throw e}}async refreshSession(e){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>await this._refreshSession(e))}async _refreshSession(e){try{return await this._useSession(async t=>{if(!e){let{data:n,error:r}=t;if(r)throw r;e=n.session??void 0}if(!e?.refresh_token)throw new I;let{data:n,error:r}=await this._callRefreshToken(e.refresh_token);return r?this._returnResult({data:{user:null,session:null},error:r}):n?this._returnResult({data:{user:n.user,session:n},error:null}):this._returnResult({data:{user:null,session:null},error:null})})}catch(e){if(N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}}async _getSessionFromURL(e,t){try{if(!B())throw new Cn(`No browser detected.`);if(e.error||e.error_description||e.error_code)throw new Cn(e.error_description||`Error in URL with unspecified error_description`,{error:e.error||`unspecified_error`,code:e.error_code||`unspecified_code`});switch(t){case`implicit`:if(this.flowType===`pkce`)throw new Tn(`Not a valid PKCE flow url.`);break;case`pkce`:if(this.flowType===`implicit`)throw new Cn(`Not a valid implicit grant flow url.`);break;default:}if(t===`pkce`){if(this._debug(`#_initialize()`,`begin`,`is PKCE flow`,!0),!e.code)throw new Tn(`No code detected.`);let{data:t,error:n}=await this._exchangeCodeForSession(e.code);if(n)throw n;let r=new URL(window.location.href);return r.searchParams.delete(`code`),window.history.replaceState(window.history.state,``,r.toString()),{data:{session:t.session,redirectType:t.redirectType??null},error:null}}let{provider_token:n,provider_refresh_token:r,access_token:i,refresh_token:a,expires_in:o,expires_at:s,token_type:c}=e;if(!i||!o||!a||!c)throw new Cn(`No session defined in URL`);let l=Math.round(Date.now()/1e3),u=parseInt(o),d=l+u;s&&(d=parseInt(s));let f=d-l;f*1e3<=j&&console.warn(`@supabase/gotrue-js: Session as retrieved from URL expires in ${f}s, should have been closer to ${u}s`);let p=d-u;l-p>=120?console.warn(`@supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale`,p,d,l):l-p<0&&console.warn(`@supabase/gotrue-js: Session as retrieved from URL was issued in the future? Check the device clock for skew`,p,d,l);let{data:m,error:h}=await this._getUser(i);if(h)throw h;let ee={provider_token:n,provider_refresh_token:r,access_token:i,expires_in:u,expires_at:d,refresh_token:a,token_type:c,user:m.user};return window.location.hash=``,this._debug(`#_getSessionFromURL()`,`clearing window.location.hash`),this._returnResult({data:{session:ee,redirectType:e.type},error:null})}catch(e){if(N(e))return this._returnResult({data:{session:null,redirectType:null},error:e});throw e}}_isImplicitGrantCallback(e){return typeof this.detectSessionInUrl==`function`?this.detectSessionInUrl(new URL(window.location.href),e):!!(e.access_token||e.error_description)}async _isPKCECallback(e){let t=await U(this.storage,`${this.storageKey}-code-verifier`);return!!(e.code&&t)}async signOut(e={scope:`global`}){return await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>await this._signOut(e))}async _signOut({scope:e}={scope:`global`}){return await this._useSession(async t=>{let{data:n,error:r}=t;if(r&&!xn(r))return this._returnResult({error:r});let i=n.session?.access_token;if(i){let{error:t}=await this.admin.signOut(i,e);if(t&&!(bn(t)&&(t.status===404||t.status===401||t.status===403)||xn(t)))return this._returnResult({error:t})}return e!==`others`&&(await this._removeSession(),await W(this.storage,`${this.storageKey}-code-verifier`)),this._returnResult({error:null})})}onAuthStateChange(e){let t=Wn(),n={id:t,callback:e,unsubscribe:()=>{this._debug(`#unsubscribe()`,`state change callback with id removed`,t),this.stateChangeEmitters.delete(t)}};return this._debug(`#onAuthStateChange()`,`registered callback with id`,t),this.stateChangeEmitters.set(t,n),(async()=>{await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>{this._emitInitialSession(t)})})(),{data:{subscription:n}}}async _emitInitialSession(e){return await this._useSession(async t=>{try{let{data:{session:n},error:r}=t;if(r)throw r;await this.stateChangeEmitters.get(e)?.callback(`INITIAL_SESSION`,n),this._debug(`INITIAL_SESSION`,`callback id`,e,`session`,n)}catch(t){await this.stateChangeEmitters.get(e)?.callback(`INITIAL_SESSION`,null),this._debug(`INITIAL_SESSION`,`callback id`,e,`error`,t),xn(t)?console.warn(t):console.error(t)}})}async resetPasswordForEmail(e,t={}){let n=null,r=null;this.flowType===`pkce`&&([n,r]=await G(this.storage,this.storageKey,!0));try{return await Y(this.fetch,`POST`,`${this.url}/recover`,{body:{email:e,code_challenge:n,code_challenge_method:r,gotrue_meta_security:{captcha_token:t.captchaToken}},headers:this.headers,redirectTo:t.redirectTo})}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:null,error:e});throw e}}async getUserIdentities(){try{let{data:e,error:t}=await this.getUser();if(t)throw t;return this._returnResult({data:{identities:e.user.identities??[]},error:null})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async linkIdentity(e){return`token`in e?this.linkIdentityIdToken(e):this.linkIdentityOAuth(e)}async linkIdentityOAuth(e){try{let{data:t,error:n}=await this._useSession(async t=>{let{data:n,error:r}=t;if(r)throw r;let i=await this._getUrlForProvider(`${this.url}/user/identities/authorize`,e.provider,{redirectTo:e.options?.redirectTo,scopes:e.options?.scopes,queryParams:e.options?.queryParams,skipBrowserRedirect:!0});return await Y(this.fetch,`GET`,i,{headers:this.headers,jwt:n.session?.access_token??void 0})});if(n)throw n;return B()&&!e.options?.skipBrowserRedirect&&window.location.assign(t?.url),this._returnResult({data:{provider:e.provider,url:t?.url},error:null})}catch(t){if(N(t))return this._returnResult({data:{provider:e.provider,url:null},error:t});throw t}}async linkIdentityIdToken(e){return await this._useSession(async t=>{try{let{error:n,data:{session:r}}=t;if(n)throw n;let{options:i,provider:a,token:o,access_token:s,nonce:c}=e,{data:l,error:u}=await Y(this.fetch,`POST`,`${this.url}/token?grant_type=id_token`,{headers:this.headers,jwt:r?.access_token??void 0,body:{provider:a,id_token:o,access_token:s,nonce:c,link_identity:!0,gotrue_meta_security:{captcha_token:i?.captchaToken}},xform:X});return u?this._returnResult({data:{user:null,session:null},error:u}):!l||!l.session||!l.user?this._returnResult({data:{user:null,session:null},error:new L}):(l.session&&(await this._saveSession(l.session),await this._notifyAllSubscribers(`USER_UPDATED`,l.session)),this._returnResult({data:l,error:u}))}catch(e){if(await W(this.storage,`${this.storageKey}-code-verifier`),N(e))return this._returnResult({data:{user:null,session:null},error:e});throw e}})}async unlinkIdentity(e){try{return await this._useSession(async t=>{let{data:n,error:r}=t;if(r)throw r;return await Y(this.fetch,`DELETE`,`${this.url}/user/identities/${e.identity_id}`,{headers:this.headers,jwt:n.session?.access_token??void 0})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _refreshAccessToken(e){let t=`#_refreshAccessToken(${e.substring(0,5)}...)`;this._debug(t,`begin`);try{let n=Date.now();return await Qn(async n=>(n>0&&await Zn(200*2**(n-1)),this._debug(t,`refreshing attempt`,n),await Y(this.fetch,`POST`,`${this.url}/token?grant_type=refresh_token`,{body:{refresh_token:e},headers:this.headers,xform:X})),(e,t)=>{let r=200*2**e;return t&&kn(t)&&Date.now()+r-n<j})}catch(e){if(this._debug(t,`error`,e),N(e))return this._returnResult({data:{session:null,user:null},error:e});throw e}finally{this._debug(t,`end`)}}_isValidSession(e){return typeof e==`object`&&!!e&&`access_token`in e&&`refresh_token`in e&&`expires_at`in e}async _handleProviderSignIn(e,t){let n=await this._getUrlForProvider(`${this.url}/authorize`,e,{redirectTo:t.redirectTo,scopes:t.scopes,queryParams:t.queryParams});return this._debug(`#_handleProviderSignIn()`,`provider`,e,`options`,t,`url`,n),B()&&!t.skipBrowserRedirect&&window.location.assign(n),{data:{provider:e,url:n},error:null}}async _recoverAndRefresh(){let e=`#_recoverAndRefresh()`;this._debug(e,`begin`);try{let t=await U(this.storage,this.storageKey);if(t&&this.userStorage){let e=await U(this.userStorage,this.storageKey+`-user`);!this.storage.isServer&&Object.is(this.storage,this.userStorage)&&!e&&(e={user:t.user},await H(this.userStorage,this.storageKey+`-user`,e)),t.user=e?.user??cr()}else if(t&&!t.user&&!t.user){let e=await U(this.storage,this.storageKey+`-user`);e&&e?.user?(t.user=e.user,await W(this.storage,this.storageKey+`-user`),await H(this.storage,this.storageKey,t)):t.user=cr()}if(this._debug(e,`session from storage`,t),!this._isValidSession(t)){this._debug(e,`session is not valid`),t!==null&&await this._removeSession();return}let n=(t.expires_at??1/0)*1e3-Date.now()<mn;if(this._debug(e,`session has${n?``:` not`} expired with margin of ${mn}s`),n){if(this.autoRefreshToken&&t.refresh_token){let{error:n}=await this._callRefreshToken(t.refresh_token);n&&(console.error(n),kn(n)||(this._debug(e,`refresh failed with a non-retryable error, removing the session`,n),await this._removeSession()))}}else if(t.user&&t.user.__isUserNotAvailableProxy===!0)try{let{data:n,error:r}=await this._getUser(t.access_token);!r&&n?.user?(t.user=n.user,await this._saveSession(t),await this._notifyAllSubscribers(`SIGNED_IN`,t)):this._debug(e,`could not get user data, skipping SIGNED_IN notification`)}catch(t){console.error(`Error getting user data:`,t),this._debug(e,`error getting user data, skipping SIGNED_IN notification`,t)}else await this._notifyAllSubscribers(`SIGNED_IN`,t)}catch(t){this._debug(e,`error`,t),console.error(t);return}finally{this._debug(e,`end`)}}async _callRefreshToken(e){var t,n;if(!e)throw new I;if(this.refreshingDeferred)return this.refreshingDeferred.promise;let r=`#_callRefreshToken(${e.substring(0,5)}...)`;this._debug(r,`begin`);try{this.refreshingDeferred=new Yn;let{data:t,error:n}=await this._refreshAccessToken(e);if(n)throw n;if(!t.session)throw new I;await this._saveSession(t.session),await this._notifyAllSubscribers(`TOKEN_REFRESHED`,t.session);let r={data:t.session,error:null};return this.refreshingDeferred.resolve(r),r}catch(e){if(this._debug(r,`error`,e),N(e)){let n={data:null,error:e};return kn(e)||await this._removeSession(),(t=this.refreshingDeferred)==null||t.resolve(n),n}throw(n=this.refreshingDeferred)==null||n.reject(e),e}finally{this.refreshingDeferred=null,this._debug(r,`end`)}}async _notifyAllSubscribers(e,t,n=!0){let r=`#_notifyAllSubscribers(${e})`;this._debug(r,`begin`,t,`broadcast = ${n}`);try{this.broadcastChannel&&n&&this.broadcastChannel.postMessage({event:e,session:t});let r=[],i=Array.from(this.stateChangeEmitters.values()).map(async n=>{try{await n.callback(e,t)}catch(e){r.push(e)}});if(await Promise.all(i),r.length>0){for(let e=0;e<r.length;e+=1)console.error(r[e]);throw r[0]}}finally{this._debug(r,`end`)}}async _saveSession(e){this._debug(`#_saveSession()`,e),this.suppressGetSessionWarning=!0,await W(this.storage,`${this.storageKey}-code-verifier`);let t=Object.assign({},e),n=t.user&&t.user.__isUserNotAvailableProxy===!0;if(this.userStorage){!n&&t.user&&await H(this.userStorage,this.storageKey+`-user`,{user:t.user});let e=Object.assign({},t);delete e.user;let r=ur(e);await H(this.storage,this.storageKey,r)}else{let e=ur(t);await H(this.storage,this.storageKey,e)}}async _removeSession(){this._debug(`#_removeSession()`),this.suppressGetSessionWarning=!1,await W(this.storage,this.storageKey),await W(this.storage,this.storageKey+`-code-verifier`),await W(this.storage,this.storageKey+`-user`),this.userStorage&&await W(this.userStorage,this.storageKey+`-user`),await this._notifyAllSubscribers(`SIGNED_OUT`,null)}_removeVisibilityChangedCallback(){this._debug(`#_removeVisibilityChangedCallback()`);let e=this.visibilityChangedCallback;this.visibilityChangedCallback=null;try{e&&B()&&window!=null&&window.removeEventListener&&window.removeEventListener(`visibilitychange`,e)}catch(e){console.error(`removing visibilitychange callback failed`,e)}}async _startAutoRefresh(){await this._stopAutoRefresh(),this._debug(`#_startAutoRefresh()`);let e=setInterval(()=>this._autoRefreshTokenTick(),j);this.autoRefreshTicker=e,e&&typeof e==`object`&&typeof e.unref==`function`?e.unref():typeof Deno<`u`&&typeof Deno.unrefTimer==`function`&&Deno.unrefTimer(e);let t=setTimeout(async()=>{await this.initializePromise,await this._autoRefreshTokenTick()},0);this.autoRefreshTickTimeout=t,t&&typeof t==`object`&&typeof t.unref==`function`?t.unref():typeof Deno<`u`&&typeof Deno.unrefTimer==`function`&&Deno.unrefTimer(t)}async _stopAutoRefresh(){this._debug(`#_stopAutoRefresh()`);let e=this.autoRefreshTicker;this.autoRefreshTicker=null,e&&clearInterval(e);let t=this.autoRefreshTickTimeout;this.autoRefreshTickTimeout=null,t&&clearTimeout(t)}async startAutoRefresh(){this._removeVisibilityChangedCallback(),await this._startAutoRefresh()}async stopAutoRefresh(){this._removeVisibilityChangedCallback(),await this._stopAutoRefresh()}async _autoRefreshTokenTick(){this._debug(`#_autoRefreshTokenTick()`,`begin`);try{await this._acquireLock(0,async()=>{try{let e=Date.now();try{return await this._useSession(async t=>{let{data:{session:n}}=t;if(!n||!n.refresh_token||!n.expires_at){this._debug(`#_autoRefreshTokenTick()`,`no session`);return}let r=Math.floor((n.expires_at*1e3-e)/j);this._debug(`#_autoRefreshTokenTick()`,`access token expires in ${r} ticks, a tick lasts ${j}ms, refresh threshold is 3 ticks`),r<=3&&await this._callRefreshToken(n.refresh_token)})}catch(e){console.error(`Auto refresh tick failed with error. This is likely a transient error.`,e)}}finally{this._debug(`#_autoRefreshTokenTick()`,`end`)}})}catch(e){if(e instanceof Cr)this._debug(`auto refresh token tick lock not available`);else throw e}}async _handleVisibilityChange(){if(this._debug(`#_handleVisibilityChange()`),!B()||!(window!=null&&window.addEventListener))return this.autoRefreshToken&&this.startAutoRefresh(),!1;try{this.visibilityChangedCallback=async()=>{try{await this._onVisibilityChanged(!1)}catch(e){this._debug(`#visibilityChangedCallback`,`error`,e)}},window==null||window.addEventListener(`visibilitychange`,this.visibilityChangedCallback),await this._onVisibilityChanged(!0)}catch(e){console.error(`_handleVisibilityChange`,e)}}async _onVisibilityChanged(e){let t=`#_onVisibilityChanged(${e})`;this._debug(t,`visibilityState`,document.visibilityState),document.visibilityState===`visible`?(this.autoRefreshToken&&this._startAutoRefresh(),e||(await this.initializePromise,await this._acquireLock(this.lockAcquireTimeout,async()=>{if(document.visibilityState!==`visible`){this._debug(t,`acquired the lock to recover the session, but the browser visibilityState is no longer visible, aborting`);return}await this._recoverAndRefresh()}))):document.visibilityState===`hidden`&&this.autoRefreshToken&&this._stopAutoRefresh()}async _getUrlForProvider(e,t,n){let r=[`provider=${encodeURIComponent(t)}`];if(n?.redirectTo&&r.push(`redirect_to=${encodeURIComponent(n.redirectTo)}`),n?.scopes&&r.push(`scopes=${encodeURIComponent(n.scopes)}`),this.flowType===`pkce`){let[e,t]=await G(this.storage,this.storageKey),n=new URLSearchParams({code_challenge:`${encodeURIComponent(e)}`,code_challenge_method:`${encodeURIComponent(t)}`});r.push(n.toString())}if(n?.queryParams){let e=new URLSearchParams(n.queryParams);r.push(e.toString())}return n?.skipBrowserRedirect&&r.push(`skip_http_redirect=${n.skipBrowserRedirect}`),`${e}?${r.join(`&`)}`}async _unenroll(e){try{return await this._useSession(async t=>{let{data:n,error:r}=t;return r?this._returnResult({data:null,error:r}):await Y(this.fetch,`DELETE`,`${this.url}/factors/${e.factorId}`,{headers:this.headers,jwt:n?.session?.access_token})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _enroll(e){try{return await this._useSession(async t=>{let{data:n,error:r}=t;if(r)return this._returnResult({data:null,error:r});let i=Object.assign({friendly_name:e.friendlyName,factor_type:e.factorType},e.factorType===`phone`?{phone:e.phone}:e.factorType===`totp`?{issuer:e.issuer}:{}),{data:a,error:o}=await Y(this.fetch,`POST`,`${this.url}/factors`,{body:i,headers:this.headers,jwt:n?.session?.access_token});return o?this._returnResult({data:null,error:o}):(e.factorType===`totp`&&a.type===`totp`&&a?.totp?.qr_code&&(a.totp.qr_code=`data:image/svg+xml;utf-8,${a.totp.qr_code}`),this._returnResult({data:a,error:null}))})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _verify(e){return this._acquireLock(this.lockAcquireTimeout,async()=>{try{return await this._useSession(async t=>{let{data:n,error:r}=t;if(r)return this._returnResult({data:null,error:r});let i=Object.assign({challenge_id:e.challengeId},`webauthn`in e?{webauthn:Object.assign(Object.assign({},e.webauthn),{credential_response:e.webauthn.type===`create`?Br(e.webauthn.credential_response):Vr(e.webauthn.credential_response)})}:{code:e.code}),{data:a,error:o}=await Y(this.fetch,`POST`,`${this.url}/factors/${e.factorId}/verify`,{body:i,headers:this.headers,jwt:n?.session?.access_token});return o?this._returnResult({data:null,error:o}):(await this._saveSession(Object.assign({expires_at:Math.round(Date.now()/1e3)+a.expires_in},a)),await this._notifyAllSubscribers(`MFA_CHALLENGE_VERIFIED`,a),this._returnResult({data:a,error:o}))})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}})}async _challenge(e){return this._acquireLock(this.lockAcquireTimeout,async()=>{try{return await this._useSession(async t=>{let{data:n,error:r}=t;if(r)return this._returnResult({data:null,error:r});let i=await Y(this.fetch,`POST`,`${this.url}/factors/${e.factorId}/challenge`,{body:e,headers:this.headers,jwt:n?.session?.access_token});if(i.error)return i;let{data:a}=i;if(a.type!==`webauthn`)return{data:a,error:null};switch(a.webauthn.type){case`create`:return{data:Object.assign(Object.assign({},a),{webauthn:Object.assign(Object.assign({},a.webauthn),{credential_options:Object.assign(Object.assign({},a.webauthn.credential_options),{publicKey:Rr(a.webauthn.credential_options.publicKey)})})}),error:null};case`request`:return{data:Object.assign(Object.assign({},a),{webauthn:Object.assign(Object.assign({},a.webauthn),{credential_options:Object.assign(Object.assign({},a.webauthn.credential_options),{publicKey:zr(a.webauthn.credential_options.publicKey)})})}),error:null}}})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}})}async _challengeAndVerify(e){let{data:t,error:n}=await this._challenge({factorId:e.factorId});return n?this._returnResult({data:null,error:n}):await this._verify({factorId:e.factorId,challengeId:t.id,code:e.code})}async _listFactors(){let{data:{user:e},error:t}=await this.getUser();if(t)return{data:null,error:t};let n={all:[],phone:[],totp:[],webauthn:[]};for(let t of e?.factors??[])n.all.push(t),t.status===`verified`&&n[t.factor_type].push(t);return{data:n,error:null}}async _getAuthenticatorAssuranceLevel(e){if(e)try{let{payload:t}=Xn(e),n=null;t.aal&&(n=t.aal);let r=n,{data:{user:i},error:a}=await this.getUser(e);if(a)return this._returnResult({data:null,error:a});((i?.factors)?.filter(e=>e.status===`verified`)??[]).length>0&&(r=`aal2`);let o=t.amr||[];return{data:{currentLevel:n,nextLevel:r,currentAuthenticationMethods:o},error:null}}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}let{data:{session:t},error:n}=await this.getSession();if(n)return this._returnResult({data:null,error:n});if(!t)return{data:{currentLevel:null,nextLevel:null,currentAuthenticationMethods:[]},error:null};let{payload:r}=Xn(t.access_token),i=null;r.aal&&(i=r.aal);let a=i;(t.user.factors?.filter(e=>e.status===`verified`)??[]).length>0&&(a=`aal2`);let o=r.amr||[];return{data:{currentLevel:i,nextLevel:a,currentAuthenticationMethods:o},error:null}}async _getAuthorizationDetails(e){try{return await this._useSession(async t=>{let{data:{session:n},error:r}=t;return r?this._returnResult({data:null,error:r}):n?await Y(this.fetch,`GET`,`${this.url}/oauth/authorizations/${e}`,{headers:this.headers,jwt:n.access_token,xform:e=>({data:e,error:null})}):this._returnResult({data:null,error:new I})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _approveAuthorization(e,t){try{return await this._useSession(async n=>{let{data:{session:r},error:i}=n;if(i)return this._returnResult({data:null,error:i});if(!r)return this._returnResult({data:null,error:new I});let a=await Y(this.fetch,`POST`,`${this.url}/oauth/authorizations/${e}/consent`,{headers:this.headers,jwt:r.access_token,body:{action:`approve`},xform:e=>({data:e,error:null})});return a.data&&a.data.redirect_url&&B()&&!t?.skipBrowserRedirect&&window.location.assign(a.data.redirect_url),a})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _denyAuthorization(e,t){try{return await this._useSession(async n=>{let{data:{session:r},error:i}=n;if(i)return this._returnResult({data:null,error:i});if(!r)return this._returnResult({data:null,error:new I});let a=await Y(this.fetch,`POST`,`${this.url}/oauth/authorizations/${e}/consent`,{headers:this.headers,jwt:r.access_token,body:{action:`deny`},xform:e=>({data:e,error:null})});return a.data&&a.data.redirect_url&&B()&&!t?.skipBrowserRedirect&&window.location.assign(a.data.redirect_url),a})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _listOAuthGrants(){try{return await this._useSession(async e=>{let{data:{session:t},error:n}=e;return n?this._returnResult({data:null,error:n}):t?await Y(this.fetch,`GET`,`${this.url}/user/oauth/grants`,{headers:this.headers,jwt:t.access_token,xform:e=>({data:e,error:null})}):this._returnResult({data:null,error:new I})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _revokeOAuthGrant(e){try{return await this._useSession(async t=>{let{data:{session:n},error:r}=t;return r?this._returnResult({data:null,error:r}):n?(await Y(this.fetch,`DELETE`,`${this.url}/user/oauth/grants`,{headers:this.headers,jwt:n.access_token,query:{client_id:e.clientId},noResolveJson:!0}),{data:{},error:null}):this._returnResult({data:null,error:new I})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async fetchJwk(e,t={keys:[]}){let n=t.keys.find(t=>t.kid===e);if(n)return n;let r=Date.now();if(n=this.jwks.keys.find(t=>t.kid===e),n&&this.jwks_cached_at+6e5>r)return n;let{data:i,error:a}=await Y(this.fetch,`GET`,`${this.url}/.well-known/jwks.json`,{headers:this.headers});if(a)throw a;return!i.keys||i.keys.length===0||(this.jwks=i,this.jwks_cached_at=r,n=i.keys.find(t=>t.kid===e),!n)?null:n}async getClaims(e,t={}){try{let n=e;if(!n){let{data:e,error:t}=await this.getSession();if(t||!e.session)return this._returnResult({data:null,error:t});n=e.session.access_token}let{header:r,payload:i,signature:a,raw:{header:o,payload:s}}=Xn(n);t?.allowExpired||ar(i.exp);let c=!r.alg||r.alg.startsWith(`HS`)||!r.kid||!(`crypto`in globalThis&&`subtle`in globalThis.crypto)?null:await this.fetchJwk(r.kid,t?.keys?{keys:t.keys}:t?.jwks);if(!c){let{error:e}=await this.getUser(n);if(e)throw e;return{data:{claims:i,header:r,signature:a},error:null}}let l=or(r.alg),u=await crypto.subtle.importKey(`jwk`,c,l,!0,[`verify`]);if(!await crypto.subtle.verify(l,u,a,Hn(`${o}.${s}`)))throw new Mn(`Invalid JWT signature`);return{data:{claims:i,header:r,signature:a},error:null}}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async signInWithPasskey(e){q(this.experimental);try{if(!Ur())return this._returnResult({data:null,error:new P(`Browser does not support WebAuthn`,null)});let{data:t,error:n}=await this._startPasskeyAuthentication({options:{captchaToken:e?.options?.captchaToken}});if(n||!t)return this._returnResult({data:null,error:n});let{data:r,error:i}=await Gr({publicKey:zr(t.options),signal:e?.options?.signal??Lr.createNewAbortSignal()});if(i||!r)return this._returnResult({data:null,error:i??new P(`WebAuthn ceremony failed`,null)});let a=Vr(r);return this._verifyPasskeyAuthentication({challengeId:t.challenge_id,credential:a})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async registerPasskey(e){q(this.experimental);try{if(!Ur())return this._returnResult({data:null,error:new P(`Browser does not support WebAuthn`,null)});let{data:t,error:n}=await this._startPasskeyRegistration();if(n||!t)return this._returnResult({data:null,error:n});let{data:r,error:i}=await Wr({publicKey:Rr(t.options),signal:e?.options?.signal??Lr.createNewAbortSignal()});if(i||!r)return this._returnResult({data:null,error:i??new P(`WebAuthn ceremony failed`,null)});let a=Br(r);return this._verifyPasskeyRegistration({challengeId:t.challenge_id,credential:a})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _startPasskeyRegistration(){q(this.experimental);try{return await this._useSession(async e=>{let{data:{session:t},error:n}=e;if(n)return this._returnResult({data:null,error:n});if(!t)return this._returnResult({data:null,error:new I});let{data:r,error:i}=await Y(this.fetch,`POST`,`${this.url}/passkeys/registration/options`,{headers:this.headers,jwt:t.access_token,body:{}});return i?this._returnResult({data:null,error:i}):this._returnResult({data:r,error:null})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _verifyPasskeyRegistration(e){q(this.experimental);try{return await this._useSession(async t=>{let{data:{session:n},error:r}=t;if(r)return this._returnResult({data:null,error:r});if(!n)return this._returnResult({data:null,error:new I});let{data:i,error:a}=await Y(this.fetch,`POST`,`${this.url}/passkeys/registration/verify`,{headers:this.headers,jwt:n.access_token,body:{challenge_id:e.challengeId,credential:e.credential}});return a?this._returnResult({data:null,error:a}):this._returnResult({data:i,error:null})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _startPasskeyAuthentication(e){q(this.experimental);try{let{data:t,error:n}=await Y(this.fetch,`POST`,`${this.url}/passkeys/authentication/options`,{headers:this.headers,body:{gotrue_meta_security:{captcha_token:e?.options?.captchaToken}}});return n?this._returnResult({data:null,error:n}):this._returnResult({data:t,error:null})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _verifyPasskeyAuthentication(e){q(this.experimental);try{let{data:t,error:n}=await Y(this.fetch,`POST`,`${this.url}/passkeys/authentication/verify`,{headers:this.headers,body:{challenge_id:e.challengeId,credential:e.credential},xform:X});return n?this._returnResult({data:null,error:n}):(t.session&&(await this._saveSession(t.session),await this._notifyAllSubscribers(`SIGNED_IN`,t.session)),this._returnResult({data:t,error:null}))}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _listPasskeys(){q(this.experimental);try{return await this._useSession(async e=>{let{data:{session:t},error:n}=e;if(n)return this._returnResult({data:null,error:n});if(!t)return this._returnResult({data:null,error:new I});let{data:r,error:i}=await Y(this.fetch,`GET`,`${this.url}/passkeys`,{headers:this.headers,jwt:t.access_token,xform:e=>({data:e,error:null})});return i?this._returnResult({data:null,error:i}):this._returnResult({data:r,error:null})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _updatePasskey(e){q(this.experimental);try{return await this._useSession(async t=>{let{data:{session:n},error:r}=t;if(r)return this._returnResult({data:null,error:r});if(!n)return this._returnResult({data:null,error:new I});let{data:i,error:a}=await Y(this.fetch,`PATCH`,`${this.url}/passkeys/${e.passkeyId}`,{headers:this.headers,jwt:n.access_token,body:{friendly_name:e.friendlyName}});return a?this._returnResult({data:null,error:a}):this._returnResult({data:i,error:null})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}async _deletePasskey(e){q(this.experimental);try{return await this._useSession(async t=>{let{data:{session:n},error:r}=t;if(r)return this._returnResult({data:null,error:r});if(!n)return this._returnResult({data:null,error:new I});let{error:i}=await Y(this.fetch,`DELETE`,`${this.url}/passkeys/${e.passkeyId}`,{headers:this.headers,jwt:n.access_token,noResolveJson:!0});return i?this._returnResult({data:null,error:i}):this._returnResult({data:null,error:null})})}catch(e){if(N(e))return this._returnResult({data:null,error:e});throw e}}};ti.nextInstanceID={};var ni=ti,ri=xr,ii=ni,ai=class extends ii{constructor(e){super(e)}},oi=class{constructor(e,t,n){this.supabaseUrl=e,this.supabaseKey=t;let r=fn(e);if(!t)throw Error(`supabaseKey is required.`);this.realtimeUrl=new URL(`realtime/v1`,r),this.realtimeUrl.protocol=this.realtimeUrl.protocol.replace(`http`,`ws`),this.authUrl=new URL(`auth/v1`,r),this.storageUrl=new URL(`storage/v1`,r),this.functionsUrl=new URL(`functions/v1`,r);let i=`sb-${r.hostname.split(`.`)[0]}-auth-token`,a={db:rn,realtime:on,auth:{...an,storageKey:i},global:nn},o=dn(n??{},a);this.storageKey=o.auth.storageKey??``,this.headers=o.global.headers??{},o.accessToken?(this.accessToken=o.accessToken,this.auth=new Proxy({},{get:(e,t)=>{throw Error(`@supabase/supabase-js: Supabase Client is configured with the accessToken option, accessing supabase.auth.${String(t)} is not possible`)}})):this.auth=this._initSupabaseAuthClient(o.auth??{},this.headers,o.global.fetch),this.fetch=ln(t,this._getAccessToken.bind(this),o.global.fetch),this.realtime=this._initRealtimeClient({headers:this.headers,accessToken:this._getAccessToken.bind(this),fetch:this.fetch,...o.realtime}),this.accessToken&&Promise.resolve(this.accessToken()).then(e=>this.realtime.setAuth(e)).catch(e=>console.warn(`Failed to set initial Realtime auth token:`,e)),this.rest=new le(new URL(`rest/v1`,r).href,{headers:this.headers,schema:o.db.schema,fetch:this.fetch,timeout:o.db.timeout,urlLengthLimit:o.db.urlLengthLimit}),this.storage=new en(this.storageUrl.href,this.headers,this.fetch,n?.storage),o.accessToken||this._listenForAuthEvents()}get functions(){return new l(this.functionsUrl.href,{headers:this.headers,customFetch:this.fetch})}from(e){return this.rest.from(e)}schema(e){return this.rest.schema(e)}rpc(e,t={},n={head:!1,get:!1,count:void 0}){return this.rest.rpc(e,t,n)}channel(e,t={config:{}}){return this.realtime.channel(e,t)}getChannels(){return this.realtime.getChannels()}removeChannel(e){return this.realtime.removeChannel(e)}removeAllChannels(){return this.realtime.removeAllChannels()}async _getAccessToken(){if(this.accessToken)return await this.accessToken();let{data:e}=await this.auth.getSession();return e.session?.access_token??this.supabaseKey}_initSupabaseAuthClient({autoRefreshToken:e,persistSession:t,detectSessionInUrl:n,storage:r,userStorage:i,storageKey:a,flowType:o,lock:s,debug:c,throwOnError:l,experimental:u,lockAcquireTimeout:d,skipAutoInitialize:f},p,m){let h={Authorization:`Bearer ${this.supabaseKey}`,apikey:`${this.supabaseKey}`};return new ai({url:this.authUrl.href,headers:{...h,...p},storageKey:a,autoRefreshToken:e,persistSession:t,detectSessionInUrl:n,storage:r,userStorage:i,flowType:o,lock:s,debug:c,throwOnError:l,experimental:u,fetch:m,lockAcquireTimeout:d,skipAutoInitialize:f,hasCustomAuthorizationHeader:Object.keys(this.headers).some(e=>e.toLowerCase()===`authorization`)})}_initRealtimeClient(e){return new ot(this.realtimeUrl.href,{...e,params:{apikey:this.supabaseKey,...e?.params}})}_listenForAuthEvents(){return this.auth.onAuthStateChange((e,t)=>{this._handleTokenChanged(e,`CLIENT`,t?.access_token)})}_handleTokenChanged(e,t,n){(e===`TOKEN_REFRESHED`||e===`SIGNED_IN`)&&this.changedAccessToken!==n?(this.changedAccessToken=n,this.realtime.setAuth(n)):e===`SIGNED_OUT`&&(this.realtime.setAuth(),t==`STORAGE`&&this.auth.signOut(),this.changedAccessToken=void 0)}};let si=(e,t,n)=>new oi(e,t,n);function ci(){if(typeof window<`u`)return!1;let e=globalThis.process;if(!e)return!1;let t=e.version;if(t==null)return!1;let n=t.match(/^v(\d+)\./);return n?parseInt(n[1],10)<=18:!1}return ci()&&console.warn(`⚠️  Node.js 18 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 20 or later. For more information, visit: https://github.com/orgs/supabase/discussions/37217`),e.AuthAdminApi=ri,e.AuthApiError=yn,e.AuthClient=ii,e.AuthError=M,e.AuthImplicitGrantRedirectError=Cn,e.AuthInvalidCredentialsError=Sn,e.AuthInvalidJwtError=Mn,e.AuthInvalidTokenResponseError=L,e.AuthPKCECodeVerifierMissingError=En,e.AuthPKCEGrantCodeExchangeError=Tn,e.AuthRetryableFetchError=On,e.AuthSessionMissingError=I,e.AuthUnknownError=P,e.AuthWeakPasswordError=An,e.CustomAuthError=F,Object.defineProperty(e,`FunctionRegion`,{enumerable:!0,get:function(){return c}}),e.FunctionsError=i,e.FunctionsFetchError=a,e.FunctionsHttpError=s,e.FunctionsRelayError=o,e.GoTrueAdminApi=xr,e.GoTrueClient=ni,e.NavigatorLockAcquireTimeoutError=wr,e.PostgrestError=p,e.REALTIME_CHANNEL_STATES=$e,Object.defineProperty(e,`REALTIME_LISTEN_TYPES`,{enumerable:!0,get:function(){return Qe}}),Object.defineProperty(e,`REALTIME_POSTGRES_CHANGES_LISTEN_EVENT`,{enumerable:!0,get:function(){return Ze}}),Object.defineProperty(e,`REALTIME_PRESENCE_LISTEN_EVENTS`,{enumerable:!0,get:function(){return Ke}}),Object.defineProperty(e,`REALTIME_SUBSCRIBE_STATES`,{enumerable:!0,get:function(){return T}}),e.RealtimeChannel=et,e.RealtimeClient=ot,e.RealtimePresence=qe,e.SIGN_OUT_SCOPES=br,e.StorageApiError=St,e.SupabaseClient=oi,e.WebSocketFactory=ue,e.createClient=si,e.isAuthApiError=bn,e.isAuthError=N,e.isAuthImplicitGrantRedirectError=wn,e.isAuthPKCECodeVerifierMissingError=Dn,e.isAuthRetryableFetchError=kn,e.isAuthSessionMissingError=xn,e.isAuthWeakPasswordError=jn,e.lockInternals=Q,e.navigatorLock=Er,e.processLock=Or,e})({});
 </script>
 <script>
+function _s(v){ return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+</script>
+<script>
+const DEV_MODE = false;
 const SUPABASE_URL = 'https://krljaqrhyszeleiwwkmd.supabase.co';
 window.SUPABASE_URL = SUPABASE_URL;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtybGphcXJoeXN6ZWxlaXd3a21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NTY0MjksImV4cCI6MjA4OTMzMjQyOX0.rilLVl17MjmlSO2mWzRVFXpjhRXZTh30SVWMDw5UUlE';
@@ -6168,16 +6172,16 @@ try {
   if (_sup) {
     sb = _sup.createClient(SUPABASE_URL, SUPABASE_KEY);
   } else {
-    console.error('[DB] Supabase lib not found. typeof supabase=', typeof (typeof supabase !== 'undefined' ? supabase : 'UNDEF'), 'window.supabase=', typeof window.supabase);
+    if(DEV_MODE) console.error('[DB] Supabase lib not found.');
   }
 } catch(e) {
-  console.error('[DB] Supabase createClient error:', e);
+  if(DEV_MODE) console.error('[DB] Supabase createClient error:', e);
   sb = null;
 }
 window.sb = sb;
 function showSupabaseConnectionError(targetId){
   const msg = 'Supabase bağlantısı kurulamadı. Canlı sitede CDN, internet veya script izinleri engelleniyor olabilir.';
-  console.error(msg);
+  if(DEV_MODE) console.error(msg);
   const target = targetId ? document.getElementById(targetId) : null;
   if (target) {
     target.innerHTML = `<div style="margin:20px;padding:16px;border:1px solid rgba(184,50,50,.18);background:rgba(184,50,50,.06);border-radius:12px;color:#8f2a2a;font-size:13px;line-height:1.6">${msg}</div>`;
@@ -6285,7 +6289,7 @@ async function loadFromSupabase(){
     }));
 
     render();
-  } catch(e){ console.error('Supabase load error:', e); render(); }
+  } catch(e){ if(DEV_MODE) console.error('Supabase load error:', e); render(); }
 }
 
 async function saveClient(c){
@@ -6299,11 +6303,11 @@ async function saveClient(c){
   };
   if(!c.id || c._new){
     const r=await sb.from('clients').insert(row).select().single();
-    if(r.error){console.error('Insert error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
+    if(r.error){toast('Kayıt kaydedilemedi.');return;}
     if(r.data){c.id=+r.data.id; c._new=false;}
   } else {
     const r=await sb.from('clients').update(row).eq('id',c.id);
-    if(r.error){console.error('Update error:',r.error);toast('Güncelleme hatası: '+r.error.message);}
+    if(r.error){toast('Güncelleme yapılamadı.');}
   }
 }
 
@@ -6393,12 +6397,12 @@ async function saveGoal(g){
   const row={name:g.name,date:g.date,icon:g.icon||'🎯',done:g.done||false,notes:g.notes||[],user_id:currentUser?.email||null};
   if(g._new){
     const r=await sb.from('goals').insert(row).select().single();
-    if(r.error){console.error('Goal insert error:',r.error);toast('Hata: '+r.error.message);return;}
+    if(r.error){toast('Bir hata oluştu.');return;}
     if(r.data){g.id=r.data.id;}
     g._new=false;
   } else {
     const r=await sb.from('goals').update(row).eq('id',+g.id);
-    if(r.error){console.error('Goal update error:',r.error);toast('Hata: '+r.error.message);}
+    if(r.error){toast('Bir hata oluştu.');}
   }
 }
 async function deleteSBGoal(id){ await sb.from('goals').delete().eq('id',id); }
@@ -6421,7 +6425,7 @@ async function saveDailyEntry(entry){
     user_id:currentUser?.email||null
   };
   const r=await sb.from('daily_entries').insert(row).select().single();
-  if(r.error){console.error('Daily save error:',r.error);toast('Kayıt hatası: '+r.error.message);return;}
+  if(r.error){toast('Kayıt kaydedilemedi.');return;}
   if(r.data) entry.id=r.data.id;
 }
 
@@ -7451,13 +7455,13 @@ async function saveToolboxItem(){
   const payload = {icon, title, description, category, categories, url, published};
   if(editId){
     const {error} = await sb.from('toolbox_items').update(payload).eq('id', editId);
-    if(error){toast('❌ '+error.message);return;}
+    if(error){toast('❌ İşlem tamamlanamadı.');return;}
     const idx = toolboxItems.findIndex(x=>String(x.id)===String(editId));
     if(idx>=0) toolboxItems[idx] = {...toolboxItems[idx], ...payload};
     toast('✅ İçerik güncellendi');
   } else {
     const {data, error} = await sb.from('toolbox_items').insert({...payload, order_index:toolboxItems.length}).select().single();
-    if(error){toast('❌ '+error.message);return;}
+    if(error){toast('❌ İşlem tamamlanamadı.');return;}
     toolboxItems.push(data);
     toast('✅ İçerik eklendi');
   }
@@ -7543,7 +7547,7 @@ async function saveClientSchedule(){
     remaining_sessions:remaining,
     program_end:programEnd||null
   }).eq('id',state.currentClientId);
-  if(error){toast('Hata: '+error.message);console.error(error);return;}
+  if(error){toast('Bir hata oluştu.');if(DEV_MODE) console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Program bilgileri kaydedildi!');
 }
 
@@ -7553,7 +7557,7 @@ async function saveClientHealth(){
   if(!c){toast('Müşteri bulunamadı');return;}
   c.health=health;
   const {error}=await sb.from('clients').update({health}).eq('id',state.currentClientId);
-  if(error){toast('Hata: '+error.message);console.error(error);return;}
+  if(error){toast('Bir hata oluştu.');if(DEV_MODE) console.error(error);return;}
   renderHealthPage();renderClientList();toast('✅ Sağlık skoru kaydedildi!');
 }
 
@@ -7694,7 +7698,7 @@ async function addClient(){
   // Supabase'e kaydet, gerçek id al
   const row={name:nc.name,type:nc.type,status:nc.status,email:nc.email,phone:nc.phone,social:'',sessions:0,remaining_sessions:0,program_end:null,start_date:null,program:null,health:5,notes:[]};
   const r=await sb.from('clients').insert(row).select().single();
-  if(r.error){toast('Hata: '+r.error.message);return;}
+  if(r.error){toast('Bir hata oluştu.');return;}
   nc.id = +r.data.id; nc._new=false;
   state.clients.push(nc);
   toast('✅ Müşteri eklendi!');
@@ -7845,7 +7849,7 @@ async function saveDaily(){
       alinan:entry.alinan, anlasma:entry.anlasma, yorum:entry.yorum
     };
     const {error} = await sb.from('daily_entries').update(row).eq('id',+id).eq('user_id',currentUser?.email||'');
-    if(error){toast('❌ Güncelleme hatası: '+error.message);return;}
+    if(error){toast('❌ Güncelleme yapılamadı.');return;}
     // state güncelle
     const idx = state.daily.findIndex(x=>+x.id===+id);
     if(idx>=0) state.daily[idx] = {...state.daily[idx], ...entry};
@@ -7906,7 +7910,7 @@ async function saveEditedDaily(){
     yorum:      document.getElementById('ed-yorum').value
   };
   const {error} = await sb.from('daily_entries').update(row).eq('id',+id).eq('user_id',currentUser?.email||'');
-  if(error){ toast('❌ Hata: '+error.message); return; }
+  if(error){ toast('❌ Bir hata oluştu.'); return; }
   // state güncelle
   const idx = state.daily.findIndex(x=>+x.id===+id);
   if(idx>=0) state.daily[idx] = { ...state.daily[idx], ...row, dateShort: dateVal };
@@ -8261,7 +8265,7 @@ async function addUser(){
 
   // 1. Users tablosuna ekle (role: client)
   const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
-  if(error){ toast('Hata: '+error.message); return; }
+  if(error){ toast('Bir hata oluştu.'); return; }
   if(!users) users=[];
   users.push({id:data.id,name,email,password});
 
@@ -8412,7 +8416,7 @@ function cmStatusColor(bucket) {
 async function loadMusteriYonetimi() {
   // Load last_check_in_at from clients table
   const { data, error } = await sb.from('clients').select('id,name,email,program,program_end,health,last_check_in_at').order('name');
-  if(error) { console.warn('cm load error', error.message); return; }
+  if(error) { if(DEV_MODE) console.warn('cm load error', error.message); return; }
   // Merge into state.clients
   (data||[]).forEach(row => {
     const c = state.clients.find(x => String(x.id) === String(row.id));
@@ -8493,7 +8497,7 @@ async function cmCheckIn(clientId) {
   const { error } = await sb.from('clients')
     .update({ last_check_in_at: today, health: c.health })
     .eq('id', clientId);
-  if(error) console.warn('cm checkin error', error.message);
+  if(error) if(DEV_MODE) console.warn('cm checkin error', error.message);
 }
 
 async function deleteUser(id){
@@ -8794,7 +8798,7 @@ async function addCROdev(email){
   const description=document.getElementById('cr-task-note').value.trim();
   const due_date=document.getElementById('cr-task-due').value||null;
   const {data,error}=await sb.from('homework_assignments').insert({user_id:email,title,description,due_date,status:'atanmis'}).select().single();
-  if(error){toast('❌ Hata: '+error.message);return;}
+  if(error){toast('❌ Bir hata oluştu.');return;}
   crData.tasks.push(data);
   document.getElementById('cr-task-title').value='';
   document.getElementById('cr-task-note').value='';
@@ -8819,7 +8823,7 @@ async function adminReviewOdev(id, action, email){
   const payload = {status: newStatus, admin_reviewed_at: new Date().toISOString()};
   if(adminNote) payload.admin_note = adminNote;
   const {error} = await sb.from('homework_assignments').update(payload).eq('id',id);
-  if(error){toast('❌ '+error.message);return;}
+  if(error){toast('❌ İşlem tamamlanamadı.');return;}
   const idx = crData.tasks.findIndex(x=>x.id===id);
   if(idx>=0) crData.tasks[idx] = {...crData.tasks[idx], ...payload};
   renderCRTab();
@@ -8879,7 +8883,7 @@ async function userCompleteOdev(id){
     status: 'inceleniyor',
     user_completed_at: new Date().toISOString()
   }).eq('id', id);
-  if(error){toast('❌ '+error.message);return;}
+  if(error){toast('❌ İşlem tamamlanamadı.');return;}
   const idx = odevler.findIndex(x=>x.id===id);
   if(idx>=0) odevler[idx] = {...odevler[idx], status:'inceleniyor', user_completed_at: new Date().toISOString()};
   renderOdevler();
@@ -8895,7 +8899,7 @@ async function addClientTeklif(email){
   const description = document.getElementById('ct-desc').value.trim();
   const status = document.getElementById('ct-status').value;
   const {data,error} = await sb.from('client_teklif').insert({user_id:email,title,price,duration,description,status}).select().single();
-  if(error){toast('❌ '+error.message);return;}
+  if(error){toast('❌ İşlem tamamlanamadı.');return;}
   crData.clientTeklif.push(data);
   document.getElementById('ct-title').value='';
   document.getElementById('ct-price').value='';
@@ -9120,7 +9124,7 @@ async function loadKanban(){
   let kq = sb.from('kanban_cards').select('*').order('created_at');
   if(currentUser?.role !== 'admin') kq = kq.eq('user_id', currentUser?.email||'');
   const { data, error } = await kq;
-  if(error){ console.error('Kanban yüklenemedi:', error); return; }
+  if(error){ if(DEV_MODE) console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
     id: x.id, title: x.title, format: x.format||'📝 Diğer',
     col: x.col||'fikir', date: x.date||'', note: x.note||'', link: x.link||''
@@ -9132,18 +9136,18 @@ async function insertKanban(card){
   const { data, error } = await sb.from('kanban_cards')
     .insert({ title:card.title, format:card.format, col:card.col, date:card.date||null, note:card.note, user_id:currentUser?.email||null })
     .select().single();
-  if(error){ toast('❌ Hata: '+error.message); return null; }
+  if(error){ toast('❌ Bir hata oluştu.'); return null; }
   return data.id;
 }
 
 async function updateKanban(id, fields){
   const { error } = await sb.from('kanban_cards').update(fields).eq('id', id);
-  if(error) toast('Kayıt hatası: '+error.message);
+  if(error) toast('Kayıt kaydedilemedi.');
 }
 
 async function deleteKanbanSB(id){
   const { error } = await sb.from('kanban_cards').delete().eq('id', id);
-  if(error) toast('Silme hatası: '+error.message);
+  if(error) toast('Silme işlemi başarısız.');
 }
 
 /* ---- BOARD RENDER ---- */
@@ -9416,7 +9420,7 @@ async function loadCompetitorsSB() {
       addedAt: r.created_at
     }));
   } catch(e) {
-    console.warn('Supabase competitors error:', e.message);
+    if(DEV_MODE) console.warn('Supabase competitors error:', e.message);
     // Fallback to demo data on first load
     if(!competitors.length) competitors = [
       { id:'demo1', name:'@toktasclips', platform:'instagram', category:'', followers:0, engagement:0, postsPerWeek:0, note:'', profileLink:'https://instagram.com/toktasclips' },
@@ -9438,7 +9442,7 @@ async function insertCompetitorSB(comp) {
     if(error) throw error;
     return data.id;
   } catch(e) {
-    console.warn('Insert competitor error:', e.message);
+    if(DEV_MODE) console.warn('Insert competitor error:', e.message);
     return Date.now();
   }
 }
@@ -9452,13 +9456,13 @@ async function updateCompetitorSB(id, comp) {
       note: comp.note,
       profile_link: comp.profileLink
     }).eq('id', id);
-  } catch(e) { console.warn('Update competitor error:', e.message); }
+  } catch(e) { if(DEV_MODE) console.warn('Update competitor error:', e.message); }
 }
 
 async function deleteCompetitorSB(id) {
   try {
     await sb.from('competitors').delete().eq('id', id);
-  } catch(e) { console.warn('Delete competitor error:', e.message); }
+  } catch(e) { if(DEV_MODE) console.warn('Delete competitor error:', e.message); }
 }
 
 function setCTView(view, el) {
@@ -9668,7 +9672,7 @@ async function loadMusteriler() {
       notes: r.notes || ''
     }));
   } catch(e) {
-    console.warn('customers load error:', e.message);
+    if(DEV_MODE) console.warn('customers load error:', e.message);
     musteriler = musteriler.length ? musteriler : [];
   }
   renderMusteriKPI();
@@ -9688,7 +9692,7 @@ async function insertMusteriSB(m) {
     }).select().single();
     if(error) throw error;
     return data.id;
-  } catch(e) { console.warn('insert customer error:', e.message); return 'local_' + Date.now(); }
+  } catch(e) { if(DEV_MODE) console.warn('insert customer error:', e.message); return 'local_' + Date.now(); }
 }
 
 async function updateMusteriSB(id, m) {
@@ -9702,7 +9706,7 @@ async function updateMusteriSB(id, m) {
     }).eq('id', id);
     if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
     await q;
-  } catch(e) { console.warn('update customer error:', e.message); }
+  } catch(e) { if(DEV_MODE) console.warn('update customer error:', e.message); }
 }
 
 async function deleteMusteriSB(id) {
@@ -9711,7 +9715,7 @@ async function deleteMusteriSB(id) {
     if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
     await q;
   }
-  catch(e) { console.warn('delete customer error:', e.message); }
+  catch(e) { if(DEV_MODE) console.warn('delete customer error:', e.message); }
 }
 
 /* ---- KPI ---- */
@@ -10079,7 +10083,7 @@ const ONB_TAB_STATUS   = { pending: 'pending', approved: 'approved', archived: '
 async function loadOnboardingPage() {
   if (!sb) return;
   const { data, error } = await sb.from('onboarding_leads').select('*').order('created_at', { ascending: false });
-  if (error) { toast('Hata: ' + error.message); return; }
+  if (error) { toast('Bir hata oluştu.'); return; }
   onboardingRegs = data || [];
   renderOnboardingPage();
 }
@@ -10291,7 +10295,7 @@ async function createOnboardingPortalAccount(regId) {
 
 async function archiveOnboardingReg(regId) {
   const { error } = await sb.from('onboarding_leads').update({ status: 'archived' }).eq('id', regId);
-  if (error) { toast('Hata: ' + error.message); return; }
+  if (error) { toast('Bir hata oluştu.'); return; }
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'archived';
   renderOnboardingPage();
@@ -10314,7 +10318,7 @@ async function addOnboardingTestRecord() {
   const { data, error } = await sb.from('onboarding_leads').insert({
     full_name, email, note: note || null, status: 'pending', source: 'manual'
   }).select().single();
-  if (error) { toast('Hata: ' + error.message); return; }
+  if (error) { toast('Bir hata oluştu.'); return; }
 
   onboardingRegs.unshift(data);
   closeModal('modal-add-onboarding');
@@ -10349,7 +10353,7 @@ async function loadTeklifler() {
       created_at:   r.created_at || ''
     }));
   } catch(e) {
-    console.warn('offers load error:', e.message);
+    if(DEV_MODE) console.warn('offers load error:', e.message);
   }
   renderTeklifKPI();
   renderTeklifCatFilter();
@@ -10368,7 +10372,7 @@ async function insertTeklifSB(t) {
     if(error) throw error;
     return data;
   } catch(e) {
-    console.warn('insert offer error:', e.message);
+    if(DEV_MODE) console.warn('insert offer error:', e.message);
     return { id: 'local_' + Date.now(), created_at: new Date().toISOString() };
   }
 }
@@ -10383,7 +10387,7 @@ async function updateTeklifSB(id, t) {
     }).eq('id', id);
     if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
     await q;
-  } catch(e) { console.warn('update offer error:', e.message); }
+  } catch(e) { if(DEV_MODE) console.warn('update offer error:', e.message); }
 }
 
 async function deleteTeklifSB(id) {
@@ -10392,7 +10396,7 @@ async function deleteTeklifSB(id) {
     if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
     await q;
   }
-  catch(e) { console.warn('delete offer error:', e.message); }
+  catch(e) { if(DEV_MODE) console.warn('delete offer error:', e.message); }
 }
 
 /* ---- Helpers ---- */
@@ -10729,7 +10733,7 @@ async function loadUserAchievements() {
     .eq('owner_user_id', currentUser.email)
     .order('created_at');
   if (error) {
-    console.error('Badge load err:', error.message, '| Kod:', error.code);
+    if(DEV_MODE) console.error('Badge load err:', error.message, '| Kod:', error.code);
     _beltTableMissing = true;
     return [];
   }
@@ -10755,7 +10759,7 @@ async function unlockBeltIfNew(beltKey, revenueAmount) {
     .single();
   if (error) {
     const isDup = error.message?.includes('duplicate') || error.code === '23505';
-    if (!isDup) console.error('Badge insert err:', error.message);
+    if (!isDup && DEV_MODE) console.error('Badge insert err:', error.message);
     return;
   }
   if (data) _beltAchievements.push(data);
@@ -10802,7 +10806,7 @@ async function loadKazanimlarPage() {
     }
 
   } catch (e) {
-    console.error('Kazanımlar load error:', e);
+    if(DEV_MODE) console.error('Kazanımlar load error:', e);
     if (gallery) gallery.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--color-red);font-size:13px">Yükleme hatası: ' + e.message + '</div>';
   }
 }
@@ -10991,7 +10995,7 @@ async function saveChaChing() {
 
   if (error) {
     btn.disabled = false; btn.innerHTML = '💰 Kaydet';
-    toast('❌ Hata: ' + error.message); return;
+    toast('❌ Bir hata oluştu.'); return;
   }
 
   // 2. O günün toplam satışını hesapla
@@ -11607,7 +11611,7 @@ async function _igLoadAccount(username) {
         token_expired:        'Instagram bağlantınızın süresi dolmuş. Yeniden bağlayın.',
         api_error:            data.detail || 'API hatası oluştu.',
       };
-      rr.innerHTML = `<div class="ig-empty-box" style="padding:20px"><div class="ig-empty-icon">⚠️</div><div class="ig-empty-title" style="color:#e57373">${msgs[data.error]||data.error||'Bilinmeyen hata'}</div>${data.code?`<div class="ig-empty-sub" style="font-size:10px">Hata kodu: ${data.code}</div>`:''}</div>`;
+      rr.innerHTML = `<div class="ig-empty-box" style="padding:20px"><div class="ig-empty-icon">⚠️</div><div class="ig-empty-title" style="color:#e57373">Bağlantı hatası</div></div>`;
       return;
     }
     igState.research.data[username] = { ...data, fetchedAt: Date.now() };
@@ -11731,7 +11735,7 @@ function _renderIgConnectionCard(card, conn) {
   const warningHtml = (conn.sync_error === 'requires_reconnect')
     ? `<div style="font-size:11.5px;color:#f59e0b;margin-top:4px">⚠️ Instagram bağlantısını yenilemeniz gerekiyor (izin eksik).</div>`
     : '';
-  card.innerHTML  = `<div class="ig-connect-card connected"><div class="ig-brand"><div class="ig-brand-icon">${igSvg}</div><div><div class="ig-brand-name">${username}${statusHtml}</div>${name?`<div class="ig-brand-sub">${name}</div>`:''}<div class="ig-last-sync">Son sync: ${lastSync}</div>${warningHtml}</div></div><div class="ig-connect-actions">${needsReconnect?`<button class="btn btn-primary" onclick="connectInstagram()" style="font-size:12px;padding:7px 16px">↺ Yeniden Bağla</button>`:`<button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:7px 14px">↻ Senkronize Et</button>`}<button class="btn btn-ghost" onclick="disconnectInstagram()" style="font-size:12px;padding:7px 14px;color:var(--color-text-muted)">Bağlantıyı Kaldır</button></div></div>`;
+  card.innerHTML  = `<div class="ig-connect-card connected"><div class="ig-brand"><div class="ig-brand-icon">${igSvg}</div><div><div class="ig-brand-name">${_s(username)}${statusHtml}</div>${name?`<div class="ig-brand-sub">${_s(name)}</div>`:''}<div class="ig-last-sync">Son sync: ${lastSync}</div>${warningHtml}</div></div><div class="ig-connect-actions">${needsReconnect?`<button class="btn btn-primary" onclick="connectInstagram()" style="font-size:12px;padding:7px 16px">↺ Yeniden Bağla</button>`:`<button class="btn btn-ghost" id="ig-sync-btn" onclick="syncInstagram()" style="font-size:12px;padding:7px 14px">↻ Senkronize Et</button>`}<button class="btn btn-ghost" onclick="disconnectInstagram()" style="font-size:12px;padding:7px 14px;color:var(--color-text-muted)">Bağlantıyı Kaldır</button></div></div>`;
 }
 
 function _renderIgAccountDetail(snap) {
@@ -11793,7 +11797,7 @@ async function loadIgAnalytics() {
   try {
     await igLoadChartJs();
     igRenderFollowersChart();
-  } catch(e) { console.warn('[analytics] Chart.js load failed:', e); }
+  } catch(e) { if(DEV_MODE) console.warn('[analytics] Chart.js load failed:', e); }
 }
 
 function igRenderAnKPIs() {
@@ -12213,7 +12217,7 @@ function igAdsRenderMetrics() {
         }
       }
     });
-  }).catch(e => console.warn('[ads-chart] failed:', e));
+  }).catch(e => { if(DEV_MODE) console.warn('[ads-chart] failed:', e); });
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────
@@ -12665,7 +12669,7 @@ async function loadImplementationPage() {
     await implLoadAll();
     implRender();
   } catch(e) {
-    if (list) list.innerHTML = `<div style="padding:24px;color:var(--color-red);font-size:13px">Yüklenemedi: ${e.message}</div>`;
+    if (list) list.innerHTML = `<div style="padding:24px;color:var(--color-red);font-size:13px">Yüklenemedi: Bir hata oluştu</div>`;
   }
 }
 </script>
@@ -13107,7 +13111,7 @@ async function seedEgitimControlQuestions(){
   const { error } = await sb
     .from('training_control_questions')
     .upsert(egitimSeedPayloads(), { onConflict:'level_key' });
-  if(error) console.warn('training_control_questions seed skipped:', error.message);
+  if(error) if(DEV_MODE) console.warn('training_control_questions seed skipped:', error.message);
 }
 async function loadEgitimControlQuestions(){
   egitimControlQuestionSets = { ...EGITIM_CONTROL_FORM_DEFAULTS };
@@ -13128,7 +13132,7 @@ async function loadEgitimControlQuestions(){
     });
     egitimControlQuestionsLoaded = true;
   } catch(e) {
-    console.warn('training_control_questions load skipped:', e.message);
+    if(DEV_MODE) console.warn('training_control_questions load skipped:', e.message);
   }
 }
 function egitimControlFormQuestions(moduleId){
@@ -13241,7 +13245,7 @@ async function loadEgitim() {
       await loadEgitimControlQuestions();
     }
   } catch(e) {
-    console.warn('loadEgitim error:', e.message);
+    if(DEV_MODE) console.warn('loadEgitim error:', e.message);
   }
   egitimShowGrid();
 }
@@ -14199,7 +14203,7 @@ async function cbHandleFile(input) {
         pages.push(content.items.map(item => item.str).join(' '));
       }
       text = pages.join('\n\n');
-      console.log(`[PDF] ${file.name}: ${pdf.numPages} sayfa, ${text.length} karakter`);
+      if(DEV_MODE) console.log(`[PDF] ${file.name}: ${pdf.numPages} sayfa, ${text.length} karakter`);
       if (!text.trim()) {
         alert('PDF\'den metin okunamadı. Bu PDF taranmış/görsel tabanlı olabilir. Lütfen metin içeren bir PDF veya .txt dosyası kullanın.');
         return;
@@ -14240,14 +14244,14 @@ async function cbSaveBot() {
   }
   // Dokümanları yükle
   for (const doc of cbEditDocs) {
-    console.log(`[ingest] ${doc.filename} → ${doc.content.length} karakter gönderiliyor`);
+    if(DEV_MODE) console.log(`[ingest] ${doc.filename} → ${doc.content.length} karakter gönderiliyor`);
     const r = await fetch(CHATBOT_INGEST_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
       body: JSON.stringify({ chatbot_id: botId, filename: doc.filename, content: doc.content }),
     });
     const rj = await r.json().catch(() => ({}));
-    console.log(`[ingest] yanıt:`, rj);
+    
     if (!r.ok) { alert(`Belge yükleme hatası (${doc.filename}): ${JSON.stringify(rj)}`); return; }
   }
   alert(cbEditDocs.length > 0 ? `Kaydedildi! ${cbEditDocs.length} belge yüklendi.` : 'Kaydedildi!');
@@ -14577,7 +14581,7 @@ async function deleteForumPost(id) {
   const userKey=()=>getCurrentUser()?.email || getCurrentUser()?.id || 'local-user';
   const userKeys=()=>Array.from(new Set([getCurrentUser()?.email,getCurrentUser()?.id].filter(Boolean).map(String)));
   const botIcon=(b={},i=0)=>b.icon || b.avatar_emoji || b.emoji || coffeeIcons[i%coffeeIcons.length] || '☕';
-  const saveDebug=(msg)=>{const el=document.getElementById('sanal-save-debug');if(el){el.style.display='block';el.textContent=msg;}console.log('[Kişisel Baristan]',msg);};
+  const saveDebug=(msg)=>{const el=document.getElementById('sanal-save-debug');if(el){el.style.display='block';el.textContent=msg;}if(DEV_MODE) console.log('[Kişisel Baristan]',msg);};
   const setDocStatus=(msg)=>{const el=document.getElementById('sanal-doc-status');if(el)el.textContent=msg||'';};
   const normalizeBot=(b,i=0)=>({
     id:b.id,
@@ -14615,7 +14619,7 @@ async function deleteForumPost(id) {
       if(msgErr) throw msgErr;
       return (msgs||[]).filter(m=>m.conversation_id!==activeThreadId || m.role!=='typing').slice(-30).map(m=>`${m.role==='user'?'Kullanıcı':'Barista'}: ${String(m.content||'').slice(0,900)}`).join('\n');
     }catch(e){
-      console.warn('[Kişisel Baristan] konuşma hafızası okunamadı:',e.message||e);
+      if(DEV_MODE) console.warn('[Kişisel Baristan] konuşma hafızası okunamadı:',e.message||e);
       return '';
     }
   }
@@ -14651,7 +14655,7 @@ async function deleteForumPost(id) {
           const fb=await fallback;
           if(!fb.error && Array.isArray(fb.data)){ botsCache=fb.data.map(normalizeBot); }
         }
-      }catch(e){console.warn('[Kişisel Baristan] Supabase client okuma hatası:',e.message||e);}
+      }catch(e){if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase client okuma hatası:',e.message||e);}
     }
 
     // Supabase client yüklenmezse bile REST ile oku. Böylece localStorage'a düşmez.
@@ -14663,8 +14667,8 @@ async function deleteForumPost(id) {
         });
         const data=await res.json().catch(()=>[]);
         if(res.ok && Array.isArray(data)){ botsCache=data.map(normalizeBot); }
-        else if(!res.ok){ console.warn('[Kişisel Baristan] REST okuma hatası:',data); }
-      }catch(e){console.warn('[Kişisel Baristan] REST okuma hatası:',e.message||e);}
+        else if(!res.ok){ if(DEV_MODE) console.warn('[Kişisel Baristan] REST okuma hatası'); }
+      }catch(e){if(DEV_MODE) console.warn('[Kişisel Baristan] REST okuma hatası:',e.message||e);}
     }
 
     // Burada bilerek local default basmıyoruz. Supabase'te yoksa boş görünür.
@@ -14790,7 +14794,7 @@ async function deleteForumPost(id) {
           return true;
         }catch(e){
           window.__lastKisiselBaristanError=e?.message||String(e);
-          console.warn('[Kişisel Baristan] client kayıt denemesi başarısız:', window.__lastKisiselBaristanError);
+          if(DEV_MODE) console.warn('[Kişisel Baristan] client kayıt denemesi başarısız:', window.__lastKisiselBaristanError);
         }
       }
     }
@@ -14803,7 +14807,7 @@ async function deleteForumPost(id) {
         return true;
       }catch(e){
         window.__lastKisiselBaristanError=e?.message||String(e);
-        console.warn('[Kişisel Baristan] REST kayıt denemesi başarısız:', window.__lastKisiselBaristanError);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] REST kayıt denemesi başarısız:', window.__lastKisiselBaristanError);
       }
     }
 
@@ -14819,7 +14823,7 @@ async function deleteForumPost(id) {
         if(res?.error) res=await db.from('chatbots').update({is_active:false}).eq('id',id);
         if(res?.error) throw res.error;
       }catch(e){
-        console.warn('[Kişisel Baristan] Supabase silme/pasife alma hatası:',e.message||e);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase silme/pasife alma hatası:',e.message||e);
         alert('Supabase kaydı güncellenemedi. Sayfa içinde kaldırdım ama veritabanı izni/kolonları kontrol edilmeli.');
       }
     }
@@ -14835,7 +14839,7 @@ async function deleteForumPost(id) {
         if(data?.id){activeThreadId=data.id;return data.id;}
       }catch(e){
         window.__lastKisiselConversationError=e?.message||String(e);
-        console.warn('[Kişisel Baristan] Supabase konuşma kaydı hatası:',window.__lastKisiselConversationError);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase konuşma kaydı hatası:',window.__lastKisiselConversationError);
       }
     }
     const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
@@ -14854,7 +14858,7 @@ async function deleteForumPost(id) {
         if(row?.id){activeThreadId=row.id;return row.id;}
       }catch(e){
         window.__lastKisiselConversationError=e?.message||String(e);
-        console.warn('[Kişisel Baristan] REST konuşma kaydı hatası:',window.__lastKisiselConversationError);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] REST konuşma kaydı hatası:',window.__lastKisiselConversationError);
       }
     }
     return null;
@@ -14872,7 +14876,7 @@ async function deleteForumPost(id) {
         wrote=true;
       }catch(e){
         window.__lastKisiselConversationError=e?.message||String(e);
-        console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',window.__lastKisiselConversationError);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',window.__lastKisiselConversationError);
       }
     }
     const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
@@ -14896,7 +14900,7 @@ async function deleteForumPost(id) {
         });
       }catch(e){
         window.__lastKisiselConversationError=e?.message||String(e);
-        console.warn('[Kişisel Baristan] REST mesaj kayıt hatası:',window.__lastKisiselConversationError);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] REST mesaj kayıt hatası:',window.__lastKisiselConversationError);
         return false;
       }
     }
@@ -15051,7 +15055,7 @@ async function deleteForumPost(id) {
         if(data.reply) return cleanBotText(data.reply);
         throw new Error('chatbot-chat yanıtı boş döndü.');
       }catch(e){
-        console.warn('[Kişisel Baristan] chatbot-chat hatası:',e.message||e);
+        if(DEV_MODE) console.warn('[Kişisel Baristan] chatbot-chat hatası:',e.message||e);
         return `Şu an chatbot sunucusundan yanıt alamıyorum.\n\nTeknik hata: ${e.message||e}\n\nBaristanın talimatları ve belgeleri Supabase tarafında duruyor; cevap üretimi için chatbot-chat Edge Function ve OpenAI token/secret ayarını kontrol etmek gerekiyor.`;
       }
     }
@@ -15225,7 +15229,7 @@ async function deleteForumPost(id) {
         window.kisiselRender();
       }
     }catch(e){
-      console.warn('[Kişisel Baristan] ilk render patch uyarısı:', e);
+      if(DEV_MODE) console.warn('[Kişisel Baristan] ilk render patch uyarısı:', e);
     }
   }
   if(document.readyState==='loading'){
@@ -15582,7 +15586,7 @@ async function deleteForumPost(id) {
     ensureChartJs().then(()=>{
       requestAnimationFrame(()=>setTimeout(repairCharts,80));
       setTimeout(repairCharts,350);
-    }).catch(e=>console.warn('[chart repair] Chart.js yüklenemedi',e));
+    }).catch(e=>{ if(DEV_MODE) console.warn('[chart repair] Chart.js yüklenemedi',e); });
   }
   const oldGo=window.go;
   if(typeof oldGo==='function'){
@@ -16312,7 +16316,7 @@ document.addEventListener('click',function(e){
         localStorage.setItem(key,existing.data[0].id);
         return existing.data[0].id;
       }
-    }catch(e){ console.warn('[Mehmet AI] mevcut bot aranamadı',e); }
+    }catch(e){ if(DEV_MODE) console.warn('[Mehmet AI] mevcut bot aranamadı',e); }
     const systemPrompt=[
       'Sen Mehmet AI adında ders içi yardımcı asistansın.',
       'Sadece bu derse yüklenen dokümanlara ve transkript/kaynak bağlamına dayanarak cevap ver.',
@@ -16420,7 +16424,7 @@ document.addEventListener('click',function(e){
       lessonAiMessages.push({role:'assistant',text:cleanAiText(json.answer||json.reply||json.message||'Bu soruya yanıt bulamadım.')});
     }catch(err){
       lessonAiMessages.push({role:'assistant',text:'Şu an cevap alamadım. Dokümanın yüklü olduğundan ve chatbot fonksiyonunun çalıştığından emin olalım.'});
-      console.warn('[Mehmet AI] mesaj hatası',err);
+      if(DEV_MODE) console.warn('[Mehmet AI] mesaj hatası',err);
     }finally{
       lessonAiBusy=false;
       renderLessonAi();
@@ -18155,7 +18159,7 @@ document.addEventListener('click',function(e){
       if(typeof igAdsData!=='undefined') igAdsData=[];
       if(typeof igAdsSnaps!=='undefined') igAdsSnaps=[];
     }catch(e){
-      console.warn('[user isolation] reset uyarısı', e);
+      if(DEV_MODE) console.warn('[user isolation] reset uyarısı', e);
     }
   }
 
@@ -18459,7 +18463,7 @@ document.addEventListener('click',function(e){
       if(error) throw error;
       return (data||[]).map(r=>({id:r.id,title:r.title||'',content:r.content||'',created_at:r.created_at||new Date().toISOString()}));
     }catch(e){
-      console.warn('[Yolculuk] Supabase anı okuma yok/fail:',e.message||e);
+      if(DEV_MODE) console.warn('[Yolculuk] Supabase anı okuma yok/fail:',e.message||e);
       return null;
     }
   }
@@ -18479,7 +18483,7 @@ document.addEventListener('click',function(e){
       }
       return true;
     }catch(e){
-      console.warn('[Yolculuk] Supabase anı kayıt yok/fail:',e.message||e);
+      if(DEV_MODE) console.warn('[Yolculuk] Supabase anı kayıt yok/fail:',e.message||e);
       return false;
     }
   }
@@ -18491,7 +18495,7 @@ document.addEventListener('click',function(e){
       if(error) throw error;
       return true;
     }catch(e){
-      console.warn('[Yolculuk] Supabase anı silme yok/fail:',e.message||e);
+      if(DEV_MODE) console.warn('[Yolculuk] Supabase anı silme yok/fail:',e.message||e);
       return false;
     }
   }
