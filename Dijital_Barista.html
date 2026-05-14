@@ -10796,7 +10796,7 @@ async function cmCheckIn(clientId) {
   const { error } = await sb.from('clients')
     .update({ last_check_in_at: today, health: c.health })
     .eq('id', clientId);
-  if(error)
+  if(error) console.error('check-in güncelleme hatası:', error.message);
 }
 
 async function deleteUser(id){
@@ -15247,7 +15247,7 @@ async function seedEgitimControlQuestions(){
   const { error } = await sb
     .from('training_control_questions')
     .upsert(egitimSeedPayloads(), { onConflict:'level_key' });
-  if(error)
+  if(error) console.error('egitim seed hatası:', error.message);
 }
 async function loadEgitimControlQuestions(){
   egitimControlQuestionSets = { ...EGITIM_CONTROL_FORM_DEFAULTS };
