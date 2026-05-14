@@ -10007,14 +10007,14 @@ let onboardingRegs = [];
 let onbCurrentTab = 'pending';
 
 // DB status → Türkçe görüntü
-const ONB_STATUS_LABEL = { pending: 'Bekliyor', approved: 'Hesap Açıldı', archived: 'Arşivlendi' };
-const ONB_STATUS_COLOR = { pending: 'var(--color-amber)', approved: 'var(--color-green)', archived: 'var(--color-text-muted)' };
-// Tab key → DB status filtresi
+const ONB_STATUS_LABEL = { pending: 'Bekliyor', approved: 'Hesap Açıldı', account_created: 'Hesap Açıldı', archived: 'Arşivlendi' };
+const ONB_STATUS_COLOR = { pending: 'var(--color-amber)', approved: 'var(--color-green)', account_created: 'var(--color-green)', archived: 'var(--color-text-muted)' };
+// Tab key → DB status filtresi (null = hepsini göster)
 const ONB_TAB_STATUS   = { pending: 'pending', approved: 'approved', archived: 'archived', all: null };
 
 async function loadOnboardingPage() {
-  if (!sb) return;
-  const { data, error } = await disabledDb().select('*').order('created_at', { ascending: false });
+  if (!sb) { renderOnboardingPage(); return; }
+  const { data, error } = await sb.from('onboarding_leads').select('*').order('created_at', { ascending: false });
   if (error) { toast('Hata: ' + error.message); return; }
   onboardingRegs = data || [];
   renderOnboardingPage();
@@ -10035,7 +10035,7 @@ function setOnbTab(tab) {
 
 function renderOnboardingPage() {
   const bekliyor = onboardingRegs.filter(r => r.status === 'pending').length;
-  const acildi   = onboardingRegs.filter(r => r.status === 'approved').length;
+  const acildi   = onboardingRegs.filter(r => r.status === 'approved' || r.status === 'account_created').length;
   const arsiv    = onboardingRegs.filter(r => r.status === 'archived').length;
   const elq = id => document.getElementById(id);
   if(elq('onb-stat-bekliyor')) elq('onb-stat-bekliyor').textContent = bekliyor;
@@ -10051,7 +10051,9 @@ function renderOnboardingList() {
   const filterStatus = ONB_TAB_STATUS[onbCurrentTab];
   const filtered = filterStatus === null
     ? onboardingRegs
-    : onboardingRegs.filter(r => r.status === filterStatus);
+    : onboardingRegs.filter(r => filterStatus === 'approved'
+        ? (r.status === 'approved' || r.status === 'account_created')
+        : r.status === filterStatus);
 
   if (!filtered.length) {
     container.innerHTML = '<div style="text-align:center;padding:48px;color:var(--color-text-muted);font-size:14px">Kayıt bulunamadı</div>';
@@ -10105,6 +10107,8 @@ function onboardingDesiredPassword(reg) {
 }
 
 async function createOnboardingPortalAccount(regId) {
+  if (!sb) { toast('Veritabanı bağlantısı bu kopyada devre dışı.'); return; }
+
   const reg = onboardingRegs.find(r => String(r.id) === String(regId));
   if (!reg) return;
 
@@ -10113,50 +10117,18 @@ async function createOnboardingPortalAccount(regId) {
   const offer = selectedOfferId ? teklifler.find(t => String(t.id) === String(selectedOfferId)) : null;
   if (!offer) { toast('Lütfen bir program / teklif seç'); return; }
 
-  const name  = reg.full_name || reg.name || '';
-  const email = reg.email || '';
+  const name  = (reg.full_name || reg.name || '').trim();
+  const email = (reg.email || '').trim().toLowerCase();
   if (!email) { toast('E-posta bulunamadı'); return; }
 
-  // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
-  const password = onboardingDesiredPassword(reg) || (email.split('@')[0] + '123!');
-
-  const { data: existingUsers, error: existingUserErr } = await sb
-    .select('*')
-    .eq('email', email);
-  if (existingUserErr) { toast('Hata: ' + existingUserErr.message); return; }
-  const existingUser = existingUsers && existingUsers.length ? existingUsers[0] : null;
-
-  const startStr   = new Date().toISOString().slice(0, 10);
-  const monthlyPay = offer.price || 0;
+  const startStr     = new Date().toISOString().slice(0, 10);
+  const monthlyPay   = offer.price || 0;
   const durationDays = offerToDays(offer);
-  const endDate    = durationDays
+  const endDate      = durationDays
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // 1. users tablosunu manuel ekleme formatına getir
-  let userData = existingUser;
-  if (existingUser) {
-    const { data: updatedUser, error: userErr } = await disabledDb()
-      .update({ name: name || existingUser.name || email, email, password, role: 'client' })
-      .eq('id', existingUser.id)
-      .select()
-      .single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
-    userData = updatedUser;
-  } else {
-    const { data: insertedUser, error: userErr } = await disabledDb().insert({
-      name, email, password, role: 'client'
-    }).select().single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
-    userData = insertedUser;
-  }
-  if (!users) users = [];
-  const localUserIdx = users.findIndex(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-  const localUser = { id: userData.id, name: userData.name || name, email, password };
-  if (localUserIdx >= 0) users[localUserIdx] = { ...users[localUserIdx], ...localUser };
-  else users.push(localUser);
-
-  // 2. clients tablosuna ekle
+  // 1. clients tablosuna ekle (Müşteri Sağlığı)
   const clientRow = {
     name, email, type: offer.category || '', status: 'Aktif',
     phone: reg.phone || '', social: null,
@@ -10166,17 +10138,18 @@ async function createOnboardingPortalAccount(regId) {
     health: 8, notes: [],
     user_id: currentUser?.email || null
   };
-  const { data: existingClients } = await disabledDb().select('id').eq('email', email).limit(1);
+  const { data: existingClients } = await sb.from('clients').select('id').eq('email', email).limit(1);
   const existingClient = existingClients && existingClients.length ? existingClients[0] : null;
   const clientWrite = existingClient
-    ? await disabledDb().update(clientRow).eq('id', existingClient.id).select().single()
-    : await disabledDb().insert(clientRow).select().single();
+    ? await sb.from('clients').update(clientRow).eq('id', existingClient.id).select().single()
+    : await sb.from('clients').insert(clientRow).select().single();
+  if (clientWrite.error) { toast('Müşteri sağlığı kaydedilemedi: ' + clientWrite.error.message); return; }
   const cd = clientWrite.data;
   if (cd) {
     const localClient = {
-      id: +cd.id, _new: false, name, email,
+      id: cd.id, _new: false, name, email,
       type: clientRow.type, status: 'Aktif',
-      phone: clientRow.phone, social: '', sessions: 0, remainingSessions: 0,
+      phone: clientRow.phone || '', social: '', sessions: 0, remainingSessions: 0,
       programEnd: endDate || '', startDate: startStr,
       program: offer.name || '', health: 8, notes: [], start: startStr
     };
@@ -10185,38 +10158,37 @@ async function createOnboardingPortalAccount(regId) {
     else state.clients.push(localClient);
   }
 
-  // 3. customers tablosuna ekle
+  // 2. customers tablosuna ekle (MRR)
   const customerRow = {
     name, email, program: offer.name || '',
     monthly_payment: monthlyPay,
     start_date: startStr, end_date: endDate,
-    status: 'Aktif', notes: ''
+    status: 'Aktif', notes: '',
+    user_id: currentUser?.email || null
   };
-  const { data: existingCustomers } = await disabledDb().select('id').eq('email', email).limit(1);
-  const existingCustomer = existingCustomers && existingCustomers.length ? existingCustomers[0] : null;
-  let customerId = existingCustomer?.id;
-  if (existingCustomer) {
-    await disabledDb().update(customerRow).eq('id', existingCustomer.id);
+  const existingCustomerLocal = musteriler.find(m => m.email && m.email.toLowerCase() === email.toLowerCase());
+  let customerId = existingCustomerLocal?.id;
+  if (existingCustomerLocal) {
+    await sb.from('customers').update(customerRow).eq('id', existingCustomerLocal.id);
+    const idx2 = musteriler.findIndex(m => m.email && m.email.toLowerCase() === email.toLowerCase());
+    if (idx2 >= 0) musteriler[idx2] = { ...musteriler[idx2], ...customerRow };
   } else {
     customerId = await insertMusteriSB(customerRow);
+    musteriler.push({ id: customerId, ...customerRow });
   }
-  const localCustomerIdx = musteriler.findIndex(m => m.email && m.email.toLowerCase() === email.toLowerCase());
-  const localCustomer = { id: customerId, ...customerRow };
-  if (localCustomerIdx >= 0) musteriler[localCustomerIdx] = { ...musteriler[localCustomerIdx], ...localCustomer };
-  else musteriler.push(localCustomer);
 
-  // 4. Günlük satış kaydı
+  // 3. Günlük satış kaydı
   if (monthlyPay > 0 || offer.name) await recordSaleInDaily(name, offer.name, monthlyPay);
 
-  // 5. onboarding_leads durumunu güncelle
-  const { error: updErr } = await disabledDb().update({
-    status: 'approved',
+  // 4. onboarding_leads durumunu güncelle
+  const { error: updErr } = await sb.from('onboarding_leads').update({
+    status: 'account_created',
     approved_at: new Date().toISOString()
   }).eq('id', regId);
   if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
 
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
-  if (idx >= 0) onboardingRegs[idx].status = 'approved';
+  if (idx >= 0) onboardingRegs[idx].status = 'account_created';
 
   toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
   renderOnboardingPage();
@@ -10225,7 +10197,8 @@ async function createOnboardingPortalAccount(regId) {
 }
 
 async function archiveOnboardingReg(regId) {
-  const { error } = await disabledDb().update({ status: 'archived' }).eq('id', regId);
+  if (!sb) { toast('Veritabanı bağlantısı bu kopyada devre dışı.'); return; }
+  const { error } = await sb.from('onboarding_leads').update({ status: 'archived' }).eq('id', regId);
   if (error) { toast('Hata: ' + error.message); return; }
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'archived';
@@ -10241,12 +10214,13 @@ function openAddOnboardingModal() {
 }
 
 async function addOnboardingTestRecord() {
+  if (!sb) { toast('Veritabanı bağlantısı bu kopyada devre dışı.'); return; }
   const full_name = document.getElementById('onb-add-name').value.trim();
   const email     = document.getElementById('onb-add-email').value.trim().toLowerCase();
   const note      = document.getElementById('onb-add-note').value.trim();
   if (!full_name || !email) { toast('Ad ve e-posta zorunlu'); return; }
 
-  const { data, error } = await disabledDb().insert({
+  const { data, error } = await sb.from('onboarding_leads').insert({
     full_name, email, note: note || null, status: 'pending', source: 'manual'
   }).select().single();
   if (error) { toast('Hata: ' + error.message); return; }
