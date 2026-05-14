@@ -8060,7 +8060,9 @@ body.sanal-page-active .sanal-shell{
       <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya"></div>
       <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com"></div>
     </div>
-    <div class="form-group"><label class="form-label">Şifre *</label><input class="form-input" id="u-password" type="password" placeholder="En az 6 karakter"></div>
+    <div class="form-group" style="background:rgba(92,75,56,0.06);border:1px solid rgba(92,75,56,0.15);border-radius:10px;padding:10px 14px;font-size:12.5px;color:#5C4B38;line-height:1.6">
+      Kullanıcı oluşturulduktan sonra <strong>Supabase Dashboard → Authentication → Users</strong> üzerinden davet e-postası gönder. Kullanıcı kendi şifresini belirler.
+    </div>
 
     <!-- Teklif & program -->
     <div style="height:1px;background:var(--color-border);margin:4px 0 12px"></div>
@@ -8496,7 +8498,7 @@ async function loadFromSupabase(){
     const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
       cq, lq, gq, mq, dq,
       sb.from('offers').select('*').eq('user_id', email).order('created_at'),
-      sb.from('users').select('*').order('created_at'),
+      sb.from('users').select('id,name,email,role').order('created_at'),
       // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
       !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
     ]);
@@ -8545,7 +8547,7 @@ async function loadFromSupabase(){
     }));
 
     if(usersData.data?.length) users = usersData.data.map(u=>({
-      id:u.id, name:u.name, email:u.email, password:u.password
+      id:u.id, name:u.name, email:u.email, role:u.role
     }));
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
@@ -8951,6 +8953,11 @@ function isUserExpired(){
 }
 
 function checkAccess(){
+  if(!currentUser){
+    document.getElementById('app-root').style.display='none';
+    document.getElementById('login-screen').style.display='flex';
+    return false;
+  }
   if(isUserExpired()){ showBlockScreen(); return false; }
   return true;
 }
@@ -10525,9 +10532,7 @@ async function recordSaleInDaily(name, programName, amount) {
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
-  const password = document.getElementById('u-password').value;
-  if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
-  if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
+  if(!name || !email){ toast('Ad ve e-posta zorunlu'); return; }
 
   // Offer / program bilgileri
   const offerId = document.getElementById('u-offer').value;
@@ -10540,15 +10545,9 @@ async function addUser(){
     : null;
   const programName = offer ? offer.name : '';
 
-  // Supabase'de zaten var mı kontrol et
-  const {data:existing} = await sb.from('users').select('id').eq('email',email);
-  if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
-
-  // 1. Users tablosuna ekle (role: client)
-  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
-  if(error){ toast('Hata: '+error.message); return; }
-  if(!users) users=[];
-  users.push({id:data.id,name,email,password});
+  // V3+: users tablosuna artık yazılmıyor.
+  // Kullanıcı Supabase Dashboard → Authentication → Users üzerinden davet edilmeli.
+  // profiles kaydı auth trigger ile otomatik oluşacak.
 
   // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
   const clientRow = {
@@ -10589,9 +10588,9 @@ async function addUser(){
 
   closeModal('modal-add-user');
   const prevEl = document.getElementById('u-preview'); if(prevEl) prevEl.style.display='none';
-  ['u-name','u-email','u-password','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
+  ['u-name','u-email','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
   document.getElementById('u-offer').value='';
-  toast('✅ '+name+' eklendi!');
+  toast('✅ '+name+' eklendi! Supabase Dashboard\'dan davet gönderin.');
   renderUsers(); renderHealthPage(); renderStats();
   renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
 }
@@ -10607,7 +10606,7 @@ const CHANGELOG = [
     entries: [
       { type:'new', icon:'💬', title:'Uygulama içi mesajlaşma eklendi', desc:'Admin ve kullanıcılar arasında anlık mesajlaşma. Admin tüm kullanıcıları sol panelde görür, istediğiyle sohbet başlatabilir. Kullanıcılar da admin\'e yazabilir. Okunmamış mesajlar için sidebar rozeti var.' },
       { type:'new', icon:'⏳', title:'Abonelik süresi dolunca erişim engeli', desc:'Süresi dolan kullanıcılar giriş yapınca tam ekran kilit ekranı görür. Sağ üstte kalan gün rozeti: 7 günden az turuncu, bitince kırmızı.' },
-      { type:'imp', icon:'🔒', title:'Şifreler SHA-256 ile hashlendi', desc:'Admin ve kullanıcı şifreleri artık veritabanında düz metin olarak saklanmıyor. Giriş sırasında hash karşılaştırması yapılıyor.' },
+      { type:'imp', icon:'🔒', title:'Supabase Auth ile güvenli giriş', desc:'Kullanıcı giriş sistemi Supabase Auth\'a taşındı. Şifreler Supabase tarafından güvenli biçimde yönetiliyor, frontend\'de saklanmıyor.' },
       { type:'imp', icon:'🛡️', title:'Supabase RLS etkinleştirildi', desc:'Tüm tablolarda Row Level Security açıldı. Veritabanı dışarıdan doğrudan erişime karşı korunuyor.' },
       { type:'imp', icon:'🎓', title:'Dersler sürükle-bırak sıralama', desc:'Seviyeler, bölümler ve dersler sürükle-bırak ile yeniden sıralanabiliyor. Sıra numarası girme kaldırıldı.' },
     ]
