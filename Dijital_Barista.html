@@ -6179,6 +6179,30 @@ try {
   sb = null;
 }
 window.sb = sb;
+// NOTE: In a static HTML app, anon key cannot be truly hidden.
+// This refactor only reduces accidental global exposure.
+// Full secret protection requires server-side API/Next.js/Edge Function architecture.
+const SupabaseConfig = (() => {
+  const _url = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : (window.SUPABASE_URL || '');
+  const _key = typeof SUPABASE_KEY !== 'undefined' ? SUPABASE_KEY : (window.SUPABASE_KEY || '');
+  function getUrl() { return _url; }
+  function getAnonKey() { return _key; }
+  function getClient() { return typeof sb !== 'undefined' ? sb : (window.sb || null); }
+  async function callFunction(name, body = {}, extraHeaders = {}) {
+    const res = await fetch(`${_url}/functions/v1/${name}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': _key,
+        'Authorization': `Bearer ${_key}`,
+        ...extraHeaders
+      },
+      body: JSON.stringify(body)
+    });
+    return res;
+  }
+  return { getUrl, getAnonKey, getClient, callFunction };
+})();
 function showSupabaseConnectionError(targetId){
   const msg = 'Supabase bağlantısı kurulamadı. Canlı sitede CDN, internet veya script izinleri engelleniyor olabilir.';
   if(DEV_MODE) console.error(msg);
@@ -11285,11 +11309,7 @@ async function syncInstagramSilent() {
 
 async function _callSyncFn() {
   try {
-    const res = await fetch(IG_SYNC_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      body: JSON.stringify({ user_id: currentUser.email }),
-    });
+    const res = await SupabaseConfig.callFunction('instagram-sync', { user_id: currentUser.email });
     return await res.json();
   } catch {
     return { error: 'network_error' };
@@ -11316,11 +11336,7 @@ async function syncMetaAds() {
 
 async function _callAdsSync() {
   try {
-    const res = await fetch(META_ADS_SYNC_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      body: JSON.stringify({ user_id: currentUser.email }),
-    });
+    const res = await SupabaseConfig.callFunction('meta-ads-sync', { user_id: currentUser.email });
     return await res.json();
   } catch {
     return { error: 'network_error' };
@@ -11597,11 +11613,7 @@ async function _igLoadAccount(username) {
   </div>`;
 
   try {
-    const res  = await fetch(IG_RESEARCH_FN, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
-      body: JSON.stringify({ user_id: currentUser.email, target_username: username }),
-    });
+    const res  = await SupabaseConfig.callFunction('instagram-research', { user_id: currentUser.email, target_username: username });
     const data = await res.json();
     if (!res.ok || data.error) {
       const msgs = {
@@ -14056,11 +14068,7 @@ async function cbSend() {
   cbAppendMsg('user', text);
   cbAppendMsg('assistant', '...', true);
   try {
-    const res = await fetch(CHATBOT_CHAT_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      body: JSON.stringify({ chatbot_id: cbActiveBot.id, session_id: cbSessionId, user_id: currentUser.email, message: (window.withJourneyContext?window.withJourneyContext(text):text), journey_context: (window.getJourneyContext?window.getJourneyContext():'') }),
-    });
+    const res = await SupabaseConfig.callFunction('chatbot-chat', { chatbot_id: cbActiveBot.id, session_id: cbSessionId, user_id: currentUser.email, message: (window.withJourneyContext?window.withJourneyContext(text):text), journey_context: (window.getJourneyContext?window.getJourneyContext():'') });
     const data = await res.json();
     if (data.session_id) cbSessionId = data.session_id;
     cbRemoveTyping();
@@ -14245,11 +14253,7 @@ async function cbSaveBot() {
   // Dokümanları yükle
   for (const doc of cbEditDocs) {
     if(DEV_MODE) console.log(`[ingest] ${doc.filename} → ${doc.content.length} karakter gönderiliyor`);
-    const r = await fetch(CHATBOT_INGEST_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      body: JSON.stringify({ chatbot_id: botId, filename: doc.filename, content: doc.content }),
-    });
+    const r = await SupabaseConfig.callFunction('chatbot-ingest', { chatbot_id: botId, filename: doc.filename, content: doc.content });
     const rj = await r.json().catch(() => ({}));
     
     if (!r.ok) { alert(`Belge yükleme hatası (${doc.filename}): ${JSON.stringify(rj)}`); return; }
@@ -14576,7 +14580,7 @@ async function deleteForumPost(id) {
     .trim();
   const uid=(p='id')=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
   const getCurrentUser=()=>typeof currentUser!=='undefined'&&currentUser?currentUser:(window.currentUser||null);
-  const getSb=()=>typeof sb!=='undefined'&&sb?sb:(window.sb||null);
+  const getSb=()=>typeof sb!=='undefined'&&sb?sb:(SupabaseConfig.getClient()||null);
   const admin=()=>getCurrentUser()?.role==='admin' || document.body.classList.contains('admin');
   const userKey=()=>getCurrentUser()?.email || getCurrentUser()?.id || 'local-user';
   const userKeys=()=>Array.from(new Set([getCurrentUser()?.email,getCurrentUser()?.id].filter(Boolean).map(String)));
@@ -14641,8 +14645,8 @@ async function deleteForumPost(id) {
 
   async function loadBots(){
     botsCache=[];
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     const db=getSb();
 
     if(db){
@@ -14710,8 +14714,8 @@ async function deleteForumPost(id) {
   }
   async function saveBotToDb(item){
     item.id=ensureUuid(item.id);
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     window.__lastKisiselBaristanError='';
 
     if(!url||!key){
@@ -14842,8 +14846,8 @@ async function deleteForumPost(id) {
         if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase konuşma kaydı hatası:',window.__lastKisiselConversationError);
       }
     }
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     if(url&&key){
       try{
         const base=String(url).replace(/\/$/,'');
@@ -14879,8 +14883,8 @@ async function deleteForumPost(id) {
         if(DEV_MODE) console.warn('[Kişisel Baristan] Supabase mesaj kayıt hatası:',window.__lastKisiselConversationError);
       }
     }
-    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:window.SUPABASE_URL);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     if(!wrote&&url&&key){
       try{
         const base=String(url).replace(/\/$/,'');
@@ -14971,7 +14975,7 @@ async function deleteForumPost(id) {
     if(!kisiselEditDocs.length) return true;
     if(!botId){window.__lastKisiselBaristanError='Belge yüklemek için önce barista kaydı oluşmalı.';return false;}
     const fn=(typeof CHATBOT_INGEST_FN!=='undefined'?CHATBOT_INGEST_FN:window.CHATBOT_INGEST_FN);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:window.SUPABASE_KEY);
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     if(!fn||!key){window.__lastKisiselBaristanError='chatbot-ingest Edge Function veya Supabase key bulunamadı.';return false;}
     for(const doc of kisiselEditDocs){
       setDocStatus(`${doc.filename} Supabase'e yükleniyor...`);
@@ -15042,7 +15046,7 @@ async function deleteForumPost(id) {
     if(window.CHATBOT_CHAT_FN||typeof CHATBOT_CHAT_FN!=='undefined'){
       try{
         const fn=window.CHATBOT_CHAT_FN||CHATBOT_CHAT_FN;
-        const key=window.SUPABASE_KEY||SUPABASE_KEY;
+        const key=SupabaseConfig.getAnonKey()||SUPABASE_KEY;
         const contextPayload=await buildBaristaMessage(text,bot.id);
         const res=await fetch(fn,{
           method:'POST',
@@ -16308,7 +16312,7 @@ document.addEventListener('click',function(e){
     const cached=localStorage.getItem(key);
     if(cached) return cached;
     const name='Mehmet AI - Ders '+lessonId;
-    const db=window.sb || (typeof sb!=='undefined'?sb:null);
+    const db=SupabaseConfig.getClient() || (typeof sb!=='undefined'?sb:null);
     if(!db) throw new Error('Supabase bağlantısı bulunamadı.');
     try{
       const existing=await db.from('chatbots').select('id').eq('name',name).limit(1);
@@ -16390,7 +16394,7 @@ document.addEventListener('click',function(e){
       if(!fn) throw new Error('chatbot-ingest fonksiyonu bulunamadı.');
       const res=await fetch(fn,{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+SupabaseConfig.getAnonKey()},
         body:JSON.stringify({chatbot_id:chatbotId,filename:file.name,content})
       });
       const json=await res.json().catch(()=>({}));
@@ -16416,7 +16420,7 @@ document.addEventListener('click',function(e){
       const userId=(window.currentUser&&window.currentUser.id) || (typeof currentUser!=='undefined'&&currentUser?currentUser.id:null);
       const res=await fetch(fn,{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+SupabaseConfig.getAnonKey()},
         body:JSON.stringify({chatbot_id:chatbotId,session_id:lessonAiSessionId,user_id:userId,message:(window.withJourneyContext?window.withJourneyContext(message):message),journey_context:(window.getJourneyContext?window.getJourneyContext():'')})
       });
       const json=await res.json().catch(()=>({}));
@@ -16470,7 +16474,7 @@ document.addEventListener('click',function(e){
     return Number(m?.order_index||0);
   }
   async function loadTrainingProgressFallback(){
-    if(!window.sb || !activeUser()?.email) return;
+    if(!SupabaseConfig.getClient() || !activeUser()?.email) return;
     try{
       const res=await sb.from('training_progress')
         .select('level_num,modules_done')
@@ -16486,7 +16490,7 @@ document.addEventListener('click',function(e){
     }catch(e){}
   }
   async function saveTrainingProgressFallback(lessonId){
-    if(!window.sb || !activeUser()?.email) return false;
+    if(!SupabaseConfig.getClient() || !activeUser()?.email) return false;
     const lesson=(window.egitimLessons||egitimLessons||[]).find(l=>String(l.id)===String(lessonId));
     const topic=lesson ? (window.egitimTopics||egitimTopics||[]).find(t=>String(t.id)===String(lesson.topic_id)) : null;
     const levelNum=moduleLevelNum(topic?.module_id||egitimCurrentModule);
@@ -16523,7 +16527,7 @@ document.addEventListener('click',function(e){
     progressLoading=true;
     lessonProgress=readLocalProgress();
     try{
-      if(window.sb && activeUser()?.email){
+      if(SupabaseConfig.getClient() && activeUser()?.email){
         const res=await sb.from('training_lesson_progress').select('lesson_id,status,completed_at').eq('user_id',activeUser().email);
         if(!res.error && Array.isArray(res.data)){
           res.data.forEach(r=>{ if(r.status==='done' || r.completed_at) lessonProgress[String(r.lesson_id)]='done'; });
@@ -16593,7 +16597,7 @@ document.addEventListener('click',function(e){
     lessonProgress[String(lessonId)]='done';
     writeLocalProgress();
     try{
-      if(window.sb && activeUser()?.email){
+      if(SupabaseConfig.getClient() && activeUser()?.email){
         const direct=await sb.from('training_lesson_progress').upsert({
           user_id:activeUser().email,
           lesson_id:lessonId,
