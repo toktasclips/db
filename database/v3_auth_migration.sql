@@ -180,22 +180,46 @@ BEGIN
       'DROP POLICY IF EXISTS "%s_auth_admin" ON public.%I', tbl, tbl
     );
 
-    -- Authenticated: kendi verisini tam yönet (user_id = email)
-    EXECUTE format(
-      'CREATE POLICY "%s_auth_own" ON public.%I
-         FOR ALL TO authenticated
-         USING (
-           user_id = (auth.jwt() ->> ''email'')
-           OR public.is_admin()
-         )
-         WITH CHECK (
-           user_id = (auth.jwt() ->> ''email'')
-           OR public.is_admin()
-         )',
-      tbl, tbl
-    );
-
-    RAISE NOTICE 'authenticated policy eklendi: %', tbl;
+    -- user_id kolon tipini kontrol et: uuid mi text mi?
+    IF EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = tbl
+        AND column_name  = 'user_id'
+        AND data_type    = 'uuid'
+    ) THEN
+      -- UUID tipli user_id → auth.uid() ile karşılaştır
+      EXECUTE format(
+        'CREATE POLICY "%s_auth_own" ON public.%I
+           FOR ALL TO authenticated
+           USING (
+             user_id = auth.uid()
+             OR public.is_admin()
+           )
+           WITH CHECK (
+             user_id = auth.uid()
+             OR public.is_admin()
+           )',
+        tbl, tbl
+      );
+      RAISE NOTICE 'UUID user_id policy eklendi: %', tbl;
+    ELSE
+      -- Text tipli user_id → email ile karşılaştır
+      EXECUTE format(
+        'CREATE POLICY "%s_auth_own" ON public.%I
+           FOR ALL TO authenticated
+           USING (
+             user_id = (auth.jwt() ->> ''email'')
+             OR public.is_admin()
+           )
+           WITH CHECK (
+             user_id = (auth.jwt() ->> ''email'')
+             OR public.is_admin()
+           )',
+        tbl, tbl
+      );
+      RAISE NOTICE 'TEXT user_id policy eklendi: %', tbl;
+    END IF;
   END LOOP;
 END$$;
 
