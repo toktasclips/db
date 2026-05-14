@@ -150,6 +150,28 @@ BEGIN
       CONTINUE;
     END IF;
 
+    -- user_id kolonu var mı kontrol et
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name  = tbl
+        AND column_name = 'user_id'
+    ) THEN
+      -- user_id yok: admin-only ya da shared erişim yeterli
+      EXECUTE format(
+        'DROP POLICY IF EXISTS "%s_auth_own" ON public.%I', tbl, tbl
+      );
+      EXECUTE format(
+        'CREATE POLICY "%s_auth_own" ON public.%I
+           FOR ALL TO authenticated
+           USING (public.is_admin())
+           WITH CHECK (public.is_admin())',
+        tbl, tbl
+      );
+      RAISE NOTICE 'user_id yok — admin-only policy: %', tbl;
+      CONTINUE;
+    END IF;
+
     -- Eski authenticated policy'leri temizle
     EXECUTE format(
       'DROP POLICY IF EXISTS "%s_auth_own" ON public.%I', tbl, tbl
