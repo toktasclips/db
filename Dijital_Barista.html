@@ -6207,16 +6207,16 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Herkes sadece kendi verisini görür
-    const cq = sb.from('clients').select('*').eq('user_id', email).order('created_at');
-    const lq = sb.from('leads').select('*').eq('user_id', email).order('created_at');
-    const gq = sb.from('goals').select('*').eq('user_id', email).order('created_at');
-    const mq = sb.from('milestones').select('*').eq('user_id', email).order('created_at');
-    const dq = sb.from('daily_entries').select('*').eq('user_id', email).order('created_at');
+    // Admin tüm veriyi görür; normal kullanıcı sadece kendi user_id'siyle eşleşeni
+    const uf = (q) => isAdmin ? q : q.eq('user_id', email);
 
     const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
-      cq, lq, gq, mq, dq,
-      sb.from('offers').select('*').eq('user_id', email).order('created_at'),
+      uf(sb.from('clients').select('*').order('created_at')),
+      uf(sb.from('leads').select('*').order('created_at')),
+      uf(sb.from('goals').select('*').order('created_at')),
+      uf(sb.from('milestones').select('*').order('created_at')),
+      uf(sb.from('daily_entries').select('*').order('created_at')),
+      uf(sb.from('offers').select('*').order('created_at')),
       sb.from('users').select('*').order('created_at'),
       // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
       !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
@@ -8035,6 +8035,8 @@ async function doLogin(){
   const passHash = await sha256(pass);
   if(email === ADMIN_EMAIL && passHash === ADMIN_PASS_HASH){
     currentUser = {email, name:'Admin', role:'admin'};
+    // Supabase Auth session al — queries authenticated olarak çalışsın
+    if(sb) await sb.auth.signInWithPassword({email, password: pass}).catch(()=>{});
     showApp();
     return;
   }
@@ -8045,8 +8047,17 @@ async function doLogin(){
     return;
   }
 
-  // Supabase users tablosundan kontrol (role dahil)
-  const {data:found, error} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
+  // Supabase Auth ile giriş dene (V3 geçiş)
+  const {data: authData, error: authError} = await sb.auth.signInWithPassword({email, password: pass});
+  if(authData?.session){
+    const {data: profile} = await sb.from('profiles').select('role,full_name').eq('email', email).maybeSingle();
+    currentUser = {email, name: profile?.full_name || email.split('@')[0], role: profile?.role || 'client', id: authData.session.user.id};
+    showApp();
+    return;
+  }
+
+  // Fallback: eski users tablosu kontrolü
+  const {data:found} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
   if(found && found.length > 0){
     const u = found[0];
     currentUser = {email: u.email, name: u.name, role: u.role||'client', id: u.id};
@@ -9106,7 +9117,9 @@ function formatDateTR(ds){
 
 /* ---- SUPABASE CRUD ---- */
 async function loadKanban(){
-  const { data, error } = await sb.from('kanban_cards').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+  let kq = sb.from('kanban_cards').select('*').order('created_at');
+  if(currentUser?.role !== 'admin') kq = kq.eq('user_id', currentUser?.email||'');
+  const { data, error } = await kq;
   if(error){ console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
     id: x.id, title: x.title, format: x.format||'📝 Diğer',
@@ -9389,7 +9402,9 @@ let ctView = 'cards';
 /* ---- Supabase CRUD ---- */
 async function loadCompetitorsSB() {
   try {
-    const { data, error } = await sb.from('competitors').select('*').eq('user_id', currentUser?.email||'').order('created_at');
+    let compQ = sb.from('competitors').select('*').order('created_at');
+    if(currentUser?.role !== 'admin') compQ = compQ.eq('user_id', currentUser?.email||'');
+    const { data, error } = await compQ;
     if(error) throw error;
     competitors = (data||[]).map(r => ({
       id: r.id,
