@@ -14355,7 +14355,7 @@ function igAdsRenderMetrics() {
         }
       }
     });
-  }).catch(e =>
+  }).catch(e => { console.error('chart hatası:', e); });
 }
 
 // ── Daily KPI strip on the daily page ────────────────────────────────
@@ -17535,7 +17535,7 @@ async function deleteForumPost(id) {
     ensureChartJs().then(()=>{
       requestAnimationFrame(()=>setTimeout(repairCharts,80));
       setTimeout(repairCharts,350);
-    }).catch(e=>
+    }).catch(e=>{ console.error('chart repair hatası:', e); });
   }
   const oldGo=window.go;
   if(typeof oldGo==='function'){
