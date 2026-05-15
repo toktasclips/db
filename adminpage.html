@@ -6135,7 +6135,7 @@ async function loadFromSupabase(){
     }));
 
     if(usersData.data?.length) users = usersData.data.map(u=>({
-      id:u.id, name:u.name, email:u.email, password:u.password
+      id:u.id, name:u.name, email:u.email
     }));
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
@@ -7899,7 +7899,7 @@ async function doLogin(){
   const pass = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
 
-  // Admin hard-coded check
+  // Admin hardcoded fallback (geçici — Supabase Auth önce denenir)
   const passHash = await sha256(pass);
   if(email === ADMIN_EMAIL && passHash === ADMIN_PASS_HASH){
     currentUser = {email, name:'Admin', role:'admin'};
@@ -7913,17 +7913,20 @@ async function doLogin(){
     return;
   }
 
-  // Supabase users tablosundan kontrol (role dahil)
-  const {data:found, error} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
-  if(found && found.length > 0){
-    const u = found[0];
-    currentUser = {email: u.email, name: u.name, role: u.role||'client', id: u.id};
-    showApp();
+  // Supabase Auth ile giriş
+  const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+  if(error || !data?.user){
+    errEl.style.display = 'block';
+    setTimeout(() => errEl.style.display = 'none', 3000);
     return;
   }
 
-  errEl.style.display = 'block';
-  setTimeout(() => errEl.style.display = 'none', 3000);
+  // Profile'dan rol ve isim yükle
+  const {data: profile} = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+  const role = profile?.role || 'client';
+  const name = profile?.name || profile?.full_name || email;
+  currentUser = {email: data.user.email, name, role, id: data.user.id};
+  showApp();
 }
 
 function openInitialDukkanPage(){
@@ -8116,11 +8119,21 @@ async function addUser(){
   const {data:existing} = await sb.from('users').select('id').eq('email',email);
   if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
 
-  // 1. Users tablosuna ekle (role: client)
-  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
+  // 1. Supabase Auth kullanıcısı oluştur (şifre Auth'a yazılır, DB'ye değil)
+  const {data:authData, error:authError} = await sb.auth.signUp({email, password});
+  if(authError){ toast('Auth hatası: '+authError.message); return; }
+
+  // 2. Users tablosuna ekle (password kolonu yok)
+  const authId = authData?.user?.id || null;
+  const {data,error} = await sb.from('users').insert({name, email, role:'client'}).select().single();
   if(error){ toast('Hata: '+error.message); return; }
   if(!users) users=[];
-  users.push({id:data.id,name,email,password});
+  users.push({id:data.id, name, email});
+
+  // 3. Profiles tablosuna ekle/güncelle
+  if(authId){
+    await sb.from('profiles').upsert({id: authId, email, role:'client'}, {onConflict:'id'});
+  }
 
   // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
   const clientRow = {
