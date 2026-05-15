@@ -6189,12 +6189,24 @@ const SupabaseConfig = (() => {
   function getAnonKey() { return _key; }
   function getClient() { return typeof sb !== 'undefined' ? sb : (window.sb || null); }
   async function callFunction(name, body = {}, extraHeaders = {}) {
+    // Use session access_token when available so Edge Functions can verify caller identity.
+    // Falls back to anon key when no Supabase Auth session exists (e.g. admin hash-only login
+    // where signInWithPassword failed silently).
+    let authToken = _key;
+    try {
+      const client = getClient();
+      if (client) {
+        const { data: { session } } = await client.auth.getSession();
+        if (session?.access_token) authToken = session.access_token;
+      }
+    } catch (_) { /* keep anon key fallback */ }
+
     const res = await fetch(`${_url}/functions/v1/${name}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': _key,
-        'Authorization': `Bearer ${_key}`,
+        'Authorization': `Bearer ${authToken}`,
         ...extraHeaders
       },
       body: JSON.stringify(body)

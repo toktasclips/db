@@ -5,18 +5,20 @@
  * for a given user_id, then upserts results into DB.
  *
  * Called:
- *   - Manually from frontend (POST with { user_id })
- *   - By instagram-sync-all (batch cron job)
+ *   - Manually from frontend (POST with { user_id }, authenticated JWT)
+ *   - By instagram-sync-all (batch cron job, service-role key)
  *
  * Security:
- *   - Only service_role key can trigger this function (Authorization header)
+ *   - Requires service-role key (cron) OR authenticated user JWT (frontend)
+ *   - User JWT: caller may only sync their own user_id; admin may sync any
  *   - Token decryption happens server-side via DB function
  *   - No token ever leaves the server
- *   - Errors are logged without sensitive data
+ *   - Errors logged without sensitive data
  */
 
 import { serve }        from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { isServiceRole, requireAuth, forbidden } from "../_shared/auth.ts";
 
 const TOKEN_ENCRYPTION_KEY = Deno.env.get("TOKEN_ENCRYPTION_KEY")        ?? "";
 const SUPABASE_URL         = Deno.env.get("SUPABASE_URL")                ?? "";
@@ -28,13 +30,39 @@ const GV = "v20.0";
 serve(async (req: Request) => {
   // ── Only allow POST ───────────────────────────────────────────────
   if (req.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405);
+    return json({ error: "Method not allowed" }, 405);
+  }
+
+  // ── Auth gate ─────────────────────────────────────────────────────
+  // Accept: service-role key (cron) OR authenticated user JWT (frontend)
+  let callerEmail: string | null = null;
+  let callerIsAdmin = false;
+
+  if (isServiceRole(req)) {
+    callerIsAdmin = true; // trusted internal caller
+  } else {
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) return authResult;
+    callerEmail = authResult.email;
+
+    // Check admin role
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("role")
+      .eq("email", callerEmail)
+      .maybeSingle();
+    callerIsAdmin = profile?.role === "admin";
   }
 
   const body = await req.json().catch(() => ({}));
   const userId: string | undefined = body.user_id;
 
   if (!userId) return json({ error: "user_id required" }, 400);
+
+  // ── Authorization: user may only sync their own account ───────────
+  if (!callerIsAdmin && callerEmail !== userId) {
+    return forbidden();
+  }
 
   // ── Fetch connection (service role → can read encrypted_access_token) ──
   const { data: conn, error: connErr } = await sb

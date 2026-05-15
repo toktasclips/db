@@ -5,18 +5,26 @@
  * and calls instagram-sync for each user.
  *
  * Called by pg_cron daily (see migration SQL for setup).
- * Can also be triggered manually by a super-admin.
+ * Can also be triggered manually by an admin user.
+ *
+ * Security:
+ *   - Requires service-role key (pg_cron) OR authenticated admin JWT
+ *   - Unauthenticated or non-admin requests → 401/403
  */
 
 import { serve }        from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireServiceOrAdmin } from "../_shared/auth.ts";
 
 const SUPABASE_URL         = Deno.env.get("SUPABASE_URL")              ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
 const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-serve(async () => {
+serve(async (req: Request) => {
+  // ── Auth gate: service-role key (cron) or admin JWT ───────────────
+  const authResult = await requireServiceOrAdmin(req);
+  if (authResult instanceof Response) return authResult;
   // Get all active connections
   const { data: connections, error } = await sb
     .from("instagram_connections")
