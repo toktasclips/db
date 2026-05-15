@@ -7664,9 +7664,7 @@ function _s(v){ return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 <script>
 const DEV_MODE = false;
 const SUPABASE_URL = 'https://krljaqrhyszeleiwwkmd.supabase.co';
-window.SUPABASE_URL = SUPABASE_URL;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtybGphcXJoeXN6ZWxlaXd3a21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NTY0MjksImV4cCI6MjA4OTMzMjQyOX0.rilLVl17MjmlSO2mWzRVFXpjhRXZTh30SVWMDw5UUlE';
-window.SUPABASE_KEY = SUPABASE_KEY;
 let sb = null;
 try {
   const _sup = (typeof supabase !== 'undefined' && supabase && supabase.createClient)
@@ -7681,7 +7679,7 @@ try {
   if(DEV_MODE) console.error('[DB] Supabase createClient error:', e);
   sb = null;
 }
-window.sb = sb;
+// window.sb intentionally not set — use sb directly or SupabaseConfig.getClient()
 // NOTE: In a static HTML app, anon key cannot be truly hidden.
 // This refactor only reduces accidental global exposure.
 // Full secret protection requires server-side API/Next.js/Edge Function architecture.
@@ -7808,7 +7806,7 @@ async function loadFromSupabase(){
     }));
 
     if(usersData.data?.length) users = usersData.data.map(u=>({
-      id:u.id, name:u.name, email:u.email, password:u.password
+      id:u.id, name:u.name, email:u.email
     }));
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
@@ -11758,13 +11756,6 @@ async function createOnboardingPortalAccount(regId) {
   // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
   const password = onboardingDesiredPassword(reg) || (email.split('@')[0] + '123!');
 
-  const { data: existingUsers, error: existingUserErr } = await sb
-    .from('users')
-    .select('*')
-    .eq('email', email);
-  if (existingUserErr) { toast('Hata: ' + existingUserErr.message); return; }
-  const existingUser = existingUsers && existingUsers.length ? existingUsers[0] : null;
-
   const startStr   = new Date().toISOString().slice(0, 10);
   const monthlyPay = offer.price || 0;
   const durationDays = offerToDays(offer);
@@ -11772,26 +11763,31 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // 1. users tablosunu manuel ekleme formatına getir
-  let userData = existingUser;
-  if (existingUser) {
-    const { data: updatedUser, error: userErr } = await sb.from('users')
-      .update({ name: name || existingUser.name || email, email, password, role: 'client' })
-      .eq('id', existingUser.id)
-      .select()
-      .single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
-    userData = updatedUser;
-  } else {
-    const { data: insertedUser, error: userErr } = await sb.from('users').insert({
-      name, email, password, role: 'client'
-    }).select().single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
-    userData = insertedUser;
+  // 1. admin-create-user Edge Function ile Auth + users tablosu (password DB'ye yazılmaz)
+  let createdUserId = null;
+  try {
+    const { data: fnData, error: fnErr } = await sb.functions.invoke('admin-create-user', {
+      body: { name, email, temporaryPassword: password, role: 'client' }
+    });
+    if (fnErr) {
+      let code = 'CREATE_USER_AUTH_FAILED';
+      try { code = JSON.parse(fnErr.message).error || code; } catch {}
+      if (code !== 'CREATE_USER_DUPLICATE_EMAIL') {
+        if(DEV_MODE) console.warn('[onboarding]', code);
+        toast('Hesap oluşturulamadı.'); return;
+      }
+    } else if (fnData?.error && fnData.error !== 'CREATE_USER_DUPLICATE_EMAIL') {
+      if(DEV_MODE) console.warn('[onboarding]', fnData.error);
+      toast('Hesap oluşturulamadı.'); return;
+    }
+    createdUserId = fnData?.userId || null;
+  } catch(e) {
+    if(DEV_MODE) console.warn('[onboarding] invoke failed:', e.message);
+    toast('Hesap oluşturulamadı.'); return;
   }
   if (!users) users = [];
   const localUserIdx = users.findIndex(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-  const localUser = { id: userData.id, name: userData.name || name, email, password };
+  const localUser = { id: createdUserId, name, email };
   if (localUserIdx >= 0) users[localUserIdx] = { ...users[localUserIdx], ...localUser };
   else users.push(localUser);
 
@@ -11852,7 +11848,7 @@ async function createOnboardingPortalAccount(regId) {
     status: 'approved',
     approved_at: new Date().toISOString()
   }).eq('id', regId);
-  if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
+  if (updErr) { if(DEV_MODE) console.warn('[onboarding] lead update:', updErr.message); }
 
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'approved';
@@ -16632,7 +16628,7 @@ async function deleteForumPost(id) {
         setDocStatus(`${doc.filename} hazır. Kaydet dediğinde Supabase'e yüklenecek.`);
       }
     }catch(e){
-      alert(e.message||String(e));
+      if(DEV_MODE) console.warn('[doc upload]', e.message); toast('Belge okunamadı.');
       setDocStatus('');
     }finally{
       if(input) input.value='';
