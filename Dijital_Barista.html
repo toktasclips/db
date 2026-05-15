@@ -6245,7 +6245,7 @@ async function loadFromSupabase(){
       uf(sb.from('milestones').select('*').order('created_at')),
       uf(sb.from('daily_entries').select('*').order('created_at')),
       uf(sb.from('offers').select('*').order('created_at')),
-      sb.from('users').select('*').order('created_at'),
+      isAdmin ? sb.from('users').select('id,name,email,role').order('created_at') : Promise.resolve({data:[]}),
       // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
       !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
     ]);
@@ -6700,6 +6700,7 @@ function isUserExpired(){
 }
 
 function checkAccess(){
+  if(!currentUser){ doLogout(); return false; }
   if(isUserExpired()){ showBlockScreen(); return false; }
   return true;
 }
@@ -8084,17 +8085,8 @@ async function doLogin(){
     return;
   }
 
-  // Fallback: eski users tablosu kontrolü
-  const {data:found} = await sb.from('users').select('*').eq('email',email).eq('password',pass);
-  if(found && found.length > 0){
-    const u = found[0];
-    currentUser = {email: u.email, name: u.name, role: u.role||'client', id: u.id};
-    showApp();
-    return;
-  }
-
+  errEl.textContent = 'Giriş yapılamadı. Lütfen hesap bilgilerinizi kontrol edin.';
   errEl.style.display = 'block';
-  setTimeout(() => errEl.style.display = 'none', 3000);
 }
 
 function openInitialDukkanPage(){
@@ -8967,6 +8959,30 @@ document.addEventListener('DOMContentLoaded',function(){
     setTimeout(()=>buildChart(data6ay),200);
   });
   loadKanban();
+
+  // Session restore: sayfa yenilendiğinde oturumu kurtar
+  if(sb){
+    sb.auth.getSession().then(({data:{session}})=>{
+      if(session && !currentUser){
+        sb.from('profiles').select('role,full_name').eq('email', session.user.email).maybeSingle().then(({data:profile})=>{
+          const isAdminEmail = session.user.email === ADMIN_EMAIL;
+          currentUser = {
+            email: session.user.email,
+            name: isAdminEmail ? 'Admin' : (profile?.full_name || session.user.email.split('@')[0]),
+            role: isAdminEmail ? 'admin' : (profile?.role || 'client'),
+            id: session.user.id
+          };
+          showApp();
+        });
+      }
+    });
+
+    sb.auth.onAuthStateChange((event, session)=>{
+      if(event === 'SIGNED_OUT' && currentUser){
+        doLogout();
+      }
+    });
+  }
 });
 </script>
 
