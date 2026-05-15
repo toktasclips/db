@@ -8094,6 +8094,18 @@ async function recordSaleInDaily(name, programName, amount) {
   }
 }
 
+// DEV_MODE: true iken hata kodları console'a yazılır. Canlıda false bırak.
+const DEV_MODE = false;
+
+const _CREATE_USER_ERRORS = {
+  CREATE_USER_FUNCTION_NOT_FOUND: 'Sunucu fonksiyonu bulunamadı. Deploy gerekiyor.',
+  CREATE_USER_NOT_ADMIN: 'Yetkisiz işlem.',
+  CREATE_USER_AUTH_FAILED: 'Kullanıcı hesabı oluşturulamadı.',
+  CREATE_USER_LEGACY_USERS_FAILED: 'Kullanıcı profili kaydedilemedi.',
+  CREATE_USER_DUPLICATE_EMAIL: 'Bu e-posta zaten kayıtlı.',
+  CREATE_USER_INVALID_PAYLOAD: 'Geçersiz form verisi.',
+};
+
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
@@ -8112,15 +8124,34 @@ async function addUser(){
     : null;
   const programName = offer ? offer.name : '';
 
-  // Supabase'de zaten var mı kontrol et
-  const {data:existing} = await sb.from('users').select('id').eq('email',email);
-  if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
+  // 1. admin-create-user Edge Function ile Auth + users tablosu
+  let fnResult;
+  try {
+    const { data: fnData, error: fnErr } = await sb.functions.invoke('admin-create-user', {
+      body: { name, email, temporaryPassword: password, role: 'client' }
+    });
+    if(fnErr){
+      let code = 'CREATE_USER_FUNCTION_NOT_FOUND';
+      try { const parsed = JSON.parse(fnErr.message); code = parsed.error || code; } catch{}
+      if(DEV_MODE) console.warn('[addUser] edge fn err:', code);
+      toast(_CREATE_USER_ERRORS[code] || 'Kullanıcı oluşturulamadı');
+      return;
+    }
+    if(fnData?.error){
+      const code = fnData.error;
+      if(DEV_MODE) console.warn('[addUser] fn returned:', code);
+      toast(_CREATE_USER_ERRORS[code] || 'Kullanıcı oluşturulamadı');
+      return;
+    }
+    fnResult = fnData;
+  } catch(e){
+    if(DEV_MODE) console.warn('[addUser] invoke failed:', e.message);
+    toast('Kullanıcı oluşturulamadı');
+    return;
+  }
 
-  // 1. Users tablosuna ekle (role: client)
-  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
-  if(error){ toast('Hata: '+error.message); return; }
   if(!users) users=[];
-  users.push({id:data.id,name,email,password});
+  users.push({id: fnResult?.userId, name, email});
 
   // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
   const clientRow = {
