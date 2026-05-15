@@ -6247,19 +6247,18 @@ async function loadFromSupabase(){
     const isAdmin = currentUser?.role === 'admin';
     const email = currentUser?.email || '';
 
-    // Admin tüm veriyi görür; normal kullanıcı sadece kendi user_id'siyle eşleşeni
-    const uf = (q) => isAdmin ? q : q.eq('user_id', email);
-
+    // Her kullanıcı (admin dahil) normal ekranlarda sadece kendi verisini görür.
+    // Admin tüm kullanıcı verilerini yalnızca Kullanıcılar/Admin ekranlarında görebilir.
     const [clients, leads, goals, milestones, daily, offers, usersData, ownClientRes] = await Promise.all([
-      uf(sb.from('clients').select('*').order('created_at')),
-      uf(sb.from('leads').select('*').order('created_at')),
-      uf(sb.from('goals').select('*').order('created_at')),
-      uf(sb.from('milestones').select('*').order('created_at')),
-      uf(sb.from('daily_entries').select('*').order('created_at')),
-      uf(sb.from('offers').select('*').order('created_at')),
+      sb.from('clients').select('*').order('created_at').eq('user_id', email),
+      sb.from('leads').select('*').order('created_at').eq('user_id', email),
+      sb.from('goals').select('*').order('created_at').eq('user_id', email),
+      sb.from('milestones').select('*').order('created_at').eq('user_id', email),
+      sb.from('daily_entries').select('*').order('created_at').eq('user_id', email),
+      sb.from('offers').select('*').order('created_at').eq('user_id', email),
       isAdmin ? sb.from('users').select('id,name,email,role').order('created_at') : Promise.resolve({data:[]}),
-      // Non-admin: kendi müşteri kaydını email ile bul (admin tarafından oluşturulmuş)
-      !isAdmin ? sb.from('clients').select('*').eq('email', email).maybeSingle() : Promise.resolve({data:null})
+      // Kendi müşteri kaydını email ile bul (admin dahil herkes için)
+      sb.from('clients').select('*').eq('email', email).maybeSingle()
     ]);
 
     if(clients.data?.length) state.clients = clients.data.map(c=>({
@@ -9174,8 +9173,7 @@ function formatDateTR(ds){
 
 /* ---- SUPABASE CRUD ---- */
 async function loadKanban(){
-  let kq = sb.from('kanban_cards').select('*').order('created_at');
-  if(currentUser?.role !== 'admin') kq = kq.eq('user_id', currentUser?.email||'');
+  let kq = sb.from('kanban_cards').select('*').order('created_at').eq('user_id', currentUser?.email||'');
   const { data, error } = await kq;
   if(error){ if(DEV_MODE) console.error('Kanban yüklenemedi:', error); return; }
   kanbanCards = (data||[]).map(x => ({
@@ -9459,8 +9457,7 @@ let ctView = 'cards';
 /* ---- Supabase CRUD ---- */
 async function loadCompetitorsSB() {
   try {
-    let compQ = sb.from('competitors').select('*').order('created_at');
-    if(currentUser?.role !== 'admin') compQ = compQ.eq('user_id', currentUser?.email||'');
+    let compQ = sb.from('competitors').select('*').order('created_at').eq('user_id', currentUser?.email||'');
     const { data, error } = await compQ;
     if(error) throw error;
     competitors = (data||[]).map(r => ({
@@ -9708,9 +9705,7 @@ function totalRevenue(m) {
 async function loadMusteriler() {
   try {
     const userId = currentUser?.email || '';
-    let q = sb.from('customers').select('*').order('created_at');
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', userId);
-    else q = q.or(`user_id.eq.${userId},user_id.is.null`);
+    let q = sb.from('customers').select('*').order('created_at').eq('user_id', userId);
     const { data, error } = await q;
     if(error) throw error;
     musteriler = (data||[]).map(r => ({
@@ -9756,16 +9751,14 @@ async function updateMusteriSB(id, m) {
       start_date: m.start_date || null,
       end_date: m.end_date || null,
       status: m.status, notes: m.notes
-    }).eq('id', id);
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
+    }).eq('id', id).eq('user_id', currentUser?.email || '');
     await q;
   } catch(e) { if(DEV_MODE) console.warn('update customer error:', e.message); }
 }
 
 async function deleteMusteriSB(id) {
   try {
-    let q = sb.from('customers').delete().eq('id', id);
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
+    let q = sb.from('customers').delete().eq('id', id).eq('user_id', currentUser?.email || '');
     await q;
   }
   catch(e) { if(DEV_MODE) console.warn('delete customer error:', e.message); }
@@ -10389,9 +10382,7 @@ let currentTeklifId = null;
 async function loadTeklifler() {
   try {
     const userId = currentUser?.email || '';
-    let q = sb.from('offers').select('*').order('created_at');
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', userId);
-    else q = q.or(`user_id.eq.${userId},user_id.is.null`);
+    let q = sb.from('offers').select('*').order('created_at').eq('user_id', userId);
     const { data, error } = await q;
     if(error) throw error;
     teklifler = (data||[]).map(r => ({
@@ -10437,16 +10428,14 @@ async function updateTeklifSB(id, t) {
       duration_value: t.duration_value || null,
       duration_unit: t.duration_unit,
       description: t.description, status: t.status
-    }).eq('id', id);
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
+    }).eq('id', id).eq('user_id', currentUser?.email || '');
     await q;
   } catch(e) { if(DEV_MODE) console.warn('update offer error:', e.message); }
 }
 
 async function deleteTeklifSB(id) {
   try {
-    let q = sb.from('offers').delete().eq('id', id);
-    if(currentUser?.role !== 'admin') q = q.eq('user_id', currentUser?.email || '');
+    let q = sb.from('offers').delete().eq('id', id).eq('user_id', currentUser?.email || '');
     await q;
   }
   catch(e) { if(DEV_MODE) console.warn('delete offer error:', e.message); }
