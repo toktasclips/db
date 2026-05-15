@@ -8,8 +8,9 @@
  * - Returns a minimal HTML page that postMessages back to the opener window
  *
  * Security:
+ * - PUBLIC endpoint — intentionally unauthenticated (Meta OAuth callback, browser redirect)
+ * - CSRF protection via state param: base64 JSON { uid, ts }, 15-min timestamp window
  * - App Secret is read from Deno.env, never exposed to client
- * - State parameter validated + timestamp checked (15-min window)
  * - Token encrypted at rest via pgp_sym_encrypt (pgcrypto)
  * - No token or secret ever appears in logs
  */
