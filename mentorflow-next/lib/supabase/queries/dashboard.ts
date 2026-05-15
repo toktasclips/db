@@ -8,35 +8,17 @@ async function getUserEmail(): Promise<string | null> {
   return user?.email ?? null
 }
 
-type RawEntry = {
-  id: unknown; entry_date: string | null; mood: string | null
-  takipci: number | null; mail: number | null; icerik: number | null
-  reklam: number | null; tpm: number | null; hotlist: number | null
-  musteri: number | null; teklif: number | null; alinan: number | null
-  anlasma: number | null; yorum: string | null; win: string | null
-}
-
-type RawGoal = {
-  id: unknown; name: string | null; date: string | null
-  icon: string | null; done: boolean | null; notes: unknown
-}
-
-type RawMilestone = {
-  id: unknown; title: string | null; date: string | null
-  status: string | null; notes: unknown
-}
-
 export async function getDailyEntries(): Promise<DailyEntry[]> {
   const email = await getUserEmail()
   if (!email) return []
 
   const supabase = await createClient()
-  const { data, error } = await (supabase
+  const { data, error } = await supabase
     .from('daily_entries')
     .select('*')
     .eq('user_id', email)
     .order('entry_date', { ascending: false })
-    .limit(90) as unknown as Promise<{ data: RawEntry[] | null; error: unknown }>)
+    .limit(90)
 
   if (error || !data) return []
 
@@ -64,11 +46,11 @@ export async function getGoals(): Promise<Goal[]> {
   if (!email) return []
 
   const supabase = await createClient()
-  const { data, error } = await (supabase
+  const { data, error } = await supabase
     .from('goals')
     .select('*')
     .eq('user_id', email)
-    .order('created_at', { ascending: true }) as unknown as Promise<{ data: RawGoal[] | null; error: unknown }>)
+    .order('created_at', { ascending: true })
 
   if (error || !data) return []
 
@@ -78,7 +60,7 @@ export async function getGoals(): Promise<Goal[]> {
     date: g.date ?? '',
     icon: g.icon ?? '🎯',
     done: g.done ?? false,
-    notes: Array.isArray(g.notes) ? g.notes : [],
+    notes: Array.isArray(g.notes) ? (g.notes as string[]) : [],
   }))
 }
 
@@ -87,11 +69,11 @@ export async function getMilestones(): Promise<Milestone[]> {
   if (!email) return []
 
   const supabase = await createClient()
-  const { data, error } = await (supabase
+  const { data, error } = await supabase
     .from('milestones')
     .select('*')
     .eq('user_id', email)
-    .order('created_at', { ascending: true }) as unknown as Promise<{ data: RawMilestone[] | null; error: unknown }>)
+    .order('created_at', { ascending: true })
 
   if (error || !data) return []
 
@@ -100,7 +82,7 @@ export async function getMilestones(): Promise<Milestone[]> {
     title: m.title ?? '',
     date: m.date ?? '',
     status: m.status ?? 'active',
-    notes: Array.isArray(m.notes) ? m.notes : [],
+    notes: Array.isArray(m.notes) ? (m.notes as string[]) : [],
   }))
 }
 

@@ -21,7 +21,7 @@ export async function saveDailyEntry(input: DailyEntryInput): Promise<{ error?: 
     .select('id')
     .eq('user_id', email)
     .eq('entry_date', input.entryDate)
-    .maybeSingle() as unknown as { data: { id: string } | null }
+    .maybeSingle()
 
   const row = {
     entry_date: input.entryDate,
@@ -40,12 +40,12 @@ export async function saveDailyEntry(input: DailyEntryInput): Promise<{ error?: 
   if (existing) {
     const res = await supabase
       .from('daily_entries')
-      .update(row as never)
+      .update(row)
       .eq('id', existing.id)
       .eq('user_id', email)
     dbError = res.error
   } else {
-    const res = await supabase.from('daily_entries').insert(row as never)
+    const res = await supabase.from('daily_entries').insert(row)
     dbError = res.error
   }
 
@@ -61,8 +61,8 @@ export async function saveGoal(name: string, date: string, icon: string): Promis
 
   const supabase = await createClient()
   const { error } = await supabase.from('goals').insert({
-    name, date, icon: icon || '🎯', done: false, notes: [], user_id: email,
-  } as never)
+    name, date, icon: icon || '🎯', done: false, user_id: email,
+  })
 
   if (error) return { error: 'Hedef kaydedilemedi.' }
   revalidatePath('/dashboard')
@@ -76,7 +76,7 @@ export async function toggleGoal(id: string, done: boolean): Promise<{ error?: s
   const supabase = await createClient()
   const { error } = await supabase
     .from('goals')
-    .update({ done } as never)
+    .update({ done })
     .eq('id', id)
     .eq('user_id', email)
 
@@ -91,8 +91,8 @@ export async function saveMilestone(title: string, date: string): Promise<{ erro
 
   const supabase = await createClient()
   const { error } = await supabase.from('milestones').insert({
-    title, date, status: 'active', notes: [], user_id: email,
-  } as never)
+    title, date, status: 'active', user_id: email,
+  })
 
   if (error) return { error: 'Milestone kaydedilemedi.' }
   revalidatePath('/dashboard')
@@ -107,7 +107,7 @@ export async function toggleMilestone(id: string, status: string): Promise<{ err
   const newStatus = status === 'done' ? 'active' : 'done'
   const { error } = await supabase
     .from('milestones')
-    .update({ status: newStatus } as never)
+    .update({ status: newStatus })
     .eq('id', id)
     .eq('user_id', email)
 
