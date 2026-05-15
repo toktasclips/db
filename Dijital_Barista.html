@@ -6305,7 +6305,7 @@ async function loadFromSupabase(){
     }));
 
     if(usersData.data?.length) users = usersData.data.map(u=>({
-      id:u.id, name:u.name, email:u.email, password:u.password
+      id:u.id, name:u.name, email:u.email
     }));
 
     if(offers.data?.length) state.offers = offers.data.map(o=>({
