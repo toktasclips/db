@@ -10238,7 +10238,7 @@ async function createOnboardingPortalAccount(regId) {
     .from('users')
     .select('*')
     .eq('email', email);
-  if (existingUserErr) { toast('Hata: ' + existingUserErr.message); return; }
+  if (existingUserErr) { toast('Kullanıcı bilgisi kontrol edilemedi.'); return; }
   const existingUser = existingUsers && existingUsers.length ? existingUsers[0] : null;
 
   const startStr   = new Date().toISOString().slice(0, 10);
@@ -10256,13 +10256,13 @@ async function createOnboardingPortalAccount(regId) {
       .eq('id', existingUser.id)
       .select()
       .single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
+    if (userErr) { toast('Kullanıcı kaydedilemedi.'); return; }
     userData = updatedUser;
   } else {
     const { data: insertedUser, error: userErr } = await sb.from('users').insert({
       name, email, password, role: 'client'
     }).select().single();
-    if (userErr) { toast('Hata: ' + userErr.message); return; }
+    if (userErr) { toast('Kullanıcı kaydedilemedi.'); return; }
     userData = insertedUser;
   }
   if (!users) users = [];
@@ -10328,7 +10328,7 @@ async function createOnboardingPortalAccount(regId) {
     status: 'approved',
     approved_at: new Date().toISOString()
   }).eq('id', regId);
-  if (updErr) { toast('Hesap oluşturuldu fakat kayıt güncellenemedi: ' + updErr.message); }
+  if (updErr) { toast('Hesap oluşturuldu fakat bazı kayıtlar güncellenemedi.'); }
 
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'approved';
@@ -11316,7 +11316,7 @@ async function syncInstagram() {
     toast('⚠️ Instagram izinleri eksik. Hesabı yeniden bağlamanız gerekiyor.');
     loadInstagramPage();
   } else {
-    toast(`⚠️ Senkronizasyon başarısız: ${result.detail || result.error || 'bilinmeyen hata'}`);
+    toast('⚠️ Senkronizasyon tamamlanamadı.');
   }
 }
 
@@ -11348,7 +11348,7 @@ async function syncMetaAds() {
   } else if (result.error === 'no_ads_token') {
     toast('ℹ️ Reklam verisi için yeniden bağlanın (ads_read izni gerekli).');
   } else {
-    toast(`⚠️ Reklam senkronizasyonu başarısız: ${result.detail || result.error || 'bilinmeyen hata'}`);
+    toast('⚠️ Reklam senkronizasyonu tamamlanamadı.');
   }
 }
 
@@ -14235,7 +14235,7 @@ async function cbHandleFile(input) {
         return;
       }
     } catch(e) {
-      alert('PDF okunamadı: ' + e.message);
+      alert('PDF okunamadı. Metin içeren bir PDF veya .txt dosyası kullanın.');
       return;
     }
   } else {
@@ -15001,10 +15001,11 @@ async function deleteForumPost(id) {
     if(!kisiselEditDocs.length) return true;
     if(!botId){window.__lastKisiselBaristanError='Belge yüklemek için önce barista kaydı oluşmalı.';return false;}
     const fn=(typeof CHATBOT_INGEST_FN!=='undefined'?CHATBOT_INGEST_FN:window.CHATBOT_INGEST_FN);
-    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
-    if(!fn||!key){window.__lastKisiselBaristanError='chatbot-ingest Edge Function veya Supabase key bulunamadı.';return false;}
+    if(!fn){window.__lastKisiselBaristanError='chatbot-ingest Edge Function bulunamadı.';return false;}
     const sessionToken=await getRestToken();
-    const authHeader=sessionToken||key;
+    if(!sessionToken){window.__lastKisiselBaristanError='Belge yüklemek için oturum açık olmalı.';return false;}
+    const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
+    const authHeader=sessionToken;
     for(const doc of kisiselEditDocs){
       setDocStatus(`${doc.filename} Supabase'e yükleniyor...`);
       const res=await fetch(fn,{
@@ -15074,22 +15075,23 @@ async function deleteForumPost(id) {
     if(window.CHATBOT_CHAT_FN||typeof CHATBOT_CHAT_FN!=='undefined'){
       try{
         const fn=window.CHATBOT_CHAT_FN||CHATBOT_CHAT_FN;
-        const anonKey=SupabaseConfig.getAnonKey()||SUPABASE_KEY;
         const sessionToken=await getRestToken();
+        if(!sessionToken) throw new Error('session-missing');
         const contextPayload=await buildBaristaMessage(text,bot.id);
         const res=await fetch(fn,{
           method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken||anonKey}`},
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`},
           body:JSON.stringify({chatbot_id:bot.id,session_id:activeChatSessionId,user_id:getCurrentUser()?.email||userKey(),message:contextPayload.message,journey_context:contextPayload.journey,conversation_context:contextPayload.conversation})
         });
         const data=await res.json().catch(()=>({}));
-        if(!res.ok) throw new Error(data.message||data.error||`chatbot-chat ${res.status}`);
+        if(!res.ok) throw new Error('api-error');
         if(data.session_id) activeChatSessionId=data.session_id;
         if(data.reply) return cleanBotText(data.reply);
-        throw new Error('chatbot-chat yanıtı boş döndü.');
+        throw new Error('api-empty');
       }catch(e){
         if(DEV_MODE) console.warn('[Kişisel Baristan] chatbot-chat hatası:',e.message||e);
-        return `Şu an chatbot sunucusundan yanıt alamıyorum.\n\nTeknik hata: ${e.message||e}\n\nBaristanın talimatları ve belgeleri Supabase tarafında duruyor; cevap üretimi için chatbot-chat Edge Function ve OpenAI token/secret ayarını kontrol etmek gerekiyor.`;
+        if(e.message==='session-missing') return 'Konuşmak için önce giriş yapmanız gerekiyor.';
+        return 'Şu an barista sunucusundan yanıt alamıyorum. Lütfen birkaç saniye bekleyip tekrar deneyin.';
       }
     }
     return `${bot.name} olarak not aldım.\n\nŞunu netleştirelim: ${text}\n\nBurada amaç seni ikna etmek değil; doğru soruyla zaten bildiğin cevabı ortaya çıkarmak. Şimdi bunu tek net aksiyona indirelim.`;
@@ -15119,7 +15121,7 @@ async function deleteForumPost(id) {
         setDocStatus(`${doc.filename} hazır. Kaydet dediğinde Supabase'e yüklenecek.`);
       }
     }catch(e){
-      alert(e.message||String(e));
+      alert('Dosya okunamadı.');
       setDocStatus('');
     }finally{
       if(input) input.value='';
@@ -15142,7 +15144,7 @@ async function deleteForumPost(id) {
       btn?.closest('.cb-doc-chip')?.remove();
       setDocStatus('Belge kaldırıldı.');
     }catch(e){
-      alert('Belge silinemedi: '+(e.message||e));
+      alert('Belge silinemedi.');
     }
   };
   function renderEditor(bot){
