@@ -5776,7 +5776,7 @@ body{background:radial-gradient(circle at 50% 0%,#FFFDFC 0,#F8F5F0 34%,#F1ECE5 1
       <div class="form-group"><label class="form-label">Ad Soyad *</label><input class="form-input" id="u-name" placeholder="Zeynep Kaya"></div>
       <div class="form-group"><label class="form-label">E-posta *</label><input class="form-input" id="u-email" type="email" placeholder="zeynep@email.com"></div>
     </div>
-    <div class="form-group"><label class="form-label">Şifre *</label><input class="form-input" id="u-password" type="password" placeholder="En az 6 karakter"></div>
+    <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:8px">Geçici şifre otomatik oluşturulur ve yalnızca ekranda bir kez gösterilir.</div>
 
     <!-- Teklif & program -->
     <div style="height:1px;background:var(--color-border);margin:4px 0 12px"></div>
@@ -8272,9 +8272,7 @@ async function recordSaleInDaily(name, programName, amount) {
 async function addUser(){
   const name = document.getElementById('u-name').value.trim();
   const email = document.getElementById('u-email').value.trim().toLowerCase();
-  const password = document.getElementById('u-password').value;
-  if(!name || !email || !password){ toast('Tüm alanları doldur'); return; }
-  if(password.length < 6){ toast('Şifre en az 6 karakter olmalı'); return; }
+  if(!name || !email){ toast('Ad ve e-posta zorunlu'); return; }
 
   // Offer / program bilgileri
   const offerId = document.getElementById('u-offer').value;
@@ -8287,15 +8285,18 @@ async function addUser(){
     : null;
   const programName = offer ? offer.name : '';
 
-  // Supabase'de zaten var mı kontrol et
-  const {data:existing} = await sb.from('users').select('id').eq('email',email);
-  if(existing && existing.length > 0){ toast('Bu e-posta zaten kayıtlı'); return; }
-
-  // 1. Users tablosuna ekle (role: client)
-  const {data,error} = await sb.from('users').insert({name,email,password,role:'client'}).select().single();
-  if(error){ toast('Bir hata oluştu.'); return; }
+  // 1. Supabase Auth + profiles + legacy users (password YOK)
+  const fnRes = await SupabaseConfig.callFunction('admin-create-user', {
+    name, email, role: 'client',
+    program: programName||'', start_date: startStr||'', end_date: endDate||''
+  });
+  const fnData = await fnRes.json().catch(()=>({}));
+  if(!fnRes.ok){
+    const msg = fnData.error==='Bu e-posta zaten kayıtlı.' ? 'Bu e-posta zaten kayıtlı.' : 'Kullanıcı oluşturulamadı.';
+    toast(msg); return;
+  }
   if(!users) users=[];
-  users.push({id:data.id,name,email,password});
+  users.push({id: fnData.user_id||fnData.legacy_id, name, email});
 
   // 2. Clients tablosuna ekle (Müşteri Sağlığı kaynağı)
   const clientRow = {
@@ -8336,11 +8337,18 @@ async function addUser(){
 
   closeModal('modal-add-user');
   const prevEl = document.getElementById('u-preview'); if(prevEl) prevEl.style.display='none';
-  ['u-name','u-email','u-password','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
+  ['u-name','u-email','u-start','u-monthly'].forEach(id => { const el=document.getElementById(id); if(el){ el.value=''; el._userEdited=false; }});
   document.getElementById('u-offer').value='';
-  toast('✅ '+name+' eklendi!');
   renderUsers(); renderHealthPage(); renderStats();
   renderMusteriKPI(); renderMusterierChart(); renderMusteriTable();
+
+  // 5. Geçici şifreyi bir kez göster (DB'ye kaydedilmez)
+  if(fnData.temp_password){
+    const msg = '✅ ' + name + ' hesabı oluşturuldu!\n\nGeçici giriş bilgileri:\nE-posta: ' + email + '\nŞifre: ' + fnData.temp_password + '\n\nBu şifreyi kopyalayıp kullanıcıyla paylaşın.\nSisteme giriş yaptıktan sonra şifresini değiştirmesini önerin.';
+    alert(msg);
+  } else {
+    toast('✅ '+name+' eklendi!');
+  }
 }
 
 /* ================================================================
@@ -10231,16 +10239,6 @@ async function createOnboardingPortalAccount(regId) {
   const email = reg.email || '';
   if (!email) { toast('E-posta bulunamadı'); return; }
 
-  // Tally formundan gelen şifreyi kullan, yoksa otomatik oluştur
-  const password = onboardingDesiredPassword(reg) || (email.split('@')[0] + '123!');
-
-  const { data: existingUsers, error: existingUserErr } = await sb
-    .from('users')
-    .select('*')
-    .eq('email', email);
-  if (existingUserErr) { toast('Kullanıcı bilgisi kontrol edilemedi.'); return; }
-  const existingUser = existingUsers && existingUsers.length ? existingUsers[0] : null;
-
   const startStr   = new Date().toISOString().slice(0, 10);
   const monthlyPay = offer.price || 0;
   const durationDays = offerToDays(offer);
@@ -10248,26 +10246,19 @@ async function createOnboardingPortalAccount(regId) {
     ? new Date(new Date(startStr + 'T00:00:00').getTime() + durationDays * 86400000).toISOString().slice(0, 10)
     : null;
 
-  // 1. users tablosunu manuel ekleme formatına getir
-  let userData = existingUser;
-  if (existingUser) {
-    const { data: updatedUser, error: userErr } = await sb.from('users')
-      .update({ name: name || existingUser.name || email, email, password, role: 'client' })
-      .eq('id', existingUser.id)
-      .select()
-      .single();
-    if (userErr) { toast('Kullanıcı kaydedilemedi.'); return; }
-    userData = updatedUser;
-  } else {
-    const { data: insertedUser, error: userErr } = await sb.from('users').insert({
-      name, email, password, role: 'client'
-    }).select().single();
-    if (userErr) { toast('Kullanıcı kaydedilemedi.'); return; }
-    userData = insertedUser;
+  // 1. Supabase Auth + profiles + legacy users (password YOK)
+  const fnRes = await SupabaseConfig.callFunction('admin-create-user', {
+    name, email, role: 'client',
+    program: offer.name || '', start_date: startStr, end_date: endDate || ''
+  });
+  const fnData = await fnRes.json().catch(()=>({}));
+  if (!fnRes.ok && fnRes.status !== 409) {
+    // 409 = zaten kayıtlı, onboarding onaylama için bu kabul edilebilir
+    toast('Onboarding onaylanamadı.'); return;
   }
   if (!users) users = [];
   const localUserIdx = users.findIndex(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-  const localUser = { id: userData.id, name: userData.name || name, email, password };
+  const localUser = { id: fnData.user_id || fnData.legacy_id, name, email };
   if (localUserIdx >= 0) users[localUserIdx] = { ...users[localUserIdx], ...localUser };
   else users.push(localUser);
 
@@ -10333,10 +10324,17 @@ async function createOnboardingPortalAccount(regId) {
   const idx = onboardingRegs.findIndex(r => String(r.id) === String(regId));
   if (idx >= 0) onboardingRegs[idx].status = 'approved';
 
-  toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
   renderOnboardingPage();
   setOnbTab(onbCurrentTab);
   renderUsers(); renderHealthPage(); renderStats();
+
+  // Geçici şifreyi bir kez göster (DB'ye kaydedilmez)
+  if(fnData.temp_password){
+    const msg = '✅ ' + name + ' için portal hesabı oluşturuldu!\n\nGeçici giriş bilgileri:\nE-posta: ' + email + '\nŞifre: ' + fnData.temp_password + '\n\nBu şifreyi kopyalayıp kullanıcıyla paylaşın.';
+    alert(msg);
+  } else {
+    toast('✅ ' + name + ' için portal hesabı oluşturuldu!');
+  }
 }
 
 async function archiveOnboardingReg(regId) {
