@@ -14602,6 +14602,7 @@ async function deleteForumPost(id) {
   const admin=()=>getCurrentUser()?.role==='admin' || document.body.classList.contains('admin');
   const userKey=()=>getCurrentUser()?.email || getCurrentUser()?.id || 'local-user';
   const userKeys=()=>Array.from(new Set([getCurrentUser()?.email,getCurrentUser()?.id].filter(Boolean).map(String)));
+  const getRestToken=async()=>{const client=getSb();if(!client)return null;try{const{data:{session}}=await client.auth.getSession();return session?.access_token||null;}catch(_){return null;}};
   const botIcon=(b={},i=0)=>b.icon || b.avatar_emoji || b.emoji || coffeeIcons[i%coffeeIcons.length] || '☕';
   const saveDebug=(msg)=>{const el=document.getElementById('sanal-save-debug');if(el){el.style.display='block';el.textContent=msg;}if(DEV_MODE) console.log('[Kişisel Baristan]',msg);};
   const setDocStatus=(msg)=>{const el=document.getElementById('sanal-doc-status');if(el)el.textContent=msg||'';};
@@ -14684,8 +14685,10 @@ async function deleteForumPost(id) {
     if(!botsCache.length && url && key){
       try{
         const base=String(url).replace(/\/$/,'');
+        const restToken=await getRestToken();
+        const authHeader=restToken||key;
         const res=await fetch(`${base}/rest/v1/chatbots?select=*&is_active=eq.true&order=created_at.asc`,{
-          headers:{apikey:key,Authorization:`Bearer ${key}`}
+          headers:{apikey:key,Authorization:`Bearer ${authHeader}`}
         });
         const data=await res.json().catch(()=>[]);
         if(res.ok && Array.isArray(data)){ botsCache=data.map(normalizeBot); }
@@ -14778,14 +14781,17 @@ async function deleteForumPost(id) {
       (({name,description,system_prompt,is_active})=>({name,description,system_prompt,is_active}))(fullPayload)
     ];
 
+    const restToken=await getRestToken();
+
     async function postRest(body,label){
+      if(!restToken){saveDebug('Oturum tokeni bulunamadı, REST kaydı atlandı.');throw new Error('no-session');}
       saveDebug(`${label} deneniyor...`);
       const endpoint=`${base}/rest/v1/chatbots${body.id?'?on_conflict=id':''}`;
       const res=await fetch(endpoint,{
         method:'POST',
         headers:{
           apikey:key,
-          Authorization:`Bearer ${key}`,
+          Authorization:`Bearer ${restToken}`,
           'Content-Type':'application/json',
           Prefer:body.id?'resolution=merge-duplicates,return=representation':'return=representation'
         },
@@ -14866,12 +14872,13 @@ async function deleteForumPost(id) {
     }
     const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
     const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
-    if(url&&key){
+    const restToken=await getRestToken();
+    if(url&&key&&restToken){
       try{
         const base=String(url).replace(/\/$/,'');
         const res=await fetch(`${base}/rest/v1/chatbot_conversations`,{
           method:'POST',
-          headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',Prefer:'return=representation'},
+          headers:{apikey:key,Authorization:`Bearer ${restToken}`,'Content-Type':'application/json',Prefer:'return=representation'},
           body:JSON.stringify({chatbot_id:activeBotId,user_id:userKey(),title:first})
         });
         const data=await res.json().catch(()=>null);
@@ -14903,12 +14910,13 @@ async function deleteForumPost(id) {
     }
     const url=(typeof SUPABASE_URL!=='undefined'?SUPABASE_URL:SupabaseConfig.getUrl());
     const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
-    if(!wrote&&url&&key){
+    const restToken=await getRestToken();
+    if(!wrote&&url&&key&&restToken){
       try{
         const base=String(url).replace(/\/$/,'');
         const ins=await fetch(`${base}/rest/v1/chatbot_messages`,{
           method:'POST',
-          headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+          headers:{apikey:key,Authorization:`Bearer ${restToken}`,'Content-Type':'application/json'},
           body:JSON.stringify({conversation_id:cid,role,content:text})
         });
         if(!ins.ok){
@@ -14917,7 +14925,7 @@ async function deleteForumPost(id) {
         }
         await fetch(`${base}/rest/v1/chatbot_conversations?id=eq.${encodeURIComponent(cid)}`,{
           method:'PATCH',
-          headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+          headers:{apikey:key,Authorization:`Bearer ${restToken}`,'Content-Type':'application/json'},
           body:JSON.stringify({updated_at:new Date().toISOString(),title:(tempMessages.find(m=>m.role==='user')?.text||botById(activeBotId).name).slice(0,70)})
         });
       }catch(e){
@@ -14995,11 +15003,13 @@ async function deleteForumPost(id) {
     const fn=(typeof CHATBOT_INGEST_FN!=='undefined'?CHATBOT_INGEST_FN:window.CHATBOT_INGEST_FN);
     const key=(typeof SUPABASE_KEY!=='undefined'?SUPABASE_KEY:SupabaseConfig.getAnonKey());
     if(!fn||!key){window.__lastKisiselBaristanError='chatbot-ingest Edge Function veya Supabase key bulunamadı.';return false;}
+    const sessionToken=await getRestToken();
+    const authHeader=sessionToken||key;
     for(const doc of kisiselEditDocs){
       setDocStatus(`${doc.filename} Supabase'e yükleniyor...`);
       const res=await fetch(fn,{
         method:'POST',
-        headers:{'Content-Type':'application/json',Authorization:`Bearer ${key}`},
+        headers:{'Content-Type':'application/json',Authorization:`Bearer ${authHeader}`},
         body:JSON.stringify({chatbot_id:botId,filename:doc.filename,content:doc.content})
       });
       const data=await res.json().catch(()=>({}));
@@ -15064,11 +15074,12 @@ async function deleteForumPost(id) {
     if(window.CHATBOT_CHAT_FN||typeof CHATBOT_CHAT_FN!=='undefined'){
       try{
         const fn=window.CHATBOT_CHAT_FN||CHATBOT_CHAT_FN;
-        const key=SupabaseConfig.getAnonKey()||SUPABASE_KEY;
+        const anonKey=SupabaseConfig.getAnonKey()||SUPABASE_KEY;
+        const sessionToken=await getRestToken();
         const contextPayload=await buildBaristaMessage(text,bot.id);
         const res=await fetch(fn,{
           method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken||anonKey}`},
           body:JSON.stringify({chatbot_id:bot.id,session_id:activeChatSessionId,user_id:getCurrentUser()?.email||userKey(),message:contextPayload.message,journey_context:contextPayload.journey,conversation_context:contextPayload.conversation})
         });
         const data=await res.json().catch(()=>({}));
